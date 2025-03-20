@@ -1,0 +1,2 @@
+# CSCapstone
+QRcodereader app
