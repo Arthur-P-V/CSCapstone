@@ -1,9 +1,9 @@
-console.log("Hello via Bun!");
+console.log("Hello Jon!");
 
 const server = Bun.serve({
     port: 3000,
     fetch(req) {
-        return new Response("Evil Things are coming yoru way!");
+        return new Response("Is this the JonBranch!");
     },
 });
 
