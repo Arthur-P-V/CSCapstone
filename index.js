@@ -5,6 +5,7 @@ const server = Bun.serve({
     fetch(req) {
         return new Response("Welcome to the Jon Branch, we have cookies!");
     },
+    
 });
 
 console.log(`Listening on http://localhost:${server.port}`)
