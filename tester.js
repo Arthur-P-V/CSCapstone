@@ -1,7 +1,7 @@
 function displayText(){
     const container = document.getElementById("container");
     const newParagraph = document.createElement("p");
-    newParagraph.textContent = "This is used for displaying items";
+    newParagraph.textContent = "This is calling a different js file";
     container.appendChild(newParagraph);
 }
 displayText();
