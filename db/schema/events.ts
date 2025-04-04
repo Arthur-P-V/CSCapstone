@@ -1,6 +1,7 @@
 import { mysqlTable as table } from "drizzle-orm/mysql-core";
 import * as t from "drizzle-orm/mysql-core";
-//import { AnyMySqlColumn } from "drizzle-orm/mysql-core";
+import type { AnyMySqlColumn } from "drizzle-orm/mysql-core";
+import { types } from "./types";
 
 export const events = table(
     "events",
@@ -12,7 +13,7 @@ export const events = table(
         meeting_time: t.datetime(),
         current_qr: t.varchar({length: 500}),
         description: t.varchar({length: 500}).notNull(),
-        type: t.varchar({length: 50}),
+        type: t.int().references((): AnyMySqlColumn => types.id),
         roster_file: t.varchar({length: 1000})
     }
 )
