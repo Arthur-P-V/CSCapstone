@@ -23,7 +23,8 @@ const server = Bun.serve({
         "/api/events": {
             GET: async () => {
                 const data = await db.select().from(events)
-                new Response(json(data))
+                const data_formatted = json(data)
+                return Response.json(data_formatted);
             }
         }
     },
