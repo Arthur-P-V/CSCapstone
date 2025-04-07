@@ -2,6 +2,7 @@ import { drizzle } from "drizzle-orm/mysql2";
 import mysql from "mysql2/promise";
 import { events } from "./db/schema/events";
 import { json } from "drizzle-orm/mysql-core";
+import { eq, ne, gt, gte} from "drizzle-orm";
 
 const connection = await mysql.createConnection({
   host: process.env.HOST,
@@ -22,10 +23,16 @@ const server = Bun.serve({
 
         "/api/events": {
             GET: async () => {
-                const data = await db.select().from(events)
-                const data_formatted = json(data)
-                return Response.json(data_formatted);
+                const data = await db.select().from(events);
+                return Response.json(data);
+            },
+        },
+        "/api/events/:id": {
+            GET: async req => {
+               const data = await db.select().from(events).where(eq(events.id, req.params.id));
+               return Response.json(data);
             }
+            
         }
     },
 
