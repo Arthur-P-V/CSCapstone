@@ -26,6 +26,13 @@ const server = Bun.serve({
                 const data = await db.select().from(events);
                 return Response.json(data);
             },
+            POST: async (req) => {
+                const {name, location, current_qr, description, type} = await req.json();
+                const new_event = await db.insert(events).values({event_name: name, location: location, current_qr: current_qr, description: description, type: type});
+                console.log(name);
+                return Response.json(location);
+                
+            }
         },
         "/api/events/:id": {
             GET: async req => {
