@@ -1,6 +1,9 @@
 import { drizzle } from "drizzle-orm/mysql2";
 import mysql from "mysql2/promise";
-import { events } from "./db/schema/events";
+import { users } from "./db/schema/users";
+import { eq } from "drizzle-orm";
+
+import { getUsersData } from "./Functions";
 
 const connection = await mysql.createConnection({
   host: process.env.HOST,
@@ -11,11 +14,32 @@ const connection = await mysql.createConnection({
 
 const db = drizzle({ client: connection });
 
-const response = await db.select().from(events);
+const response = await db.select().from(users);
 
 console.log("Hello via Bun!");
 
 const server = Bun.serve({
+
+  routes: {
+    "/api/user": {
+      
+        GET: async req => {
+          
+          const data = await getUsersData(db);
+    
+          return Response.json(data);
+      }
+    },
+    "/api/newUser": {
+      // Want a nice front end to display text box to fill in information.
+      POST: async req=>{
+        // Not created yet
+        createNewUser(db);
+      }
+    }
+  },
+  
+
     port: 3000,
     fetch(req) {
         return new Response("You are now on the EVIL BRANCH!");
