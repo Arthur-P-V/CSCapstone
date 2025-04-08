@@ -27,7 +27,7 @@ const server = Bun.serve({
                 return Response.json(data);
             },
             POST: async (req) => {
-                const {name, location, current_qr, description, type} = await req.json();
+                const {name, location, current_qr, description, type} = await req.json(); //the const variables are actually matched to the json body returned by req.json(), the order doesn't matter
                 const new_event = await db.insert(events).values({event_name: name, location: location, current_qr: current_qr, description: description, type: type});
                 console.log(name);
                 return Response.json(location);
