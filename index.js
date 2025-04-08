@@ -43,7 +43,9 @@ const server = Bun.serve({
                 const data = await delete_event(db, req);
                 return Response.json(data);
             },
-            
+            PUT: async req => {
+                return new Response("UPDATE UPDATE");
+            }
         }
     },
 
