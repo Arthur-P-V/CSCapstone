@@ -4,14 +4,22 @@ import { users } from "./db/schema/users";
 import { eq } from "drizzle-orm";
 import { exists } from "drizzle-orm";
 
-export async function getUsersData(db){
+export async function getAllUsersData(db){
     // Gets all the data from users
     const data = await db.select().from(users);
     return data;
 }
 
+export async function getSpecificUser(db){
+    // Gets a specfic user from the database
+    
+    const data = await db.select().from(users).where(eq(db.eNumber, e0717443));
+    return data;
+}
 /* TODO
-Get all user data
+Find Specific User
+
+Generate Password Hash
 
 Create New User function
 

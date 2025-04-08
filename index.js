@@ -3,7 +3,8 @@ import mysql from "mysql2/promise";
 import { users } from "./db/schema/users";
 import { eq } from "drizzle-orm";
 
-import { getUsersData } from "./Functions";
+import { getAllUsersData } from "./Functions";
+import { getSpecificUser } from "./Functions";
 
 const connection = await mysql.createConnection({
   host: process.env.HOST,
@@ -25,7 +26,7 @@ const server = Bun.serve({
       
         GET: async req => {
           
-          const data = await getUsersData(db);
+          const data = await getAllUsersData(db);
     
           return Response.json(data);
       }
@@ -36,7 +37,19 @@ const server = Bun.serve({
         // Not created yet
         createNewUser(db);
       }
+    },
+    "/api/getUser/:eNumber":{
+
+      GET: async req=>{
+        // Pass the eNumber you want to look up
+        // How to pass eNumber from the url to the function
+        const data = await getSpecificUser(db);
+
+        return data;
+      }
     }
+
+
   },
   
 
