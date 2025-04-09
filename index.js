@@ -1,10 +1,9 @@
 import { drizzle } from "drizzle-orm/mysql2";
 import mysql from "mysql2/promise";
-import { users } from "./db/schema/users";
-import { eq } from "drizzle-orm";
-
-import { getAllUsersData } from "./Functions";
-import { getSpecificUser } from "./Functions";
+import { events } from "./db/schema/events";
+import { eq, ne, gt, gte} from "drizzle-orm";
+import {create_event, delete_event, get_all_events, get_event_by_id} from "./event_functions";
+import { get_all_users, get_user_by_eNumber, delete_user, create_user } from "./event_functions";
 
 const connection = await mysql.createConnection({
   host: process.env.HOST,
@@ -15,47 +14,75 @@ const connection = await mysql.createConnection({
 
 const db = drizzle({ client: connection });
 
-const response = await db.select().from(users);
+const response = await db.select().from(events);
 
 console.log("Hello via Bun!");
 
 const server = Bun.serve({
 
-  routes: {
-    "/api/user": {
-      
-        GET: async req => {
-          
-          const data = await getAllUsersData(db);
-    
+    routes: {
+      // Different routes, currently hhave users and events
+      // Loads all the users or create a new user
+      "/api/users": {
+        GET: async () => {
+          const data = await get_all_users(db);
+          return Response.json(data);
+        },
+        POST: async (req) => {
+          const data = await create_user(db, req);
           return Response.json(data);
       }
+      },
+      // Searches up by enumber
+      "/api/users/:eNumber":{
+        // Get user by eNumber
+        GET: async req => {
+          const data = await get_user_by_eNumber(db, req);
+          return Response.json(data);
+       },
+       // Delete user by eNumber
+       DELETE: async req => {
+           const data = await delete_user(db, req);
+           return Response.json(data);
+       },
+       // IDK right now
+       PUT: async req => {
+           return new Response("UPDATE UPDATE");
+       }
+      },
+      // Loads all the events or create a new event
+        "/api/events": {
+            GET: async () => {
+                const data = await get_all_events(db);
+                return Response.json(data);
+            },
+            POST: async (req) => {
+                const data = await create_event(db, req)
+                //const {name, location, current_qr, description, type} = await req.json(); //the const variables are actually matched to the json body returned by req.json(), the order doesn't matter
+                //const new_event = await db.insert(events).values({event_name: name, location: location, current_qr: current_qr, description: description, type: type});
+                //console.log(name);
+                return Response.json(data);
+            }
+        },
+        // Searches up by id
+        "/api/events/:id": {
+            GET: async req => {
+               const data = await get_event_by_id(db, req);
+               return Response.json(data);
+            },
+            DELETE: async req => {
+                const data = await delete_event(db, req);
+                return Response.json(data);
+            },
+            PUT: async req => {
+                return new Response("UPDATE UPDATE");
+            }
+        }
     },
-    "/api/newUser": {
-      // Want a nice front end to display text box to fill in information.
-      POST: async req=>{
-        // Not created yet
-        createNewUser(db);
-      }
-    },
-    "/api/getUser/:eNumber":{
-
-      GET: async req=>{
-        // Pass the eNumber you want to look up
-        // How to pass eNumber from the url to the function
-        const data = await getSpecificUser(db);
-
-        return data;
-      }
-    }
-
-
-  },
-  
 
     port: 3000,
     fetch(req) {
-        return new Response("You are now on the EVIL BRANCH!");
+        return new Response("Not Found", {status:404 });
     },
 });
 
