@@ -2,8 +2,8 @@ import { drizzle } from "drizzle-orm/mysql2";
 import mysql from "mysql2/promise";
 import { events } from "./db/schema/events";
 import { eq, ne, gt, gte} from "drizzle-orm";
-import {create_event, delete_event, get_all_events, get_event_by_id} from "./event_functions";
-import { get_all_users, get_user_by_eNumber, delete_user, create_user } from "./event_functions";
+import {create_event, delete_event, get_all_events, get_event_by_id} from "./functions/event_functions";
+import { get_all_users, get_user_by_eNumber, delete_user, create_user } from "./functions/user_functions";
 
 const connection = await mysql.createConnection({
   host: process.env.HOST,
