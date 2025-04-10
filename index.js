@@ -2,6 +2,7 @@ import { drizzle } from "drizzle-orm/mysql2";
 import mysql from "mysql2/promise";
 import { events } from "./db/schema/events";
 import { eq, ne, gt, gte} from "drizzle-orm";
+
 import {create_event, delete_event, get_all_events, get_event_by_id} from "./functions/event_functions";
 import { get_all_users, get_user_by_eNumber, delete_user, create_user } from "./functions/user_functions";
 
@@ -21,7 +22,7 @@ console.log("Hello via Bun!");
 const server = Bun.serve({
 
     routes: {
-      // Different routes, currently hhave users and events
+      // Different routes, currently have users and events
       // Loads all the users or create a new user
       "/api/users": {
         GET: async () => {
@@ -51,6 +52,7 @@ const server = Bun.serve({
        }
       },
       // Loads all the events or create a new event
+
         "/api/events": {
             GET: async () => {
                 const data = await get_all_events(db);
@@ -64,7 +66,9 @@ const server = Bun.serve({
                 return Response.json(data);
             }
         },
+
         // Searches up by id
+
         "/api/events/:id": {
             GET: async req => {
                const data = await get_event_by_id(db, req);
