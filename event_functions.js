@@ -1,6 +1,6 @@
 import { drizzle } from "drizzle-orm/mysql2";
 import mysql from "mysql2/promise";
-import { events } from "./db/schema/events";
+import { events } from "./db/schema/classes";
 import { eq, ne, gt, gte} from "drizzle-orm";
 
 
