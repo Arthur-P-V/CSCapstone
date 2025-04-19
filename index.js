@@ -1,6 +1,6 @@
 import { drizzle } from "drizzle-orm/mysql2";
 import mysql from "mysql2/promise";
-import { events } from "./db/schema/classes";
+import { classes } from "./db/schema/classes";
 import { eq, ne, gt, gte} from "drizzle-orm";
 import {create_event, delete_event, get_all_events, get_event_by_id} from "./event_functions";
 
@@ -13,7 +13,7 @@ const connection = await mysql.createConnection({
 
 const db = drizzle({ client: connection });
 
-const response = await db.select().from(events);
+const response = await db.select().from(classes);
 
 console.log("Hello via Bun!");
 
