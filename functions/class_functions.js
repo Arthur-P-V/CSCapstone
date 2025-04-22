@@ -1,11 +1,11 @@
 import { drizzle } from "drizzle-orm/mysql2";
 import mysql from "mysql2/promise";
-import { classes } from "./db/schema/classes";
+import { classes } from "../db/schema/classes";
 import { eq, ne, gt, gte} from "drizzle-orm";
 
-// Event functions
-// Get all the events from the events table
-export async function get_all_events(db) {
+// Class functions
+// Get all the Classes from the Class table
+export async function get_all_classes(db) {
     try{
         const data = await db.select().from(classes);
         return data
@@ -14,8 +14,8 @@ export async function get_all_events(db) {
     }
 
 }
-// get a specific event by id
-export async function get_event_by_id(db, req) {
+// get a specific Class by id
+export async function get_class_by_id(db, req) {
     try{
         const data = await db.select().from(classes).where(eq(classes.id, req.params.id));
         return data
@@ -25,19 +25,19 @@ export async function get_event_by_id(db, req) {
 
 }
 
-// create a new event and put it in the event table
-export async function create_event(db, req) {
+// create a new Class and put it in the Class table
+export async function create_class(db, req) {
     try{
-        const {name, location, current_qr, description, type} = await req.json(); //the const variables are actually matched to the json body returned by req.json(), the order doesn't matter
-        const new_event = await db.insert(classes).values({event_name: name, location: location, current_qr: current_qr, description: description, type: type});
+        const {name, description, teacher, recurring} = await req.json(); //the const variables are actually matched to the json body returned by req.json(), the order doesn't matter
+        const new_class = await db.insert(classes).values({name: name, description: description, teacher: teacher, recurring: recurring});
         return "Post Successful!";
     }catch (error) {
         console.error("An Error Occurred: ", error.message)
     }
 }
 
-// removes an event from the event table
-export async function delete_event(db, req) {
+// removes a class from the Class table
+export async function delete_class(db, req) {
     try{
         const data = await db.delete(classes).where(eq(classes.id, req.params.id));
         return data
