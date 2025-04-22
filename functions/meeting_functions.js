@@ -1,6 +1,6 @@
 import { drizzle } from "drizzle-orm/mysql2";
 import mysql from "mysql2/promise";
-import { meetings } from "./db/schema/meetings";
+import { meetings } from "../db/schema/meetings";
 import { eq, ne, gt, gte} from "drizzle-orm";
 
 export async function get_all_meetings(db) {
