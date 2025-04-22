@@ -2,7 +2,9 @@ import { drizzle } from "drizzle-orm/mysql2";
 import mysql from "mysql2/promise";
 import { classes } from "./db/schema/classes";
 import { eq, ne, gt, gte} from "drizzle-orm";
-import {create_event, delete_event, get_all_events, get_event_by_id} from "./event_functions";
+
+import {create_event, delete_event, get_all_events, get_event_by_id} from "./functions/event_functions";
+import { get_all_users, get_user_by_eNumber, delete_user, create_user } from "./functions/user_functions";
 
 const connection = await mysql.createConnection({
   host: process.env.HOST,
@@ -20,6 +22,36 @@ console.log("Hello via Bun!");
 const server = Bun.serve({
 
     routes: {
+      // Different routes, currently have users and events
+      // Loads all the users or create a new user
+      "/api/users": {
+        GET: async () => {
+          const data = await get_all_users(db);
+          return Response.json(data);
+        },
+        POST: async (req) => {
+          const data = await create_user(db, req);
+          return Response.json(data);
+      }
+      },
+      // Searches up by enumber
+      "/api/users/:eNumber":{
+        // Get user by eNumber
+        GET: async req => {
+          const data = await get_user_by_eNumber(db, req);
+          return Response.json(data);
+       },
+       // Delete user by eNumber
+       DELETE: async req => {
+           const data = await delete_user(db, req);
+           return Response.json(data);
+       },
+       // IDK right now
+       PUT: async req => {
+           return new Response("UPDATE UPDATE");
+       }
+      },
+      // Loads all the events or create a new event
 
         "/api/events": {
             GET: async () => {
@@ -34,6 +66,9 @@ const server = Bun.serve({
                 return Response.json(data);
             }
         },
+
+        // Searches up by id
+
         "/api/events/:id": {
             GET: async req => {
                const data = await get_event_by_id(db, req);

@@ -3,8 +3,8 @@ import mysql from "mysql2/promise";
 import { classes } from "./db/schema/classes";
 import { eq, ne, gt, gte} from "drizzle-orm";
 
-
-
+// Event functions
+// Get all the events from the events table
 export async function get_all_events(db) {
     try{
         const data = await db.select().from(classes);
@@ -14,7 +14,7 @@ export async function get_all_events(db) {
     }
 
 }
-
+// get a specific event by id
 export async function get_event_by_id(db, req) {
     try{
         const data = await db.select().from(classes).where(eq(classes.id, req.params.id));
@@ -25,6 +25,7 @@ export async function get_event_by_id(db, req) {
 
 }
 
+// create a new event and put it in the event table
 export async function create_event(db, req) {
     try{
         const {name, location, current_qr, description, type} = await req.json(); //the const variables are actually matched to the json body returned by req.json(), the order doesn't matter
@@ -35,6 +36,7 @@ export async function create_event(db, req) {
     }
 }
 
+// removes an event from the event table
 export async function delete_event(db, req) {
     try{
         const data = await db.delete(classes).where(eq(classes.id, req.params.id));
