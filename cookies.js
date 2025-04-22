@@ -2,9 +2,7 @@ import { Cookie } from "bun";
 
 const server = Bun.serve({ 
     port: 3000,
-    routes: {
-        // Define the login route
-        "/login": async (req) =>  {
+    async fetch(req) {
         const url = new URL(req.url);
 
         console.log(`Received ${req.method} request for ${req.url}`); // Log method and URL
@@ -61,7 +59,6 @@ const server = Bun.serve({
         }
     }
     return new Response("Not found", { status: 404 });
-    },
     },
 });
 
