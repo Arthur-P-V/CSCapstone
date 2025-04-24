@@ -1,13 +1,14 @@
 import { drizzle } from "drizzle-orm/mysql2";
 import mysql from "mysql2/promise";
 import { classes } from "../db/schema/classes";
+import { users } from "../db/schema/users";
 import { eq, ne, gt, gte, or} from "drizzle-orm";
 
 // Class functions
 // Get all the Classes from the Class table
 export async function get_all_classes(db) {
     try{
-        const data = await db.select().from(classes);
+        const data = await db.select().from(classes).innerJoin(users, eq(classes.teacher, users.id));
         return data;
     } catch (error) {
         console.error("An Error Occurred: ", error.message);
@@ -51,13 +52,13 @@ export async function update_class(db, req) {
     try{
         const record = await db.select().from(classes).where(eq(classes.id, req.params.id));
         const {name, description, teacher, recurring} = await req.json();
-        console.log(name);
-        console.log(description);
-        console.log(teacher);
-        console.log(recurring);
+        //console.log(name);
+        //console.log(description);
+        //console.log(teacher);
+        //console.log(recurring);
         const updated_class = await db.update(classes).set(
             {
-                name: name ? name : record.name,
+                name: name,
                 description: description,
                 teacher: teacher,
                 recurring: recurring
