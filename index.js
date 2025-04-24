@@ -3,7 +3,7 @@ import mysql from "mysql2/promise";
 import { classes } from "./db/schema/classes";
 import { eq, ne, gt, gte} from "drizzle-orm";
 
-import {create_class, delete_class, get_all_classes, get_class_by_id} from "./functions/class_functions";
+import {create_class, delete_class, get_all_classes, get_class_by_id, update_class} from "./functions/class_functions";
 import { get_all_users, get_user_by_eNumber, delete_user, create_user } from "./functions/user_functions";
 
 const connection = await mysql.createConnection({
@@ -79,7 +79,8 @@ const server = Bun.serve({
                 return Response.json(data);
             },
             PUT: async req => {
-                return new Response("UPDATE UPDATE");
+                const data = await update_class(db, req);
+                return Response.json(data);
             }
         }
     },
