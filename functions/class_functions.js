@@ -50,7 +50,6 @@ export async function delete_class(db, req) {
 
 export async function update_class(db, req) {
     try{
-        const record = await db.select().from(classes).where(eq(classes.id, req.params.id));
         const {name, description, teacher, recurring} = await req.json();
         //console.log(name);
         //console.log(description);
