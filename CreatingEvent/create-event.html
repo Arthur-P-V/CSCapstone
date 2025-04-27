@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Create New Event</title>
+  <link rel="stylesheet" href="../CSSFolder/styles.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Create a New Event</h1>
+
+    <form id="eventForm">
+      <input type="text" id="eventName" placeholder="Event Name" required /><br />
+      <input type="date" id="eventDate" required /><br />
+
+      <button type="submit" class="btn">Create Event</button>
+    </form>
+
+    <!-- Hidden by default -->
+    <a href="../CheckingIn/checkingIn.html" class="btn" id="qrBtn" style="display: none;">Generate QR Code</a>
+
+    <a href="../Host-Dashboard-Page/hoasting.html" class="btn">Back to Host Page</a>
+  </div>
+
+  <script>
+    const form = document.getElementById("eventForm");
+    const qrBtn = document.getElementById("qrBtn");
+
+    form.addEventListener("submit", function(e) {
+      e.preventDefault(); // stops actual form submission
+
+      const eventName = document.getElementById("eventName").value;
+      const eventDate = document.getElementById("eventDate").value;
+
+      if (eventName && eventDate) {
+        // cant store it anywhere yet
+        localStorage.setItem("eventName", eventName);
+        localStorage.setItem("eventDate", eventDate);
+
+        // show QR button
+        qrBtn.style.display = "inline-block";
+        alert("Event saved! You can now generate the QR code.");
+      }
+    });
+  </script>
+</body>
+</html>
