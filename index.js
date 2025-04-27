@@ -1,6 +1,6 @@
 import { drizzle } from "drizzle-orm/mysql2";
 import mysql from "mysql2/promise";
-import { events } from "./db/schema/events";
+
 
 const connection = await mysql.createConnection({
   host: process.env.HOST,
@@ -11,7 +11,7 @@ const connection = await mysql.createConnection({
 
 const db = drizzle({ client: connection });
 
-const response = await db.select().from(events);
+
 
 console.log("Hello via Bun!");
 
