@@ -5,6 +5,7 @@ import { eq, ne, gt, gte} from "drizzle-orm";
 
 import {create_class, delete_class, get_all_classes, get_class_by_id, update_class} from "./functions/class_functions";
 import { get_all_users, get_user_by_eNumber, delete_user, create_user } from "./functions/user_functions";
+import { get_all_meetings, get_meeting_by_id } from "./functions/meeting_functions";
 
 const connection = await mysql.createConnection({
   host: process.env.HOST,
@@ -51,6 +52,7 @@ const server = Bun.serve({
            return new Response("UPDATE UPDATE");
        }
       },
+
       // Loads all the events or create a new event
 
         "/api/classes": {
@@ -82,7 +84,40 @@ const server = Bun.serve({
                 const data = await update_class(db, req);
                 return Response.json(data);
             }
+        },
+
+        "/api/meetings/": {
+            GET: async req => {
+                const data = await get_all_meetings(db);
+                return response.json(data);
+            },
+            POST: async req => {
+                const data = await create_meeting(db, req);
+                return Response.json(data);
+            }
+        },
+
+        "/api/meetings/:id": {
+            GET: async req => {
+                const data = await get_meeting_by_id(db, req);
+                return Response.json(data);
+            },
+            DELETE: async req => {
+                const data = await delete_meeting(db, req);
+                return Response.json(data);
+            },
+            PUT: async req => {
+                const data = await update_meeting(db, req);
+                return Response.json(data);
+            },
+        },
+
+        "/api/meetings/:id/generate": {
+            POST: async req => {
+                //api call to goqr.me run an insert
+            }
         }
+
     },
 
     port: 3000,
