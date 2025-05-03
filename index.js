@@ -55,7 +55,7 @@ const server = Bun.serve({
 
       // Loads all the events or create a new event
 
-        "/api/classes": {
+        "/api/classes": { //Considering adding an optional URL param that will allow us to snag all classes associated with one user
             GET: async () => {
                 const data = await get_all_classes(db);
                 return Response.json(data);
@@ -86,7 +86,7 @@ const server = Bun.serve({
             }
         },
 
-        "/api/meetings/": {
+        "/api/meetings/": { //Considering adding an optional URL param that will allow us to snag all meetings associated with one class
             GET: async req => {
                 const data = await get_all_meetings(db);
                 return response.json(data);
@@ -111,12 +111,6 @@ const server = Bun.serve({
                 return Response.json(data);
             },
         },
-
-        "/api/meetings/:id/generate": {
-            POST: async req => {
-                //api call to goqr.me run an insert
-            }
-        }
 
     },
 

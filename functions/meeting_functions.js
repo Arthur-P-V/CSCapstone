@@ -26,7 +26,7 @@ export async function get_meeting_by_id(db, req) {
 
 export async function create_meeting(db, req) {
     try{
-        const {location, date, qrcode, cancelled, class_id} = req.json();
+        const {location, date, qrcode, cancelled, class_id} = req.json(); // Probably don't need to set qr code through json, just pass a template link with correct params
         const data = await db.insert(meetings).values({location: location, date: date, qrcode: qrcode, cancelled: cancelled, class_id: class_id});
         return "Post Successful!";
     }catch (error) {

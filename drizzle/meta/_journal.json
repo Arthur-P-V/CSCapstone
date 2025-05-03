@@ -36,6 +36,13 @@
       "when": 1745943414532,
       "tag": "0004_nice_hellcat",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1746076507375,
+      "tag": "0005_square_darkstar",
+      "breakpoints": true
     }
   ]
 }
