@@ -65,7 +65,7 @@ function submitCheckIn() {
   localStorage.setItem('reports', JSON.stringify(reports));
 
   // After saving, redirect to confirmation
-  window.location.href = `confirmation.html?classId=${classId}`;
+  window.location.href = `confirmation?classId=${classId}`;
 }
 </script>
 

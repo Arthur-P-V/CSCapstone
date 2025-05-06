@@ -7,7 +7,6 @@ import { eq, ne, gt, gte} from "drizzle-orm";
 import {create_class, delete_class, get_all_classes, get_class_by_id} from "./functions/class_functions";
 import { get_all_users, get_user_by_eNumber, delete_user, create_user } from "./functions/user_functions";
 
-import app from "./front_end/index.html"
 
 const connection = await mysql.createConnection({
   host: process.env.HOST,
@@ -88,8 +87,89 @@ const server = Bun.serve({
         },
 
         // The front end, this is using functions in the "front_end" folder and creating front end pages.
-        // check-in is the default page
-        "/check-in":{
+        // 
+        
+        "/student-check-in/:meeting_id":{
+          GET: async (req) =>{
+            const html = await Bun.file("front_end/check-in.html").text();
+            return new Response(html, {
+                headers: {
+                    "Content-Type": "text/html",
+                },
+            });
+        },
+        },
+
+      // Need to create these routes
+      // admin-dashboard.html
+      "/admin-dashboard":{
+        GET: async (req) =>{
+          const html = await Bun.file("front_end/admin-dashboard.html").text();
+          return new Response(html, {
+              headers: {
+                  "Content-Type": "text/html",
+              },
+          });
+      },
+      },
+      // admin-login.html
+      "/admin-login":{
+            GET: async (req) =>{
+                const html = await Bun.file("front_end/admin-login.html").text();
+                return new Response(html, {
+                    headers: {
+                        "Content-Type": "text/html",
+                    },
+                });
+            },
+        },
+      // check-in.html
+      "/check-in":{
+            GET: async (req) =>{
+                const html = await Bun.file("front_end/check-in.html").text();
+                return new Response(html, {
+                    headers: {
+                        "Content-Type": "text/html",
+                    },
+                });
+            },
+        },
+      // confirmation.html
+      // Need to work on this page.
+      "/confirmation":{
+            GET: async (req) =>{
+                const html = await Bun.file("front_end/confirmation.html").text();
+                return new Response(html, {
+                    headers: {
+                        "Content-Type": "text/html",
+                    },
+                });
+            },
+        },
+      // create-event-option.html
+      "/create-event-option":{
+            GET: async (req) =>{
+                const html = await Bun.file("front_end/create-event-option.html").text();
+                return new Response(html, {
+                    headers: {
+                        "Content-Type": "text/html",
+                    },
+                });
+            },
+        },
+      // create-event.html
+      "/create-event":{
+            GET: async (req) =>{
+                const html = await Bun.file("front_end/create-event.html").text();
+                return new Response(html, {
+                    headers: {
+                        "Content-Type": "text/html",
+                    },
+                });
+            },
+        },
+      // index.html (homepage)
+      "/homepage":{
             GET: async (req) =>{
                 const html = await Bun.file("front_end/index.html").text();
                 return new Response(html, {
@@ -99,6 +179,85 @@ const server = Bun.serve({
                 });
             },
         },
+      // libary.html
+      "/library":{
+            GET: async (req) =>{
+                const html = await Bun.file("front_end/library.html").text();
+                return new Response(html, {
+                    headers: {
+                        "Content-Type": "text/html",
+                    },
+                });
+            },
+        },
+      // QR-display.html
+      "/QR-display":{
+            GET: async (req) =>{
+                const html = await Bun.file("front_end/QR-display.html").text();
+                return new Response(html, {
+                    headers: {
+                        "Content-Type": "text/html",
+                    },
+                });
+            },
+        },
+      // reports.html
+      "/reports":{
+            GET: async (req) =>{
+                const html = await Bun.file("front_end/reports.html").text();
+                return new Response(html, {
+                    headers: {
+                        "Content-Type": "text/html",
+                    },
+                });
+            },
+        },
+      // student-dashboard.html
+      "/student-dashboard":{
+            GET: async (req) =>{
+                const html = await Bun.file("front_end/student-dashboard.html").text();
+                return new Response(html, {
+                    headers: {
+                        "Content-Type": "text/html",
+                    },
+                });
+            },
+        },
+      // student-login.html
+      "/student-login":{
+            GET: async (req) =>{
+                const html = await Bun.file("front_end/student-login.html").text();
+                return new Response(html, {
+                    headers: {
+                        "Content-Type": "text/html",
+                    },
+                });
+            },
+        },
+      // teacher-dashboard.html
+      "/teacher-dashboard":{
+            GET: async (req) =>{
+                const html = await Bun.file("front_end/teacher-dashboard.html").text();
+                return new Response(html, {
+                    headers: {
+                        "Content-Type": "text/html",
+                    },
+                });
+            },
+        },
+      // teacher-login.html
+      "/teacher-login":{
+            GET: async (req) =>{
+                const html = await Bun.file("front_end/teacher-login.html").text();
+                return new Response(html, {
+                    headers: {
+                        "Content-Type": "text/html",
+                    },
+                });
+            },
+        },
+
+  // The Styles and Images used on the website
         "/styles.css": {
       GET: async (req) => {
         const file = Bun.file("front_end/styles.css");

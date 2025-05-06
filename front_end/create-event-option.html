@@ -99,7 +99,7 @@
 <body>
   <h1>Select How to Create Your Event</h1>
   <div class="option-container">
-    <button class="btn" onclick="window.location.href='create-event.html'">Create a New Class</button>
+    <button class="btn" onclick="window.location.href='create-event'">Create a New Class</button>
 
     <div class="template-select">
       <label for="templateSelect">Choose a saved template:</label>
@@ -223,7 +223,7 @@
         location: newEvent.location,
         date: newEvent.date
       });
-      window.location.href = 'QR-display.html?' + params.toString();
+      window.location.href = 'QR-display?' + params.toString();
     }
 
     window.onload = loadTemplates;
