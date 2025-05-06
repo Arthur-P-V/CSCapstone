@@ -15,6 +15,7 @@ export async function get_all_classes(db) {
     }
 
 }
+
 // get a specific Class by id
 export async function get_class_by_id(db, req) {
     try{
@@ -45,16 +46,13 @@ export async function delete_class(db, req) {
     } catch (error) {
         console.error("An Error Occurred: ", error.message);
     }
-
 }
 
 export async function update_class(db, req) {
     try{
+
         const {name, description, teacher, recurring} = await req.json();
-        //console.log(name);
-        //console.log(description);
-        //console.log(teacher);
-        //console.log(recurring);
+
         const updated_class = await db.update(classes).set(
             {
                 name: name,
@@ -62,8 +60,9 @@ export async function update_class(db, req) {
                 teacher: teacher,
                 recurring: recurring
 
-            }).where(eq(classes.id, req.params.id))
-        return updated_class
+            }).where(eq(classes.id, req.params.id));
+
+        return updated_class;
     }
     catch (error) {
         console.error("An Error Occurred:", error.message);
