@@ -52,6 +52,9 @@ function submitCheckIn() {
     return;
   }
 
+  // ------------------------------------------------------------------------------------------------------------------------------------------------
+  // Need to change localStore with our database
+  // ------------------------------------------------------------------------------------------------------------------------------------------------
   let reports = JSON.parse(localStorage.getItem('reports') || '{}');
 
   if (!reports[classId]) {
@@ -62,7 +65,9 @@ function submitCheckIn() {
     reports[classId].push(eNumber);
   }
 
+  // ------------------------------------------------------------------------------------------------------------------------------------------------
   localStorage.setItem('reports', JSON.stringify(reports));
+  // ------------------------------------------------------------------------------------------------------------------------------------------------
 
   // After saving, redirect to confirmation
   window.location.href = `confirmation?classId=${classId}`;

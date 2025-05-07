@@ -57,8 +57,11 @@
 function loadReports() {
   const params = new URLSearchParams(window.location.search);
   const classId = params.get('classId');
-
+  // ------------------------------------------------------------------------------------------------------------------------------------------------
+  // Need to change localStorage to our database
+  // ------------------------------------------------------------------------------------------------------------------------------------------------
   const reports = JSON.parse(localStorage.getItem('reports') || '{}');
+  // ------------------------------------------------------------------------------------------------------------------------------------------------
   const students = reports[classId] || [];
 
   const tbody = document.querySelector("#reportTable tbody");

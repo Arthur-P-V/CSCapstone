@@ -63,7 +63,11 @@ window.addEventListener("DOMContentLoaded", loadEvents);
 function loadEvents() {
   tbody.innerHTML = "";
 
+  // ------------------------------------------------------------------------------------------------------------------------------------------------
+  // Need to change localStorage to our database
+  // ------------------------------------------------------------------------------------------------------------------------------------------------
   const events = JSON.parse(localStorage.getItem("events") || "[]");
+  // ------------------------------------------------------------------------------------------------------------------------------------------------
   events.forEach(event => {
     const row = document.createElement("tr");
     row.dataset.id = event.id;
@@ -107,9 +111,11 @@ function deleteRow(button) {
     const id = row.dataset.id;
     row.remove();
 
+    // ------------------------------------------------------------------------------------------------------------------------------------------------
     let events = JSON.parse(localStorage.getItem("events") || "[]");
     events = events.filter(e => e.id != id);
     localStorage.setItem("events", JSON.stringify(events));
+    // ------------------------------------------------------------------------------------------------------------------------------------------------
 
     alert("Event deleted.");
   }
@@ -152,7 +158,11 @@ saveChangesBtn.addEventListener("click", function() {
     row.querySelector("select").disabled = true;
   });
 
+  // ------------------------------------------------------------------------------------------------------------------------------------------------
+  // This is updating the "database"
   localStorage.setItem("events", JSON.stringify(updatedEvents));
+  // ------------------------------------------------------------------------------------------------------------------------------------------------
+
   alert("Changes saved!");
   hideSaveButton();
 });

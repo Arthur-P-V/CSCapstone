@@ -122,10 +122,15 @@
   </div>
 
   <script>
+    // ------------------------------------------------------------------------------------------------------------------------------------------------
+    // Need to update to change localStorage with our database
+    // ------------------------------------------------------------------------------------------------------------------------------------------------
     function loadTemplates() {
       const templateSelect = document.getElementById('templateSelect');
       templateSelect.innerHTML = '<option value="">-- Select a Created Class --</option>'; 
+      // ------------------------------------------------------------------------------------------------------------------------------------------------
       const templates = JSON.parse(localStorage.getItem('templates')) || [];
+      // ------------------------------------------------------------------------------------------------------------------------------------------------
 
       templates.forEach((template, index) => {
         const option = document.createElement('option');
@@ -139,7 +144,9 @@
       const templateSelect = document.getElementById('templateSelect');
       const extraFields = document.getElementById('extraFields');
       const deleteBtn = document.getElementById('deleteBtn');
+      // ------------------------------------------------------------------------------------------------------------------------------------------------
       const templates = JSON.parse(localStorage.getItem('templates')) || [];
+      // ------------------------------------------------------------------------------------------------------------------------------------------------
       const selectedIndex = templateSelect.value;
 
       if (selectedIndex !== '') {
@@ -165,12 +172,16 @@
 
     function deleteTemplate() {
       const templateSelect = document.getElementById('templateSelect');
+      // ------------------------------------------------------------------------------------------------------------------------------------------------
       const templates = JSON.parse(localStorage.getItem('templates')) || [];
+      // ------------------------------------------------------------------------------------------------------------------------------------------------
       const selectedIndex = templateSelect.value;
 
       if (selectedIndex !== '') {
         templates.splice(selectedIndex, 1); 
+        // ------------------------------------------------------------------------------------------------------------------------------------------------
         localStorage.setItem('templates', JSON.stringify(templates));
+        // ------------------------------------------------------------------------------------------------------------------------------------------------
         loadTemplates(); 
         document.getElementById('extraFields').style.display = 'none';
         document.getElementById('deleteBtn').style.display = 'none';
@@ -182,7 +193,9 @@
       const location = document.getElementById('eventLocation').value;
       const date = document.getElementById('eventDate').value;
       const templateSelect = document.getElementById('templateSelect');
+      // ------------------------------------------------------------------------------------------------------------------------------------------------
       const templates = JSON.parse(localStorage.getItem('templates')) || [];
+      // ------------------------------------------------------------------------------------------------------------------------------------------------
       const selectedIndex = templateSelect.value;
 
       if (!location || !date || selectedIndex === '') {
@@ -206,14 +219,18 @@
       };
 
       // Save to 'events' for library
+      // ------------------------------------------------------------------------------------------------------------------------------------------------
       const events = JSON.parse(localStorage.getItem('events')) || [];
       events.push(newEvent);
       localStorage.setItem('events', JSON.stringify(events));
+      // ------------------------------------------------------------------------------------------------------------------------------------------------
 
       // Save to 'adminTable' for admin-dashboard
+      // ------------------------------------------------------------------------------------------------------------------------------------------------
       const adminEvents = JSON.parse(localStorage.getItem('adminTable')) || [];
       adminEvents.push(newEvent);
       localStorage.setItem('adminTable', JSON.stringify(adminEvents));
+      // ------------------------------------------------------------------------------------------------------------------------------------------------
 
       // Redirect to QR page
       const params = new URLSearchParams({

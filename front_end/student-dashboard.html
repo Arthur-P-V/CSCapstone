@@ -117,6 +117,9 @@
     window.addEventListener("DOMContentLoaded", () => {
       tbody.innerHTML = "";
 
+      // ------------------------------------------------------------------------------------------------------------------------------------------------
+      // Change localStorage to our database
+      // ------------------------------------------------------------------------------------------------------------------------------------------------
       const checkins = JSON.parse(localStorage.getItem("studentCheckins")) || [];
 
       checkins.forEach(event => {

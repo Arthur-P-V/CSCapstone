@@ -68,9 +68,12 @@
 function loadEvents() {
   const tbody = document.querySelector("#adminTable tbody");
   tbody.innerHTML = "";
-
+  // ------------------------------------------------------------------------------------------------------------------------------------------------
+  // Need to change localStore to our database
+  // ------------------------------------------------------------------------------------------------------------------------------------------------
   const adminEvents = JSON.parse(localStorage.getItem('adminTable') || "[]");
   const teacherEvents = JSON.parse(localStorage.getItem('events') || "[]");
+  // ------------------------------------------------------------------------------------------------------------------------------------------------
 
   const allEvents = [...adminEvents, ...teacherEvents];
 
@@ -105,14 +108,18 @@ function deleteEvent(id) {
   if (!confirm("Are you sure you want to delete this event?")) return;
 
   // Remove from both tables
+  // ------------------------------------------------------------------------------------------------------------------------------------------------
   let adminEvents = JSON.parse(localStorage.getItem('adminTable') || "[]");
   let teacherEvents = JSON.parse(localStorage.getItem('events') || "[]");
+  // ------------------------------------------------------------------------------------------------------------------------------------------------
 
   adminEvents = adminEvents.filter(e => e.id != id);
   teacherEvents = teacherEvents.filter(e => e.id != id);
 
+  // ------------------------------------------------------------------------------------------------------------------------------------------------
   localStorage.setItem('adminTable', JSON.stringify(adminEvents));
   localStorage.setItem('events', JSON.stringify(teacherEvents));
+  // ------------------------------------------------------------------------------------------------------------------------------------------------
 
   loadEvents();
   alert("Event deleted successfully!");
@@ -123,7 +130,9 @@ function viewCheckIns(id) {
 }
 
 function downloadRoster(id) {
+  // ------------------------------------------------------------------------------------------------------------------------------------------------
   const allEvents = [...JSON.parse(localStorage.getItem('adminTable') || "[]"), ...JSON.parse(localStorage.getItem('events') || "[]")];
+  // ------------------------------------------------------------------------------------------------------------------------------------------------
   const event = allEvents.find(e => e.id === id);
 
   if (event && event.rosterFileBase64) {
@@ -136,8 +145,10 @@ function downloadRoster(id) {
 
 function downloadCSV() {
   let csv = "Teacher,Course,Description,Roster,Location,Date,Recurring,Created By\n";
+  // ------------------------------------------------------------------------------------------------------------------------------------------------
   const events = [...JSON.parse(localStorage.getItem('adminTable') || "[]"),
                   ...JSON.parse(localStorage.getItem('events') || "[]")];
+  // ------------------------------------------------------------------------------------------------------------------------------------------------
 
   events.forEach(e => {
     csv += `${e.teacher || e.instructor || "Unknown"},${e.course || e.name || "Unknown"},${e.description || ""},${e.rosterFilename || ""},${e.location || ""},${e.date || ""},"${(e.recurringDays || e.recurring || []).join(" ")}",${e.createdBy || "Teacher"}\n`;
