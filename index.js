@@ -168,6 +168,16 @@ const server = Bun.serve({
                 });
             },
         },
+        "/":{
+            GET: async (req) =>{
+                const html = await Bun.file("front_end/index.html").text();
+                return new Response(html, {
+                    headers: {
+                        "Content-Type": "text/html",
+                    },
+                });
+            },
+        },
       // index.html (homepage)
       "/homepage":{
             GET: async (req) =>{
