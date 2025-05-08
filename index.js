@@ -1,11 +1,11 @@
 import { drizzle } from "drizzle-orm/mysql2";
 import mysql from "mysql2/promise";
-import { events } from "./db/schema/events";
+import { classes } from "./db/schema/classes";
 import { eq, ne, gt, gte} from "drizzle-orm";
 
-import {create_event, delete_event, get_all_events, get_event_by_id} from "./functions/event_functions";
+import {create_class, delete_class, get_all_classes, get_class_by_id} from "./functions/class_functions";
 import { get_all_users, get_user_by_eNumber, delete_user, create_user } from "./functions/user_functions";
-import {create_attendance_record,mark_checked_in,get_all_attendance}from "./functions/attendance_functions";
+import { create_attendance_record, mark_checked_in, get_all_attendance } from "./functions/attendance_functions";
 
 const connection = await mysql.createConnection({
   host: process.env.HOST,
@@ -16,7 +16,7 @@ const connection = await mysql.createConnection({
 
 const db = drizzle({ client: connection });
 
-const response = await db.select().from(events);
+const response = await db.select().from(classes);
 
 console.log("Hello via Bun!");
 
@@ -54,13 +54,13 @@ const server = Bun.serve({
       },
       // Loads all the events or create a new event
 
-        "/api/events": {
+        "/api/classes": {
             GET: async () => {
-                const data = await get_all_events(db);
+                const data = await get_all_classes(db);
                 return Response.json(data);
             },
             POST: async (req) => {
-                const data = await create_event(db, req)
+                const data = await create_class(db, req)
                 //const {name, location, current_qr, description, type} = await req.json(); //the const variables are actually matched to the json body returned by req.json(), the order doesn't matter
                 //const new_event = await db.insert(events).values({event_name: name, location: location, current_qr: current_qr, description: description, type: type});
                 //console.log(name);
@@ -68,38 +68,37 @@ const server = Bun.serve({
             }
         },
 
+        "/api/attendance": {
+            GET: async () => {
+               const data = await get_all_attendance(db);
+               return Response.json(data);
+             },
+            POST: async (req) => {
+               const data = await create_attendance_record(db, req);
+               return Response.json(data);
+            },
+           PUT: async (req) => {
+              const data = await mark_checked_in(db, req);
+              return Response.json(data);
+            }
+        },
         // Searches up by id
 
-        "/api/events/:id": {
+        "/api/classes/:id": {
             GET: async req => {
-               const data = await get_event_by_id(db, req);
+               const data = await get_class_by_id(db, req);
                return Response.json(data);
             },
             DELETE: async req => {
-                const data = await delete_event(db, req);
+                const data = await delete_class(db, req);
                 return Response.json(data);
             },
             PUT: async req => {
                 return new Response("UPDATE UPDATE");
             }
-        },
-        
-        "/api/attendance": {
-  GET: async () => {
-    const data = await get_all_attendance(db);
-    return Response.json(data);
-  },
-  POST: async (req) => {
-    const data = await create_attendance_record(db, req);
-    return Response.json(data);
-  },
-  PUT: async (req) => {
-    const data = await mark_checked_in(db, req);
-    return Response.json(data);
-  }
-}
-
+        }
     },
+        
 
     port: 3000,
     fetch(req) {
