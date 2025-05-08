@@ -7,7 +7,7 @@ export const meetings = table(
     "meetings",
     {
         id: t.int().notNull().primaryKey().autoincrement(),
-        class: t.int().notNull().references((): AnyMySqlColumn => classes.id),
+        class_id: t.int().notNull().references((): AnyMySqlColumn => classes.id),
         location: t.varchar({length: 30}).notNull(),
         date: t.datetime(), //Will eventually be notnull when I figure out how to pass it lmao
         qrcode: t.text(), // Will Eventually be nonNull when I figure out how to pass it lmao
