@@ -5,6 +5,7 @@ import { eq, ne, gt, gte} from "drizzle-orm";
 
 import {create_event, delete_event, get_all_events, get_event_by_id} from "./functions/event_functions";
 import { get_all_users, get_user_by_eNumber, delete_user, create_user } from "./functions/user_functions";
+import {create_attendance_record,mark_checked_in,get_all_attendance}from "./functions/attendance_functions";
 
 const connection = await mysql.createConnection({
   host: process.env.HOST,
@@ -81,7 +82,23 @@ const server = Bun.serve({
             PUT: async req => {
                 return new Response("UPDATE UPDATE");
             }
-        }
+        },
+        
+        "/api/attendance": {
+  GET: async () => {
+    const data = await get_all_attendance(db);
+    return Response.json(data);
+  },
+  POST: async (req) => {
+    const data = await create_attendance_record(db, req);
+    return Response.json(data);
+  },
+  PUT: async (req) => {
+    const data = await mark_checked_in(db, req);
+    return Response.json(data);
+  }
+}
+
     },
 
     port: 3000,
