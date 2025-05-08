@@ -8,6 +8,7 @@ import {create_class, delete_class, get_all_classes, get_class_by_id, update_cla
 import { get_all_users, get_user_by_eNumber, delete_user, create_user } from "./functions/user_functions";
 import { get_all_meetings, get_meeting_by_id, create_meeting, update_meeting, delete_meeting } from "./functions/meeting_functions";
 
+import index from "./front_end/index.html";
 
 const connection = await mysql.createConnection({
   host: process.env.HOST,
@@ -199,27 +200,9 @@ const server = Bun.serve({
                 });
             },
         },
-        "/*":{
-            GET: async (req) =>{
-                const html = await Bun.file("front_end/index.html").text();
-                return new Response(html, {
-                    headers: {
-                        "Content-Type": "text/html",
-                    },
-                });
-            },
-        },
+        "/*":index,
       // index.html (homepage)
-      "/homepage":{
-            GET: async (req) =>{
-                const html = await Bun.file("front_end/index.html").text();
-                return new Response(html, {
-                    headers: {
-                        "Content-Type": "text/html",
-                    },
-                });
-            },
-        },
+      
       // libary.html
       "/library":{
             GET: async (req) =>{
