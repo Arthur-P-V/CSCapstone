@@ -4,8 +4,9 @@ import mysql from "mysql2/promise";
 import { classes } from "./db/schema/classes";
 import { eq, ne, gt, gte} from "drizzle-orm";
 
-import {create_class, delete_class, get_all_classes, get_class_by_id} from "./functions/class_functions";
+import {create_class, delete_class, get_all_classes, get_class_by_id, update_class} from "./functions/class_functions";
 import { get_all_users, get_user_by_eNumber, delete_user, create_user } from "./functions/user_functions";
+import { get_all_meetings, get_meeting_by_id, create_meeting, update_meeting, delete_meeting } from "./functions/meeting_functions";
 
 
 const connection = await mysql.createConnection({
@@ -53,10 +54,11 @@ const server = Bun.serve({
        PUT: async req => {
            return new Response("UPDATE UPDATE");
        }
-        },
-        // Loads all the events or create a new event
+      },
 
-        "/api/classes": {
+      // Loads all the events or create a new event
+
+        "/api/classes": { //Considering adding an optional URL param that will allow us to snag all classes associated with one user
             GET: async () => {
                 const data = await get_all_classes(db);
                 return Response.json(data);
@@ -82,9 +84,38 @@ const server = Bun.serve({
                 return Response.json(data);
             },
             PUT: async req => {
-                return new Response("UPDATE UPDATE");
+                const data = await update_class(db, req);
+                return Response.json(data);
             }
         },
+
+
+        "/api/meetings": { //Considering adding an optional URL param that will allow us to snag all meetings associated with one class
+            GET: async req => {
+                const data = await get_all_meetings(db);
+                return Response.json(data);
+            },
+            POST: async req => {
+                const data = await create_meeting(db, req);
+                return Response.json(data);
+            }
+        },
+
+        "/api/meetings/:id": {
+            GET: async req => {
+                const data = await get_meeting_by_id(db, req);
+                return Response.json(data);
+            },
+            DELETE: async req => {
+                const data = await delete_meeting(db, req);
+                return Response.json(data);
+            },
+            PUT: async req => {
+                const data = await update_meeting(db, req);
+                return Response.json(data);
+            },
+        },
+
 
         // The front end, this is using functions in the "front_end" folder and creating front end pages.
         // 
@@ -281,6 +312,7 @@ const server = Bun.serve({
           },
         });
       },
+
     },
 
     "/EU-PIC.jpg": {

@@ -1,0 +1,1 @@
+ALTER TABLE `meetings` MODIFY COLUMN `qrcode` varbinary(5000);

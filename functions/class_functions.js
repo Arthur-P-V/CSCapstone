@@ -1,26 +1,28 @@
 import { drizzle } from "drizzle-orm/mysql2";
 import mysql from "mysql2/promise";
 import { classes } from "../db/schema/classes";
-import { eq, ne, gt, gte} from "drizzle-orm";
+import { users } from "../db/schema/users";
+import { eq, ne, gt, gte, or} from "drizzle-orm";
 
 // Class functions
 // Get all the Classes from the Class table
 export async function get_all_classes(db) {
     try{
-        const data = await db.select().from(classes);
-        return data
+        const data = await db.select().from(classes).innerJoin(users, eq(classes.teacher, users.id));
+        return data;
     } catch (error) {
-        console.error("An Error Occurred: ", error.message)
+        console.error("An Error Occurred: ", error.message);
     }
 
 }
+
 // get a specific Class by id
 export async function get_class_by_id(db, req) {
     try{
         const data = await db.select().from(classes).where(eq(classes.id, req.params.id));
-        return data
+        return data;
     } catch (error) {
-        console.error("An Error Occurred: ", error.message)
+        console.error("An Error Occurred: ", error.message);
     }
 
 }
@@ -32,7 +34,7 @@ export async function create_class(db, req) {
         const new_class = await db.insert(classes).values({name: name, description: description, teacher: teacher, recurring: recurring});
         return "Post Successful!";
     }catch (error) {
-        console.error("An Error Occurred: ", error.message)
+        console.error("An Error Occurred: ", error.message);
     }
 }
 
@@ -40,9 +42,29 @@ export async function create_class(db, req) {
 export async function delete_class(db, req) {
     try{
         const data = await db.delete(classes).where(eq(classes.id, req.params.id));
-        return data
+        return data;
     } catch (error) {
-        console.error("An Error Occurred: ", error.message)
+        console.error("An Error Occurred: ", error.message);
     }
+}
 
+export async function update_class(db, req) {
+    try{
+
+        const {name, description, teacher, recurring} = await req.json();
+
+        const updated_class = await db.update(classes).set(
+            {
+                name: name,
+                description: description,
+                teacher: teacher,
+                recurring: recurring
+
+            }).where(eq(classes.id, req.params.id));
+
+        return updated_class;
+    }
+    catch (error) {
+        console.error("An Error Occurred:", error.message);
+    }
 }
