@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Reports</title>
+  <link rel="stylesheet" href="../CSSFolder/styles.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Reports</h1>
+
+    <!-- Event Name Prompt -->
+    <div id="eventPrompt">
+      <p>Please enter the Event Name to view reports:</p>
+      <input type="text" id="eventNameInput" placeholder="Event Name" class="input-box"/>
+      <button onclick="showReports()" class="btn">Submit</button>
+    </div>
+
+    <!-- Hidden Reports Section -->
+    <div id="reportsSection" style="display: none;">
+      <h2 id="reportTitle"></h2>
+      <p>This is where the reports will be shown for the selected event.</p>
+      <a href="path/to/report-file.csv" download class="btn">Download Reports</a>   <!-- Download Reports Button -->
+      
+      <a href="../Host-Dashboard-Page/hoasting.html" class="btn">Back to Host Page</a>
+    </div>
+  </div>
+
+  <script>
+    function showReports() {
+      const eventName = document.getElementById('eventNameInput').value.trim();
+      if (eventName) {
+        document.getElementById('eventPrompt').style.display = 'none';
+        document.getElementById('reportsSection').style.display = 'block';
+        document.getElementById('reportTitle').innerText = `Reports for "${eventName}"`;
+      } else {
+        alert("Please enter an event name.");
+      }
+    }
+  </script>
+</body>
+</html>

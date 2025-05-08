@@ -15,6 +15,38 @@
       "when": 1743801459453,
       "tag": "0001_demonic_diamondback",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1745078963335,
+      "tag": "0002_nostalgic_purple_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+
+      "when": 1745544631144,
+      "tag": "0003_milky_harrier",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1745943414532,
+      "tag": "0004_nice_hellcat",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1746076507375,
+      "tag": "0005_square_darkstar",
+
+      "when": 1746678512085,
+      "tag": "0003_moaning_medusa",
+      "breakpoints": true
     }
   ]
 }

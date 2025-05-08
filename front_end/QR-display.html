@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Event QR Code</title>
+  <style>
+    body {
+      background-color: #003366;
+      font-family: Arial, sans-serif;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      background-color: #002244;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+      text-align: center;
+    }
+
+    img {
+      width: 300px;
+      height: 300px;
+      margin: 20px 0;
+      background-color: white;
+      cursor: pointer; /* Makes it look clickable */
+    }
+
+    .btn {
+      padding: 12px 24px;
+      font-size: 16px;
+      color: white;
+      background-color: #0056b3;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin: 10px;
+    }
+
+    .btn:hover {
+      background-color: #003f8a;
+    }
+
+    .event-info {
+      margin-top: 20px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>QR Code for Your Event</h1>
+
+    <!-- Wrap the image inside an anchor -->
+    <a id="qrLink" href="#" target="_blank">
+      <img id="qrImage" src="" alt="Event QR Code" />
+    </a>
+
+    <div class="event-info">
+      <p><strong>Template:</strong> <span id="t"></span></p>
+      <p><strong>Location:</strong> <span id="l"></span></p>
+      <p><strong>Date:</strong> <span id="d"></span></p>
+    </div>
+
+    <button id="downloadBtn" class="btn">Download QR Code</button>
+    <button class="btn" onclick="goToLibrary()">Go to Event Library</button>
+  </div>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      const params = new URLSearchParams(window.location.search);
+      const template = params.get('template') || "N/A";
+      const location = params.get('location') || "N/A";
+      const date = params.get('date') || "N/A";
+
+      const classId = template; // Using template name as classId
+      const checkInUrl = `check-in.html?classId=${encodeURIComponent(classId)}`;
+
+      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(checkInUrl)}`;
+
+      const qrImage = document.getElementById('qrImage');
+      const qrLink = document.getElementById('qrLink');
+
+      qrImage.src = qrUrl;
+      qrLink.href = checkInUrl; // Make the link clickable to check-in page
+
+      qrImage.onerror = () => {
+        qrImage.alt = 'QR Code failed to load.';
+        qrImage.style.border = '2px solid red';
+      };
+
+      document.getElementById('t').textContent = template;
+      document.getElementById('l').textContent = location;
+      document.getElementById('d').textContent = date;
+
+      document.getElementById("downloadBtn").addEventListener("click", function () {
+        const link = document.createElement("a");
+        link.href = qrImage.src;
+        link.download = "event_qrcode.png";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      });
+    });
+
+    function goToLibrary() {
+      window.location.href = 'library';
+    }
+  </script>
+</body>
+</html>

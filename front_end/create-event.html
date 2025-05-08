@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Create New Event</title>
+  <style>
+    body { font-family: Arial, sans-serif; background-color: #002D74; padding: 40px; }
+    h1 { text-align: center; margin-bottom: 20px; color: white; }
+    .event-form-container { background-color: #fff; padding: 30px; max-width: 600px; margin: 0 auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); }
+    .form-title { text-align: center; font-size: 24px; font-weight: bold; margin-bottom: 20px; }
+    .form-group { margin-bottom: 20px; }
+    label { display: block; font-weight: bold; margin-bottom: 8px; }
+    input[type="text"], input[type="date"], select, input[type="file"] { width: 100%; padding: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 4px; }
+    .checkbox-group { display: flex; gap: 10px; margin-top: 10px; }
+    .form-actions { display: flex; justify-content: space-between; margin-top: 20px; }
+    button { padding: 10px 20px; font-size: 16px; border: none; border-radius: 4px; cursor: pointer; }
+    .submit-btn, .clear-btn { background-color: #007bff; color: #fff; }
+    .template-save { margin-top: 10px; display: flex; align-items: center; gap: 8px; }
+  </style>
+</head>
+<body>
+
+<div class="event-form-container">
+  <div class="form-title">Create Event Form</div>
+  <form id="createEventForm">
+    <div class="form-group">
+      <label for="teacher">Teacher</label>
+      <input type="text" id="teacher" name="teacher" required />
+    </div>
+    <div class="form-group">
+      <label for="course">Course</label>
+      <input type="text" id="course" name="course" required />
+    </div>
+    <div class="form-group">
+      <label for="description">Description</label>
+      <input type="text" id="description" name="description" />
+    </div>
+    <div class="form-group">
+      <label for="roster">Upload Roster (CSV)</label>
+      <input type="file" id="roster" name="roster" accept=".csv" required />
+    </div>
+    <div class="form-group">
+      <label for="location">Location</label>
+      <select id="location" name="location" required>
+        <option value="Remote">Remote</option>
+        <option value="Building">Building</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="date">Date</label>
+      <input type="date" id="date" name="date" required />
+    </div>
+    <div class="form-group">
+      <label><input type="checkbox" id="recurringCheckbox" /> Recurring</label>
+      <div id="recurringDays" class="checkbox-group" style="display: none;">
+        <label><input type="checkbox" name="days" value="Mon"> M</label>
+        <label><input type="checkbox" name="days" value="Tue"> T</label>
+        <label><input type="checkbox" name="days" value="Wed"> W</label>
+        <label><input type="checkbox" name="days" value="Thu"> T</label>
+        <label><input type="checkbox" name="days" value="Fri"> F</label>
+      </div>
+    </div>
+    <div class="form-group template-save">
+      <input type="checkbox" id="saveAsTemplate" />
+      <label for="saveAsTemplate">Save as Template</label>
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="submit-btn">Submit</button>
+      <button type="reset" class="clear-btn">Clear</button>
+    </div>
+  </form>
+</div>
+
+<script>
+const recurringCheckbox = document.getElementById('recurringCheckbox');
+const recurringDays = document.getElementById('recurringDays');
+
+recurringCheckbox.addEventListener('change', function () {
+  recurringDays.style.display = this.checked ? 'flex' : 'none';
+});
+
+document.getElementById("createEventForm").addEventListener("submit", function (e) {
+  e.preventDefault();
+
+  const teacher = document.getElementById("teacher").value.trim();
+  const course = document.getElementById("course").value.trim();
+  const description = document.getElementById("description").value.trim();
+  const location = document.getElementById("location").value.trim();
+  const date = document.getElementById("date").value.trim();
+  const rosterFile = document.getElementById("roster").files[0];
+  const saveAsTemplate = document.getElementById("saveAsTemplate").checked;
+  const recurring = recurringCheckbox.checked;
+  const days = Array.from(document.querySelectorAll('input[name="days"]:checked')).map(cb => cb.value);
+
+  if (!rosterFile) {
+    alert("Roster file is required.");
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function(event) {
+    const rosterBase64 = event.target.result;
+
+    const newEvent = {
+      id: Date.now(),
+      teacher,
+      course,
+      description,
+      location,
+      date,
+      rosterFilename: rosterFile.name,
+      rosterFileBase64: rosterBase64,
+      recurringDays: recurring ? days : [],
+      createdBy: "Teacher"
+    };
+
+    // ------------------------------------------------------------------------------------------------------------------------------------------------
+    // Need to change localStore to our database
+    // ------------------------------------------------------------------------------------------------------------------------------------------------
+    const events = JSON.parse(localStorage.getItem("events") || "[]");
+    events.push(newEvent);
+    localStorage.setItem("events", JSON.stringify(events));
+    // ------------------------------------------------------------------------------------------------------------------------------------------------
+
+    if (saveAsTemplate) {
+      // ------------------------------------------------------------------------------------------------------------------------------------------------
+      const templates = JSON.parse(localStorage.getItem("templates") || "[]");
+      // ------------------------------------------------------------------------------------------------------------------------------------------------
+      templates.push({
+        name: course,
+        teacher,
+        description,
+        location
+      });
+      // ------------------------------------------------------------------------------------------------------------------------------------------------
+      localStorage.setItem("templates", JSON.stringify(templates));
+      // ------------------------------------------------------------------------------------------------------------------------------------------------
+    }
+
+    alert("Event created successfully!");
+
+    const params = new URLSearchParams({
+      id: newEvent.id,
+      course: newEvent.course,
+      date: newEvent.date,
+      location: newEvent.location
+    });
+
+    window.location.href = "QR-display?" + params.toString();
+  };
+  reader.readAsDataURL(rosterFile);
+});
+</script>
+
+</body>
+</html>

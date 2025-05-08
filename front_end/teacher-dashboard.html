@@ -1,0 +1,75 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Teacher Dashboard</title>
+  <style>
+    body {
+      background-color: #003366;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 40px;
+      font-size: 36px;
+    }
+
+    .button-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .btn {
+      padding: 12px 25px;
+      font-size: 16px;
+      color: white;
+      background-color: #0056b3;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.2s;
+    }
+
+    .btn:hover {
+      background-color: #003f8a;
+      transform: scale(1.03);
+    }
+
+    .logout-btn {
+      background-color: #b30000;
+    }
+
+    .logout-btn:hover {
+      background-color: #8a0000;
+    }
+  </style>
+</head>
+<body>
+  <h1>Teacher Dashboard</h1>
+  <div class="button-container">
+    <button class="btn" onclick="window.location.href='create-event-option'">Create New Event</button>
+    <button class="btn" onclick="window.location.href='library'">Event Library</button>
+    <button class="btn logout-btn" onclick="logout()">Log Out</button>
+  </div>
+
+  <script>
+    function logout() {
+      // Clear any session or redirect to login page
+      //localStorage.clear(); 
+      window.location.href = "homepage"; // Change if you have a different login page
+    }
+  </script>
+</body>
+</html>
