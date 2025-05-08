@@ -313,11 +313,9 @@ const server = Bun.serve({
     },
     
     },
-    hostname: "::",
+    
     port: 3000,
-    fetch(req) {
-        return new Response("Welcome to Bun!");
-    },
+    
 });
 
 console.log(`Listening on http://localhost:${server.port}`)
