@@ -301,7 +301,7 @@ const server = Bun.serve({
     hostname: "::",
     port: process.env.PORT ?? 3000,
     fetch(req) {
-        return new Response("Not Found", {status:404 });
+        return new Response("Welcome to Bun!");
     },
 });
 
