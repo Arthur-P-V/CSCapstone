@@ -37,6 +37,10 @@ export async function create_user(db, req) {
     }
 }
 
+// TODO:
+// Update User function
+
+
 // Deletes a user from the users table
 export async function delete_user(db, req) {
     try{

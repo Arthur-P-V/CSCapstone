@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Confirmation</title>
+  <style>
+    body {
+      background-color: #003366;
+      color: white;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    h1 { margin-bottom: 20px; }
+    button {
+      padding: 10px 20px;
+      font-size: 18px;
+      background-color: #007bff;
+      border: none;
+      border-radius: 5px;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover { background-color: #0056b3; }
+  </style>
+</head>
+<body>
+
+<h1>Check-In Successful!</h1>
+<button onclick="goBack()">Return to Event Library</button>
+
+<script>
+function goBack() {
+  window.location.href = "library";
+}
+</script>
+
+</body>
+</html>
