@@ -168,7 +168,7 @@ const server = Bun.serve({
                 });
             },
         },
-        "/":{
+        "/*":{
             GET: async (req) =>{
                 const html = await Bun.file("front_end/index.html").text();
                 return new Response(html, {
@@ -298,8 +298,8 @@ const server = Bun.serve({
     },
     
     },
-
-    port: 3000,
+    hostname: "::",
+    port: process.env.PORT ?? 3000,
     fetch(req) {
         return new Response("Not Found", {status:404 });
     },
