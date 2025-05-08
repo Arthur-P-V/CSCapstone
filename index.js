@@ -5,7 +5,7 @@ import { eq, ne, gt, gte} from "drizzle-orm";
 
 import {create_class, delete_class, get_all_classes, get_class_by_id, update_class} from "./functions/class_functions";
 import { get_all_users, get_user_by_eNumber, delete_user, create_user } from "./functions/user_functions";
-import { get_all_meetings, get_meeting_by_id } from "./functions/meeting_functions";
+import { get_all_meetings, get_meeting_by_id, create_meeting, update_meeting, delete_meeting } from "./functions/meeting_functions";
 
 const connection = await mysql.createConnection({
   host: process.env.HOST,
@@ -86,10 +86,10 @@ const server = Bun.serve({
             }
         },
 
-        "/api/meetings/": { //Considering adding an optional URL param that will allow us to snag all meetings associated with one class
+        "/api/meetings": { //Considering adding an optional URL param that will allow us to snag all meetings associated with one class
             GET: async req => {
                 const data = await get_all_meetings(db);
-                return response.json(data);
+                return Response.json(data);
             },
             POST: async req => {
                 const data = await create_meeting(db, req);
