@@ -116,6 +116,21 @@ const server = Bun.serve({
                 return Response.json(data);
             },
         },
+      
+      "/api/attendance": {
+            GET: async () => {
+               const data = await get_all_attendance(db);
+               return Response.json(data);
+             },
+            POST: async (req) => {
+               const data = await create_attendance_record(db, req);
+               return Response.json(data);
+            },
+           PUT: async (req) => {
+              const data = await mark_checked_in(db, req);
+              return Response.json(data);
+            }
+        },
 
 
         // The front end, this is using functions in the "front_end" folder and creating front end pages.
