@@ -299,7 +299,7 @@ const server = Bun.serve({
     
     },
     hostname: "::",
-    port: process.env.PORT ?? 3000,
+    port: 3000,
     fetch(req) {
         return new Response("Welcome to Bun!");
     },
