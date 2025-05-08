@@ -36,7 +36,7 @@ export async function create_meeting(db, req) {
 
         const data = await db.insert(meetings).values({location: location, date: date_object, cancelled: cancelled, class_id: class_id}).$returningId();
 
-        var link =  `http://localhost:3000/student-check-in/${data[0].id}`;
+        var link =  `https://cscapstone-production.up.railway.app/student-check-in/${data[0].id}`;
         var encoded_link = encodeURI(link);
 
         const data_with_qr = await db.update(meetings).set(
