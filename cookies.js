@@ -1,17 +1,18 @@
 import { Cookie } from "bun";
 
 const CORS_HEADERS = {
-    "Access-Control-Allow-Origin": "http://localhost:3307",  // Adjust as needed
+    "Access-Control-Allow-Origin": "*",  // Adjust as needed
     "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type",
     "Access-Control-Allow-Credentials": "true", // Allow cookies
 
 };
 
+
 const server = Bun.serve({ 
-    port: 3307,
+    port: 8080,
     async fetch(req) {
-        const url = new URL(req.url, 'http://localhost:3307/');
+        const url = new URL(req.url);
         console.log("FETCH handler triggered");
         const path = url.pathname.replace(/\/+$/, "");
 
@@ -19,9 +20,6 @@ const server = Bun.serve({
         console.log("Path:", path);
          
         // Handle OPTIONS preflight request (CORS)
-
-        const data = await req.json();
-        console.log("Received Enumber:", data.Enumber);
         console.log("Method:", req.method);
         console.log("Pathname:", url.pathname);
 
@@ -29,8 +27,8 @@ const server = Bun.serve({
             return new Response(null, { status: 200, headers: CORS_HEADERS });
         }
 
-        if (req.method === "GET" && url.pathname === "/login") {
-            const file = Bun.file("login.html");
+        if (req.method === "GET" && url.pathname === "/student-login") {
+            const file = Bun.file("student-login.html");
             return new Response(file, {
                 headers: {
                     "Content-Type": "text/html",
@@ -40,11 +38,14 @@ const server = Bun.serve({
         }
         
         //the /login can change 
-        if(req.method === "POST" && path  === "/login" ){
+        if(req.method === "POST" && path  === "/student-login" ){
             try{
                 //we can ass more on what we want to keep
-                const { Enumber, password } = await req.json();
+                const data = await req.json();
+                const { Enumber, password } = data;
                 console.log("Received Enumber:", Enumber);
+
+                //const isProd = req.url.startsWith("https");
 
                 /*if (!Enumber) {
                     return new Response("Invalid credentials", { status: 400 });
@@ -52,11 +53,13 @@ const server = Bun.serve({
 
                 //we can check for the password verify 
 
+                const isProd = req.url.startsWith("https");
+
                 const cookie = new Bun.Cookie({
                     name: "session",
                     value: Enumber,
                     expires: new Date(Date.now() + 86400000),
-                    secure: false,
+                    secure: isProd,
                     sameSite: "lax",
                     httpOnly: true,
                   });
@@ -84,7 +87,7 @@ const server = Bun.serve({
     },
 });
 
-console.log(`Listening on http://localhost:${server.port}`);
+console.log(`Listening on https://cscapstone-production.up.railway.app/student-login`);
 
 
 

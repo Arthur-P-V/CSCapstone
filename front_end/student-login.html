@@ -58,7 +58,39 @@
   </div>
 
   <script>
-    function login() {
+    async function login() {
+
+      event.preventDefault();
+
+      const enumber = document.getElementById("username").value;
+      const password = document.getElementById("password").value;
+
+      const res = await fetch('https://cscapstone-production.up.railway.app/student-login', {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        credentials: "include", // Tells browser to include cookies
+        body: JSON.stringify({ Enumber: enumber, password: password })
+      });
+
+      const text = await res.text();
+      console.log("Server response:", text);
+
+      if (res.ok) {
+      console.log("Server response:", text);
+
+            if (text === "Logged In") {
+            // Cookie was set, navigate to confirm.html
+             window.location.href = "confirm.html";
+            }
+             else {
+                alert("Unexpected server response: " + text);
+             }
+      } else {
+        alert("Login failed");
+      }
+
       window.location.href = "student-dashboard";
     }
   </script>
