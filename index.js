@@ -1,5 +1,6 @@
 import { drizzle } from "drizzle-orm/mysql2";
 import mysql from "mysql2/promise";
+import { BlobServiceClient } from "@azure/storage-blob";
 
 import { classes } from "./db/schema/classes";
 import { eq, ne, gt, gte} from "drizzle-orm";
@@ -10,12 +11,22 @@ import { get_all_meetings, get_meeting_by_id, create_meeting, update_meeting, de
 
 import index from "./front_end/index.html";
 
+// Making a connection with mySQL
 const connection = await mysql.createConnection({
   host: process.env.HOST,
   user: process.env.USER,
   password: process.env.PASSWORD,
   database: process.env.DATABASE,
 });
+
+    // Grabbing the data storage credentials (azure)
+//const accountName = process.env.ACCOUNT_NAME;
+//const sasToken = process.env.SAS_TOKEN;
+//const containerName = process.env.CONTAINER_NAME;
+
+    // Making a connection to the azure blob storage
+//const blobServiceClient = new BlobServiceClient("https://${accountName}.blob.core.windows.net/?${sasToken}")
+//const containerClient = blobServiceClient.getContainerClient(containerName);
 
 const db = drizzle({ client: connection });
 
@@ -26,7 +37,19 @@ console.log("Hello via Bun!");
 const server = Bun.serve({
 
     routes: {
-    
+        //// This is the route that will upload csv data to the storage container (azure)
+        //"/api/upload":{
+        //  POST: async () => {
+        //    try{
+        //        const {filename, caption, fileType} = extractMetadata(headers);
+        //
+        //        
+        //    }catch(error){
+        //        console.log(error);
+        //        return new Response("Server Error", {status:500 });
+        //    }
+        //  }  
+        //},
         // Different routes, currently have users and events
       // Loads all the users or create a new user
         "/api/users": {
@@ -116,8 +139,8 @@ const server = Bun.serve({
                 return Response.json(data);
             },
         },
-      
-      "/api/attendance": {
+
+        "/api/attendance": {
             GET: async () => {
                const data = await get_all_attendance(db);
                return Response.json(data);
@@ -275,6 +298,7 @@ const server = Bun.serve({
         },
       // teacher-dashboard.html
       "/teacher-dashboard":{
+            // Credential checking
             GET: async (req) =>{
                 const html = await Bun.file("front_end/teacher-dashboard.html").text();
                 return new Response(html, {
