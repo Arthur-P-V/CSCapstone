@@ -19,7 +19,7 @@ export async function get_all_classes(db) {
 // get a specific Class by id
 export async function get_class_by_id(db, req) {
     try{
-        const data = await db.select().from(classes).where(eq(classes.id, req.params.id));
+        const data = await db.select().from(classes).where(eq(classes.id, req.params.id)).innerJoin(users, eq(classes.teacher, users.id));
         return data;
     } catch (error) {
         console.error("An Error Occurred: ", error.message);
