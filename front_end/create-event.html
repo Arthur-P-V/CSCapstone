@@ -79,7 +79,7 @@ recurringCheckbox.addEventListener('change', function () {
   recurringDays.style.display = this.checked ? 'flex' : 'none';
 });
 
-document.getElementById("createEventForm").addEventListener("submit", function (e) {
+document.getElementById("createEventForm").addEventListener("submit", async function (e) {
   e.preventDefault();
 
   const teacher = document.getElementById("teacher").value.trim();
@@ -96,6 +96,30 @@ document.getElementById("createEventForm").addEventListener("submit", function (
     alert("Roster file is required.");
     return;
   }
+
+
+  try {
+    
+    const response = await fetch("http://localhost:8080/api/classes", 
+    {
+      method: "POST",
+      body: JSON.stringify({
+        teacher: 1,
+        name: course,
+        description: description,
+        recurring: recurring
+      })
+    });
+
+  } catch(error) {
+    console.error("An Error Occurred: ", error.message);
+  }
+
+  console.log(response);
+    
+  
+
+  
 
   const reader = new FileReader();
   reader.onload = function(event) {

@@ -47,9 +47,9 @@
       <th>Course</th>
       <th>Description</th>
       <th>Roster</th>
-      <th>Location</th>
+      <!-- <th>Location</th> -->
       <th>Date</th>
-      <th>Recurring</th>
+      <!-- <th>Recurring</th> -->
       <th>Created By</th>
       <th>Checked In</th>
       <th>Actions</th>
@@ -65,7 +65,7 @@
 </div>
 
 <script>
-function loadEvents() {
+async function loadEvents() {
   const tbody = document.querySelector("#adminTable tbody");
   tbody.innerHTML = "";
   // ------------------------------------------------------------------------------------------------------------------------------------------------
@@ -75,7 +75,18 @@ function loadEvents() {
   const teacherEvents = JSON.parse(localStorage.getItem('events') || "[]");
   // ------------------------------------------------------------------------------------------------------------------------------------------------
 
-  const allEvents = [...adminEvents, ...teacherEvents];
+  try {
+    var response = await fetch("http://localhost:8080/api/classes", 
+    {
+      method: "GET"
+    });//[...adminEvents, ...teacherEvents];
+
+    
+  } catch(error) {
+    console.error("There was an error: ", error.message);
+  }
+
+  const allEvents = await response.json();
 
   allEvents.forEach(event => {
     const tr = document.createElement("tr");
@@ -86,13 +97,13 @@ function loadEvents() {
       : `N/A`;
 
     tr.innerHTML = `
-      <td>${event.teacher || event.instructor || "Unknown"}</td>
-      <td>${event.course || event.name || "Unknown"}</td>
-      <td>${event.description || "No description"}</td>
-      <td>${rosterCell}</td>
+      <td>${event.users.first_name || event.instructor || "Unknown"} ${event.users.last_name}</td>
+      <td>${event.course || event.classes.name || "Unknown"}</td>
+      <td>${event.classes.description || "No description"}</td>
+      <!-- <td>${rosterCell}</td> -->
       <td>${event.location || "Unknown"}</td>
       <td>${event.date || "Unknown"}</td>
-      <td>${(event.recurringDays || event.recurring || []).join(", ")}</td>
+      <!-- <td>${(event.recurringDays || event.recurring || []).join(", ")}</td> -->
       <td>${event.createdBy || "Teacher"}</td>
       <td><button onclick="viewCheckIns('${event.id}')">View</button></td>
       <td class="action-buttons">
