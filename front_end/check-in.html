@@ -42,7 +42,7 @@
 <button onclick="submitCheckIn()">Submit</button>
 
 <script>
-function submitCheckIn() {
+async function submitCheckIn() {
   const eNumber = document.getElementById('eNumberInput').value.trim();
   const params = new URLSearchParams(window.location.search);
   const classId = params.get('classId');
@@ -52,27 +52,24 @@ function submitCheckIn() {
     return;
   }
 
-  // ------------------------------------------------------------------------------------------------------------------------------------------------
-  // Need to change localStore with our database
-  // ------------------------------------------------------------------------------------------------------------------------------------------------
-  let reports = JSON.parse(localStorage.getItem('reports') || '{}');
+  try {
+    
+    const response = await fetch("http://localhost:8080/api/attendance", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ eNumber, classId })
+    });
 
-  if (!reports[classId]) {
-    reports[classId] = [];
+    if (!response.ok) {
+      throw new Error("Check-in failed.");
+    }
+
+    
+    window.location.href = `confirmation?classId=${classId}`;
+  } catch (err) {
+    alert("Check-in error: " + err.message);
   }
-
-  if (!reports[classId].includes(eNumber)) {
-    reports[classId].push(eNumber);
-  }
-
-  // ------------------------------------------------------------------------------------------------------------------------------------------------
-  localStorage.setItem('reports', JSON.stringify(reports));
-  // ------------------------------------------------------------------------------------------------------------------------------------------------
-
-  // After saving, redirect to confirmation
-  window.location.href = `confirmation?classId=${classId}`;
 }
 </script>
-
 </body>
 </html>
