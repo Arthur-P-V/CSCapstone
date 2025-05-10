@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Teacher Event Library</title>
+  <title>Teacher Class Library</title>
   <style>
     body { background-color: #003366; font-family: Arial, sans-serif; padding: 20px; color: white; }
     h1 { text-align: center; margin-bottom: 10px; }
@@ -25,7 +25,7 @@
 <body>
 
 <div class="top-bar">
-  <h1>Teacher Event Library</h1>
+  <h1>Teacher Class Library</h1>
   <div class="search-container">
     <input type="text" id="searchInput" placeholder="Search...">
     <span class="search-icon">&#128269;</span>
@@ -36,11 +36,11 @@
   <thead>
     <tr>
       <th>Teacher</th>
-      <th>Course</th>
+      <th>Course Name</th>
       <th>Description</th>
       <th>Roster</th>
-      <th>Location</th>
-      <th>Date</th>
+      <!-- <th>Location</th> -->
+      <!-- <th>Date</th> -->
       <th>Recurring</th>
       <th>Actions</th>
     </tr>
@@ -60,30 +60,44 @@ const saveChangesBtn = document.getElementById("saveChangesBtn");
 
 window.addEventListener("DOMContentLoaded", loadEvents);
 
-function loadEvents() {
+async function loadEvents() {
   tbody.innerHTML = "";
 
   // ------------------------------------------------------------------------------------------------------------------------------------------------
   // Need to change localStorage to our database
   // ------------------------------------------------------------------------------------------------------------------------------------------------
-  const events = JSON.parse(localStorage.getItem("events") || "[]");
+
+  try {  
+    const response = await fetch("http://localhost:8080/api/classes", 
+    {
+      method: "GET",
+    }); //JSON.parse(localStorage.getItem("events") || "[]");
+
+  } catch (error) {
+    console.error("An Error Occurred: ", error.message)
+    Response.error({status: 500})
+  }
+
   // ------------------------------------------------------------------------------------------------------------------------------------------------
-  events.forEach(event => {
+
+  const json = await response.json();
+
+  json.forEach(event => {
     const row = document.createElement("tr");
     row.dataset.id = event.id;
 
     row.innerHTML = `
-      <td>${event.teacher || ""}</td>
-      <td>${event.course || event.name || ""}</td>
-      <td>${event.description || ""}</td>
+      <td>${event.users.first_name || ""} ${event.users.last_name || ""}</td>
+      <td>${event.course || event.classes.name || ""}</td>
+      <td>${event.classes.description || ""}</td>
       <td>
         <select disabled>
           <option>${event.rosterFilename || "No Roster"}</option>
           <option>Download roster</option>
         </select>
       </td>
-      <td>${event.location || ""}</td>
-      <td>${event.date || ""}</td>
+      <!-- <td>${event.location || ""}</td> -->
+      <!-- <td>${event.date || ""}</td> -->
       <td>${(event.recurringDays || []).join(", ")}</td>
       <td class="action-buttons">
         <button class="action" onclick="editRow(this)">Edit</button>
