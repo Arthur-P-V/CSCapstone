@@ -1,11 +1,11 @@
-import { attendance } from "../db/schema/attendance";
+import { attendance_record } from "../db/schema/attendance_record";
 import { eq, and } from "drizzle-orm";
 
 
 export async function create_attendance_record(db, req) {
   try {
     const { eNumber, meeting_id } = await req.json();
-    await db.insert(attendance).values({
+    await db.insert(attendance_record).values({
       eNumber,
       meeting_id
     });
@@ -21,12 +21,12 @@ export async function create_attendance_record(db, req) {
 export async function mark_checked_in(db, req) {
   try {
     const { eNumber, meeting_id } = await req.json();
-    await db.update(attendance)
+    await db.update(attendance_record)
       .set({ check_in_time: new Date() })
       .where(
         and(
-          eq(attendance.eNumber, eNumber),
-          eq(attendance.meeting_id, meeting_id)
+          eq(attendance_record.eNumber, eNumber),
+          eq(attendance_record.meeting_id, meeting_id)
         )
       );
     return "Check-in successful.";
@@ -40,7 +40,7 @@ export async function mark_checked_in(db, req) {
 
 export async function get_all_attendance(db) {
   try {
-    const data = await db.select().from(attendance);
+    const data = await db.select().from(attendance_record);
     return data;
   } catch (error) {
     console.error("Fetch attendance failed:", error.message);
