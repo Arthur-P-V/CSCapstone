@@ -14,21 +14,29 @@ import index from "./front_end/index.html";
 
 // Making a connection with mySQL
 const connection = await mysql.createConnection({
-  host: process.env.HOST,
-  user: process.env.USER,
-  password: process.env.PASSWORD,
-  database: process.env.DATABASE,
+    host: process.env.HOST,
+    user: process.env.USER,
+    password: process.env.PASSWORD,
+    database: process.env.DATABASE,
 });
 
-    // Grabbing the data storage credentials (azure)
-//const accountName = process.env.ACCOUNT_NAME;
-//const sasToken = process.env.SAS_TOKEN;
-//const containerName = process.env.CONTAINER_NAME;
+// ---------------------------------------------------------------------------------------------
+// This is connecting to the bucket so we can save .csv files, and pull them from the azure server. 
 
-    // Making a connection to the azure blob storage
-//const blobServiceClient = new BlobServiceClient("https://${accountName}.blob.core.windows.net/?${sasToken}")
-//const containerClient = blobServiceClient.getContainerClient(containerName);
+        // This is the connection string to connect to the azzure server. Will have to update every time it expiers
+const AZURE_STORAGE_CONNECTION_STRING = process.env.CONNECTION_STRING;
+        // This is what the container is called (the parent folder)
+const containerName = process.env.CONTAINER_NAME;
+        // Creating a connection to azure server
+const blobServiceClient = BlobServiceClient.fromConnectionString(AZURE_STORAGE_CONNECTION_STRING);
+        // Goes into the "folder" we are saving into (we are saving in folder data)
+const containerClient = blobServiceClient.getContainerClient(containerName);
+        // Wait till we are connected
+await containerClient.createIfNotExists();
 
+// ---------------------------------------------------------------------------------------------
+
+// Create a datebase connection
 const db = drizzle({ client: connection });
 
 const response = await db.select().from(classes);
@@ -38,19 +46,59 @@ console.log("Hello via Bun!");
 const server = Bun.serve({
 
     routes: {
+        "/api/upload_roster":{
+            // Uploading a roster with a post request
+            POST: async (req) => {
+                // Upload a roster, need to pass the .csv as a file type
+                // Pull the data from the req (take the data that was passed to it)
+                const formData = await req.formData();
+                const file = formData.get("file");
+                // Make sure the file is there
+                if(!file || typeof file === "string"){
+                    return new Response("No file uploaded", {status: 400});
+                }
+                // Build a buffer, then parse the file into it
+                const arrayBuffer = await file.arrayBuffer();
+                const buffer = Buffer.from(arrayBuffer);
+                
+                // Upload the file to the azure server with its name
+                const blockBlobClient = containerClient.getBlockBlobClient(file.name);
+                await blockBlobClient.upload(buffer, buffer.length);
+
+                return new Response(`File ${file.name} uploaded successfully!`);
+                }
+        },
+
+        "/api/download_roster/:roster":{
+            // You can get a specific roster file by name, we will store the name in the class table. 
+            GET: async req =>{
+                // Grab the name from the url
+                const blobName = req.params.roster;
+                // If there is no name, then it throws error
+                if(!blobName){
+                    return new Response("Missing 'file' parameter", {status: 400});
+                }
+                // Check if the file exists
+                const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+                const exists = await blockBlobClient.exists();
+                if(!exists){
+                    return new Response("File not found", {status: 404});
+                }
+                // If the file exists we should pull the file and display it.
+                const downloadBlockBlobResponse = await blockBlobClient.download();
+                const readable = downloadBlockBlobResponse.readableStreamBody;
+                // Returning the .csv in readable json
+                return new Response(readable, {
+                    headers: {
+                        "Content-Type": "text/csv",
+                        "Content-Dispostion": 'attachment; filename="${blobName}"',
+                    }
+                });
+           }
+        },
+
         //// This is the route that will upload csv data to the storage container (azure)
-        //"/api/upload":{
-        //  POST: async () => {
-        //    try{
-        //        const {filename, caption, fileType} = extractMetadata(headers);
-        //
-        //        
-        //    }catch(error){
-        //        console.log(error);
-        //        return new Response("Server Error", {status:500 });
-        //    }
-        //  }  
-        //},
+        
         // Different routes, currently have users and events
       // Loads all the users or create a new user
         "/api/users": {
