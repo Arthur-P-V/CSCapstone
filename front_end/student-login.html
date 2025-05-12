@@ -66,6 +66,7 @@
       const password = document.getElementById("password").value;
 
       const res = await fetch('https://cscapstone-production.up.railway.app/student-login', {
+      //const res = await fetch('https://localhost:8080/student-login', {
         method: "POST",
         headers: {
           "Content-Type": "application/json"

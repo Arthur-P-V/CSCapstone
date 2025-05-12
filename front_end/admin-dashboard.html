@@ -76,7 +76,8 @@ async function loadEvents() {
   // ------------------------------------------------------------------------------------------------------------------------------------------------
 
   try {
-    var response = await fetch("http://localhost:8080/api/classes", 
+    //var response = await fetch("http://localhost:8080/api/classes", 
+    var response = await fetch("http://cscapstone-production.up.railway.app/api/classes", 
     {
       method: "GET"
     });//[...adminEvents, ...teacherEvents];
