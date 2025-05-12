@@ -85,13 +85,14 @@ const server = Bun.serve({
                     return new Response("File not found", {status: 404});
                 }
                 // If the file exists we should pull the file and display it.
+                // Curently is downloading to the local machine, want to do somthing different when we have a better idea of how we are displaying.
                 const downloadBlockBlobResponse = await blockBlobClient.download();
                 const readable = downloadBlockBlobResponse.readableStreamBody;
                 // Returning the .csv in readable json
                 return new Response(readable, {
                     headers: {
-                        "Content-Type": "text/csv",
-                        "Content-Dispostion": 'attachment; filename="${blobName}"',
+                        "Content-Type": "text/plain",
+                        "Content-Dispostion": 'inline; filename="${blobName}"',
                     }
                 });
            }
