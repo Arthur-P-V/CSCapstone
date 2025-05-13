@@ -100,6 +100,14 @@
         return;
       }
 
+      const students = JSON.parse(localStorage.getItem("studentUsers") || "[]");
+      const student = students.find(user => user.eNumber === username && user.password === password);
+
+      if (!student) {
+        alert("Invalid credentials or student account not found.\nPlease create an account or contact your admin.");
+        return;
+      }
+
       localStorage.setItem("loggedInUser", username);
       localStorage.setItem("role", "Student");
 
