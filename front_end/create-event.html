@@ -110,12 +110,13 @@ document.getElementById("createEventForm").addEventListener("submit", async func
         recurring: recurring
       })
     });
+    console.log(response);
 
   } catch(error) {
     console.error("An Error Occurred: ", error.message);
   }
 
-  console.log(response);
+  
     
   
 

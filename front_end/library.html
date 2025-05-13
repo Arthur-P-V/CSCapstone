@@ -73,14 +73,14 @@ async function loadEvents() {
       method: "GET",
     }); //JSON.parse(localStorage.getItem("events") || "[]");
 
+    var json = await response.json();
+
   } catch (error) {
     console.error("An Error Occurred: ", error.message)
     Response.error({status: 500})
   }
 
   // ------------------------------------------------------------------------------------------------------------------------------------------------
-
-  const json = await response.json();
 
   json.forEach(event => {
     const row = document.createElement("tr");
