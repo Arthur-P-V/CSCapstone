@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Teacher Event Library</title>
+  <style>
+    body {
+      background-color: #003366;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      color: white;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 10px;
+      font-size: 36px;
+    }
+
+    .search-container {
+      text-align: right;
+      margin-bottom: 10px;
+      max-width: 300px;
+      float: right;
+      position: relative;
+    }
+
+    .search-container input {
+      width: 100%;
+      padding: 10px 35px 10px 12px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .search-icon {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 18px;
+      color: #888;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: white;
+      color: black;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 12px;
+      text-align: center;
+    }
+
+    th {
+      background-color: #004080;
+      color: white;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    tr:hover {
+      background-color: #f1f1f1;
+    }
+
+    .button-group {
+      margin-top: 20px;
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .button-group button {
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #downloadBtn, #goBackBtn {
+      background-color: #28a745;
+      color: white;
+    }
+
+    #downloadBtn:hover, #goBackBtn:hover {
+      background-color: #218838;
+    }
+
+    .action-buttons button {
+      margin: 2px;
+      padding: 5px 10px;
+      font-size: 14px;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="top-bar">
+  <h1>Teacher Class Library</h1>
+  <div class="search-container">
+    <input type="text" id="searchInput" placeholder="Search..." oninput="filterTable()">
+    <span class="search-icon">&#128269;</span>
+  </div>
+</div>
+
+<table id="teacherTable">
+  <thead>
+    <tr>
+      <th onclick="sortTableBy(0)">Course</th>
+      <th>Description</th>
+      <th>Roster</th>
+      <th onclick="sortTableBy(3)">Location</th>
+      <th onclick="sortTableBy(4)">Date</th>
+      <th>QR Code</th>
+      <th>Checked In</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+<div class="button-group">
+  <button id="downloadBtn">Download CSV</button>
+  <button id="goBackBtn">Go Back to Dashboard</button>
+</div>
+
+<script>
+const tbody = document.querySelector("#teacherTable tbody");
+let sortDirection = {};
+
+window.addEventListener("DOMContentLoaded", loadEvents);
+
+function loadEvents() {
+  tbody.innerHTML = "";
+  const events = JSON.parse(localStorage.getItem("events") || "[]");
+
+  events.forEach(event => {
+    const row = document.createElement("tr");
+    row.dataset.id = event.id;
+
+    const rosterCell = event.rosterFileBase64
+      ? `<button onclick="downloadRoster('${event.id}')">Download</button>`
+      : "No Roster";
+
+    row.innerHTML = `
+      <td>${event.course || ""}</td>
+      <td>${event.description || ""}</td>
+      <td>${rosterCell}</td>
+      <td>${event.location || ""}</td>
+      <td>${event.date || ""}</td>
+      <td><button onclick="showQRCode('${event.id}')">QR Code</button></td>
+      <td><button onclick="viewCheckIns('${event.id}')">View</button></td>
+      <td class="action-buttons">
+        <button onclick="toggleEdit(this)">Edit</button>
+        <button onclick="deleteRow(this)">Delete</button>
+      </td>
+    `;
+    tbody.appendChild(row);
+  });
+}
+
+function showQRCode(id) {
+  window.location.href = `QR-display.html?id=${encodeURIComponent(id)}&from=teacher`;
+}
+
+function sortTableBy(columnIndex) {
+  const rows = Array.from(tbody.querySelectorAll("tr"));
+  const direction = sortDirection[columnIndex] === "asc" ? "desc" : "asc";
+  sortDirection[columnIndex] = direction;
+
+  rows.sort((a, b) => {
+    const textA = a.cells[columnIndex].innerText.toLowerCase();
+    const textB = b.cells[columnIndex].innerText.toLowerCase();
+    const dateA = Date.parse(textA);
+    const dateB = Date.parse(textB);
+
+    if (!isNaN(dateA) && !isNaN(dateB)) {
+      return direction === "asc" ? dateA - dateB : dateB - dateA;
+    }
+
+    return direction === "asc"
+      ? textA.localeCompare(textB)
+      : textB.localeCompare(textA);
+  });
+
+  rows.forEach(row => tbody.appendChild(row));
+}
+
+function toggleEdit(button) {
+  const row = button.closest("tr");
+  const editableCells = row.querySelectorAll("td:not(:last-child):not(:nth-last-child(2)):not(:nth-child(3)):not(:nth-child(6))");
+  const isEditing = button.textContent === "Save";
+
+  if (isEditing) {
+    const id = row.dataset.id;
+    const cells = row.querySelectorAll("td");
+    const updatedEvent = {
+      id,
+      course: cells[0].innerText.trim(),
+      description: cells[1].innerText.trim(),
+      location: cells[3].innerText.trim(),
+      date: cells[4].innerText.trim(),
+      createdBy: "Teacher"
+    };
+
+    let events = JSON.parse(localStorage.getItem("events") || "[]");
+    events = events.map(e => (e.id === id ? { ...e, ...updatedEvent } : e));
+    localStorage.setItem("events", JSON.stringify(events));
+
+    editableCells.forEach(cell => {
+      cell.contentEditable = "false";
+      cell.style.backgroundColor = "";
+    });
+
+    button.textContent = "Edit";
+    alert("Changes saved!");
+  } else {
+    editableCells.forEach(cell => {
+      cell.contentEditable = "true";
+      cell.style.backgroundColor = "#ffffcc";
+    });
+
+    button.textContent = "Save";
+  }
+}
+
+function deleteRow(button) {
+  if (confirm("Are you sure you want to delete this event?")) {
+    const row = button.closest("tr");
+    const id = row.dataset.id;
+    row.remove();
+
+    let events = JSON.parse(localStorage.getItem("events") || "[]");
+    events = events.filter(e => e.id !== id);
+    localStorage.setItem("events", JSON.stringify(events));
+
+    alert("Event deleted.");
+  }
+}
+
+function viewCheckIns(id) {
+  window.location.href = `reports.html?classId=${id}`;
+}
+
+function downloadRoster(id) {
+  const events = JSON.parse(localStorage.getItem("events") || "[]");
+  const event = events.find(e => e.id === id);
+  if (event && event.rosterFileBase64) {
+    const link = document.createElement("a");
+    link.href = event.rosterFileBase64;
+    link.download = event.rosterFilename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+}
+
+function filterTable() {
+  const input = document.getElementById("searchInput").value.toLowerCase();
+  document.querySelectorAll("#teacherTable tbody tr").forEach(row => {
+    const text = row.innerText.toLowerCase();
+    row.style.display = text.includes(input) ? "" : "none";
+  });
+}
+
+document.getElementById("downloadBtn").addEventListener("click", () => {
+  let csv = "Course,Description,Roster,Location,Date\n";
+  tbody.querySelectorAll("tr").forEach(row => {
+    const cells = row.querySelectorAll("td");
+    const rowData = [
+      cells[0].innerText,
+      cells[1].innerText,
+      cells[2].innerText,
+      cells[3].innerText,
+      cells[4].innerText
+    ];
+    csv += rowData.map(val => `"${val}"`).join(",") + "\n";
+  });
+
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "teacher_event_library.csv";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+});
+
+document.getElementById("goBackBtn").addEventListener("click", () => {
+  window.location.href = "teacher-dashboard.html";
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Reports</title>
+  <style>
+    body {
+      background-color: #003366;
+      color: white;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    table {
+      width: 100%;
+      background: white;
+      color: black;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    table, th, td {
+      border: 1px solid #ddd;
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: center;
+    }
+
+    th {
+      background-color: #004080;
+      color: white;
+    }
+
+    tr:hover {
+      background-color: #f1f1f1;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #28a745;
+      border: none;
+      border-radius: 5px;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #218838;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Student Check-In Report</h1>
+
+<!--Report Table-->
+<table id="reportTable">
+  <thead>
+    <tr>
+      <th>eNumber</th>
+      <th>Class</th>
+      <th>Check-In Time</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+<!--Back Button-->
+<button onclick="goBack()">Back to Table</button>
+
+<script>
+function loadReports() {
+  const params = new URLSearchParams(window.location.search);
+  const classId = params.get('classId');
+
+  const reports = JSON.parse(localStorage.getItem('reports') || '{}');
+  const students = reports[classId] || [];
+
+  const allEvents = [
+    ...JSON.parse(localStorage.getItem('adminTable') || '[]'),
+    ...JSON.parse(localStorage.getItem('events') || '[]')
+  ];
+  const classEvent = allEvents.find(e => e.id === classId);
+  const className = classEvent ? (classEvent.course || classEvent.name || 'Unknown') : 'Unknown';
+
+  const tbody = document.querySelector("#reportTable tbody");
+  tbody.innerHTML = "";
+
+  students.forEach(entry => {
+    const eNumber = typeof entry === 'object' ? entry.eNumber : entry;
+    const time = typeof entry === 'object' ? entry.time : 'N/A';
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${eNumber}</td>
+      <td>${className}</td>
+      <td>${time}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function goBack() {
+  const role = (localStorage.getItem("role") || "").toLowerCase();
+  if (role === "admin") {
+    window.location.href = "admin-class-view.html";
+  } else if (role === "teacher") {
+    window.location.href = "library.html";
+  } else {
+    alert("Access denied. Role not recognized.");
+    window.location.href = "index.html";
+  }
+}
+
+window.onload = loadReports;
+</script>
+
+</body>
+</html>

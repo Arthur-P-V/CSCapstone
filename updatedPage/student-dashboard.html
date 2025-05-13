@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Student Dashboard</title>
+  <style>
+    body {
+      background-color: #003366;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      color: white;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .search-container {
+      text-align: right;
+      position: relative;
+      max-width: 300px;
+    }
+
+    .search-container input {
+      padding: 10px 35px 10px 12px;
+      width: 100%;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .search-container .search-icon {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 18px;
+      color: #888;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: white;
+      color: black;
+    }
+
+    th, td {
+      border: 1px solid black;
+      padding: 12px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+
+    #logoutBtn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #dc3545;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #logoutBtn:hover {
+      background-color: #c82333;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="top-bar">
+    <h1>Student Class Schedule</h1>
+    <div class="search-container">
+      <input type="text" id="searchInput" placeholder="Search..." />
+      <span class="search-icon">&#128269;</span>
+    </div>
+  </div>
+
+  <table id="studentTable">
+    <thead>
+      <tr>
+        <th>Course</th>
+        <th>Teacher</th>
+        <th>Description</th>
+        <th>Location</th>
+        <th>Date</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <button id="logoutBtn">Log Out</button>
+
+  <script>
+    const table = document.getElementById("studentTable");
+    const tbody = table.querySelector("tbody");
+
+    window.addEventListener("DOMContentLoaded", () => {
+      tbody.innerHTML = "";
+
+      // currently logged-in student
+      const currentUser = localStorage.getItem("loggedInUser"); // Replaec localStorage
+
+      // Replaec localStorage
+      const checkins = JSON.parse(localStorage.getItem("studentCheckins") || "[]");
+
+      // Replaec localStorage
+      const activeEvents = [
+        ...JSON.parse(localStorage.getItem("adminTable") || "[]"),
+        ...JSON.parse(localStorage.getItem("events") || "[]")
+      ];
+
+      // deleted classes don’t appear on the dashboard
+      const validSignatures = new Set(
+        activeEvents.map(ev => `${ev.course}__${ev.date}`)
+      );
+
+      // Filter by logged-in user and active events
+      const filtered = checkins.filter(ci => {
+        const sig = `${ci.course}__${ci.date}`;
+        return ci.student === currentUser && validSignatures.has(sig);
+      });
+
+      if (filtered.length === 0) {
+        const row = document.createElement("tr");
+        row.innerHTML = `<td colspan="5" style="text-align:center;">No check-ins found.</td>`;
+        tbody.appendChild(row);
+        return;
+      }
+
+      // Display valid check-ins
+      filtered.forEach(event => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${event.course || ""}</td>
+          <td>${event.teacher || ""}</td>
+          <td>${event.description || ""}</td>
+          <td>${event.location || ""}</td>
+          <td>${event.date || ""}</td>
+        `;
+        tbody.appendChild(row);
+      });
+    });
+
+    // filtering
+    document.getElementById("searchInput").addEventListener("keyup", function () {
+      const filter = this.value.toLowerCase();
+      const rows = tbody.getElementsByTagName("tr");
+
+      for (let i = 0; i < rows.length; i++) {
+        const cells = rows[i].getElementsByTagName("td");
+        let showRow = false;
+        for (let j = 0; j < cells.length; j++) {
+          if (cells[j].innerText.toLowerCase().includes(filter)) {
+            showRow = true;
+            break;
+          }
+        }
+        rows[i].style.display = showRow ? "" : "none";
+      }
+    });
+
+    // Logout and redirect
+    document.getElementById("logoutBtn").addEventListener("click", function () {
+      localStorage.removeItem("loggedInUser");
+      localStorage.removeItem("role");
+      window.location.href = "index.html";
+    });
+  </script>
+
+</body>
+</html>

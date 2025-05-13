@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Event QR Code</title>
+  <style>
+    body {
+      background-color: #003366;
+      font-family: Arial, sans-serif;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      background-color: #002244;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+      text-align: center;
+    }
+
+    img {
+      width: 300px;
+      height: 300px;
+      margin: 20px 0;
+      background-color: white;
+      cursor: pointer;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      font-size: 16px;
+      color: white;
+      background-color: #0056b3;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin: 10px;
+    }
+
+    .btn:hover {
+      background-color: #003f8a;
+    }
+
+    .event-info {
+      margin-top: 20px;
+      font-size: 16px;
+    }
+
+    .event-info p {
+      margin: 6px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>QR Code for Your Event</h1>
+
+    <a id="qrLink" href="#" target="_blank">
+      <img id="qrImage" src="" alt="Event QR Code" />
+    </a>
+
+    <div class="event-info">
+      <p><strong>Course:</strong> <span id="course"></span></p>
+      <p><strong>Location:</strong> <span id="location"></span></p>
+      <p><strong>Date:</strong> <span id="date"></span></p>
+      <p><strong>Teacher:</strong> <span id="teacher"></span></p>
+      <p><strong>Created By:</strong> <span id="createdBy"></span></p>
+    </div>
+
+    <button id="downloadBtn" class="btn">Download QR Code</button>
+    <button id="actionBtn" class="btn"></button>
+  </div>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      const params = new URLSearchParams(window.location.search);
+      const id = params.get('id');
+      const from = params.get('from'); // e.g., from=admin or from=teacher
+
+      const checkInUrl = `student-checkin-login.html?classId=${encodeURIComponent(id)}`;
+      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(checkInUrl)}`;
+
+      const qrImage = document.getElementById('qrImage');
+      const qrLink = document.getElementById('qrLink');
+
+      qrImage.src = qrUrl;
+      qrLink.href = checkInUrl;
+
+      const allEvents = [
+        ...JSON.parse(localStorage.getItem("adminTable") || "[]"),
+        ...JSON.parse(localStorage.getItem("events") || "[]")
+      ];
+      const event = allEvents.find(e => e.id === id);
+
+      if (event) {
+        document.getElementById('course').textContent = event.course || 'N/A';
+        document.getElementById('location').textContent = event.location || 'N/A';
+        document.getElementById('date').textContent = event.date || 'N/A';
+        document.getElementById('teacher').textContent = event.teacher || 'N/A';
+        document.getElementById('createdBy').textContent = event.createdBy || 'N/A';
+      } else {
+        document.querySelectorAll('.event-info span').forEach(span => span.textContent = 'N/A');
+      }
+
+      qrImage.onerror = () => {
+        qrImage.alt = 'QR Code failed to load.';
+        qrImage.style.border = '2px solid red';
+      };
+
+      document.getElementById("downloadBtn").addEventListener("click", function () {
+        const link = document.createElement("a");
+        link.href = qrImage.src;
+        link.download = "event_qrcode.png";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      });
+
+      const actionBtn = document.getElementById("actionBtn");
+
+      if (from === "admin" || from === "teacher") {
+        actionBtn.textContent = "Go Back";
+        actionBtn.onclick = () => {
+          window.location.href = from === "admin" ? "admin-class-view.html" : "library.html";
+        };
+      } else {
+        actionBtn.textContent = "Continue";
+        actionBtn.onclick = () => {
+          const role = (localStorage.getItem("role") || "").toLowerCase();
+          if (role === "admin") {
+            window.location.href = "admin-dashboard.html";
+          } else if (role === "teacher") {
+            window.location.href = "library.html";
+          } else {
+            alert("Unknown role. Returning to home.");
+            window.location.href = "index.html";
+          }
+        };
+      }
+    });
+  </script>
+</body>
+</html>

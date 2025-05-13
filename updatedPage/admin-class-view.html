@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Dashboard</title>
+  <style>
+    body {
+      background-color: #003366;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      color: white;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 10px;
+      font-size: 36px;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .search-container input {
+      padding: 8px;
+      font-size: 16px;
+      border-radius: 5px;
+      border: none;
+    }
+
+    table {
+      width: 100%;
+      background: white;
+      color: black;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    table, th, td {
+      border: 1px solid #ddd;
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: center;
+    }
+
+    th {
+      background-color: #004080;
+      color: white;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    tr:hover {
+      background-color: #f1f1f1;
+    }
+
+    .admin-row { background-color: #e6f7ff; }
+    .teacher-row { background-color: #fff0e6; }
+
+    .button-group {
+      margin-top: 20px;
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .button-group button {
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #addEventBtn, #downloadBtn {
+      background-color: #28a745;
+      color: white;
+    }
+
+    #logOffBtn {
+      background-color: #dc3545;
+      color: white;
+    }
+
+    .action-buttons button {
+      margin: 2px;
+      padding: 5px 10px;
+      font-size: 14px;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="top-bar">
+  <h1>Admin Class Table</h1>
+  <div class="search-container">
+    <input type="text" id="searchInput" placeholder="Search..." oninput="filterTable()" />
+  </div>
+</div>
+
+<table id="adminTable">
+  <thead>
+    <tr>
+      <th onclick="sortTableBy(0)">Teacher</th>
+      <th onclick="sortTableBy(1)">Course</th>
+      <th>Description</th>
+      <th>Roster</th>
+      <th>Location</th>
+      <th onclick="sortTableBy(5)">Date</th>
+      <th>Created By</th>
+      <th>Checked In</th>
+      <th>QR Code</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+<div class="button-group">
+  <button id="addEventBtn" onclick="window.location.href='create-event.html'">Add Class</button>
+  <button id="downloadBtn" onclick="downloadCSV()">Download CSV</button>
+  <button id="logOffBtn" onclick="goBack()">Go Back</button>
+</div>
+
+<script>
+function loadEvents() {
+  const tbody = document.querySelector("#adminTable tbody");
+  tbody.innerHTML = "";
+
+  const adminEvents = JSON.parse(localStorage.getItem('adminTable') || "[]");
+  const teacherEvents = JSON.parse(localStorage.getItem('events') || "[]");
+  const allEvents = [...adminEvents, ...teacherEvents];
+
+  allEvents.forEach(event => {
+    const tr = document.createElement("tr");
+    tr.className = (event.createdBy === "Admin") ? "admin-row" : "teacher-row";
+    tr.dataset.id = event.id;
+
+    const rosterCell = event.rosterFileBase64
+      ? `<button onclick="downloadRoster('${event.id}')">Download</button>`
+      : `N/A`;
+
+    tr.innerHTML = `
+      <td contenteditable="false">${event.teacher || "Unknown"}</td>
+      <td contenteditable="false">${event.course || "Unknown"}</td>
+      <td contenteditable="false">${event.description || ""}</td>
+      <td>${rosterCell}</td>
+      <td contenteditable="false">${event.location || ""}</td>
+      <td contenteditable="false">${event.date || ""}</td>
+      <td>${event.createdBy || "Teacher"}</td>
+      <td><button onclick="viewCheckIns('${event.id}')">View</button></td>
+      <td><button onclick="viewQr('${event.id}')" style="background-color:#007bff;color:white;border:none;padding:6px 12px;border-radius:5px;cursor:pointer;">QR</button></td>
+      <td class="action-buttons">
+        <button onclick="toggleEdit(this)">Edit</button>
+        <button onclick="deleteEvent('${event.id}')">Delete</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function viewQr(id) {
+  window.location.href = `QR-display.html?id=${id}&from=admin`;
+}
+
+let sortDirection = {};
+function sortTableBy(columnIndex) {
+  const table = document.getElementById("adminTable");
+  const tbody = table.querySelector("tbody");
+  const rows = Array.from(tbody.querySelectorAll("tr"));
+
+  const direction = sortDirection[columnIndex] === 'asc' ? 'desc' : 'asc';
+  sortDirection[columnIndex] = direction;
+
+  rows.sort((a, b) => {
+    const textA = a.cells[columnIndex].innerText.trim().toLowerCase();
+    const textB = b.cells[columnIndex].innerText.trim().toLowerCase();
+    if (!isNaN(Date.parse(textA)) && !isNaN(Date.parse(textB))) {
+      return direction === 'asc' ? new Date(textA) - new Date(textB) : new Date(textB) - new Date(textA);
+    }
+    return direction === 'asc' ? textA.localeCompare(textB) : textB.localeCompare(textA);
+  });
+
+  rows.forEach(row => tbody.appendChild(row));
+}
+
+function toggleEdit(btn) {
+  const row = btn.closest("tr");
+  const isEditing = btn.textContent === "Save";
+  const cells = row.querySelectorAll("td");
+
+  if (isEditing) {
+    const id = row.dataset.id;
+    const updatedEvent = {
+      id,
+      teacher: cells[0].innerText.trim(),
+      course: cells[1].innerText.trim(),
+      description: cells[2].innerText.trim(),
+      location: cells[4].innerText.trim(),
+      date: cells[5].innerText.trim(),
+      createdBy: cells[6].innerText.trim()
+    };
+
+    let adminEvents = JSON.parse(localStorage.getItem('adminTable') || "[]");
+    let teacherEvents = JSON.parse(localStorage.getItem('events') || "[]");
+
+    let found = false;
+    adminEvents = adminEvents.map(e => (e.id === id ? (found = true, { ...e, ...updatedEvent }) : e));
+    if (!found) {
+      teacherEvents = teacherEvents.map(e => (e.id === id ? { ...e, ...updatedEvent } : e));
+    }
+
+    localStorage.setItem('adminTable', JSON.stringify(adminEvents));
+    localStorage.setItem('events', JSON.stringify(teacherEvents));
+    alert("Changes saved!");
+
+    [0, 1, 2, 4, 5].forEach(i => {
+      cells[i].contentEditable = "false";
+      cells[i].style.backgroundColor = "";
+    });
+
+    btn.textContent = "Edit";
+  } else {
+    [0, 1, 2, 4, 5].forEach(i => {
+      cells[i].contentEditable = "true";
+      cells[i].style.backgroundColor = "#ffffcc";
+    });
+
+    btn.textContent = "Save";
+  }
+}
+
+function deleteEvent(id) {
+  if (!confirm("Are you sure you want to delete this event?")) return;
+
+  let adminEvents = JSON.parse(localStorage.getItem('adminTable') || "[]");
+  let teacherEvents = JSON.parse(localStorage.getItem('events') || "[]");
+
+  adminEvents = adminEvents.filter(e => e.id !== id);
+  teacherEvents = teacherEvents.filter(e => e.id !== id);
+
+  localStorage.setItem('adminTable', JSON.stringify(adminEvents));
+  localStorage.setItem('events', JSON.stringify(teacherEvents));
+
+  loadEvents();
+  alert("Event deleted successfully!");
+}
+
+function viewCheckIns(id) {
+  window.location.href = `reports.html?classId=${id}`;
+}
+
+function downloadRoster(id) {
+  const allEvents = [
+    ...JSON.parse(localStorage.getItem('adminTable') || "[]"),
+    ...JSON.parse(localStorage.getItem('events') || "[]")
+  ];
+  const event = allEvents.find(e => e.id === id);
+  if (event && event.rosterFileBase64) {
+    const link = document.createElement('a');
+    link.href = event.rosterFileBase64;
+    link.download = event.rosterFilename;
+    link.click();
+  }
+}
+
+function downloadCSV() {
+  let csv = "Teacher,Course,Description,Roster,Location,Date,Created By\n";
+  const events = [
+    ...JSON.parse(localStorage.getItem('adminTable') || "[]"),
+    ...JSON.parse(localStorage.getItem('events') || "[]")
+  ];
+
+  events.forEach(e => {
+    csv += `"${e.teacher || "Unknown"}","${e.course || "Unknown"}","${e.description || ""}","${e.rosterFilename || ""}","${e.location || ""}","${e.date || ""}","${e.createdBy || "Teacher"}"\n`;
+  });
+
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "admin_table.csv";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function filterTable() {
+  const input = document.getElementById("searchInput").value.toLowerCase();
+  document.querySelectorAll("#adminTable tbody tr").forEach(row => {
+    const text = row.innerText.toLowerCase();
+    row.style.display = text.includes(input) ? "" : "none";
+  });
+}
+
+function goBack() {
+  window.location.href = "admin-dashboard.html";
+}
+
+window.onload = loadEvents;
+</script>
+
+</body>
+</html>

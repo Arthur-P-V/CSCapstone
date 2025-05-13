@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Student Check-In Login</title>
+  <style>
+    body {
+      background-color: #003366;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .login-container {
+      background-color: white;
+      padding: 30px 40px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      width: 300px;
+      text-align: center;
+    }
+
+    .login-container h2 {
+      margin-bottom: 20px;
+    }
+
+    .login-container input[type="text"],
+    .login-container input[type="password"] {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+
+    .login-container button {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+
+    .login-btn {
+      background-color: #007bff;
+      color: white;
+    }
+
+    .login-btn:hover {
+      background-color: #0056b3;
+    }
+
+    .secondary-btn {
+      background-color: #6c757d;
+      color: white;
+    }
+
+    .secondary-btn:hover {
+      background-color: #5a6268;
+    }
+
+    .forgot-link {
+      background-color: #ffc107;
+      color: black;
+    }
+
+    .forgot-link:hover {
+      background-color: #e0a800;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-container">
+    <h2>Student Check-In</h2>
+
+    <input type="text" placeholder="eNumber" id="username" />
+    <input type="password" placeholder="Password" id="password" />
+
+    <button class="login-btn" onclick="login()">Login</button>
+    <button class="forgot-link" onclick="showHelp()">Forgot Password?</span>
+    <button class="secondary-btn" onclick="goToRegister()">Create New User Account</button>
+    <button class="secondary-btn" onclick="goBack()">Go Back</button>
+  </div>
+
+  <script>
+    function login() {
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const params = new URLSearchParams(window.location.search);
+      const classId = params.get("classId");
+
+      if (!username || !password) {
+        alert("Please enter both username and password.");
+        return;
+      }
+
+      const users = JSON.parse(localStorage.getItem("studentUsers") || "[]");
+      const user = users.find(u => u.eNumber === username && u.password === password);
+
+      if (!user) {
+        alert("Invalid credentials or teacher account not found.\nPlease contact your admin.");
+        return;
+      }
+
+      localStorage.setItem("loggedInUser", username);
+      localStorage.setItem("role", "Student");
+
+      if (!classId) {
+        alert("Missing class ID. Redirecting to dashboard.");
+        window.location.href = "student-dashboard.html";
+      } else {
+        window.location.href = `check-in.html?classId=${encodeURIComponent(classId)}`;
+      }
+    }
+
+    function showHelp() {
+      alert("Invalid credentials or teacher account not found.\nPlease contact your admin.");
+    }
+
+    function goToRegister() {
+      window.location.href = "new-student-user.html";
+    }
+
+    function goBack() {
+      window.location.href = "index.html";
+    }
+  </script>
+</body>
+</html>
