@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -58,17 +57,31 @@
 </head>
 <body>
   <h1>Teacher Dashboard</h1>
+
   <div class="button-container">
-    <button class="btn" onclick="window.location.href='create-event-option'">Create New Event</button>
-    <button class="btn" onclick="window.location.href='library'">Event Library</button>
-    <button class="btn logout-btn" onclick="logout()">Log Out</button>
+    <button class="btn" onclick="window.location.href='/create-class'">Create Class</button>
+    <button class="btn" onclick="window.location.href='/create-event'">Create Meeting</button>
+    <button class="btn" onclick="window.location.href='/library'">Library</button>
+    <button class="btn logout-btn" onclick="logout()">Logout</button>
   </div>
 
   <script>
+    //user is a logged-in teacher AND exists in teacher accounts
+    const loggedInUser = localStorage.getItem("loggedInUser");
+    const role = localStorage.getItem("role");
+    const teachers = JSON.parse(localStorage.getItem("teachers") || "[]");
+
+    const isValidTeacher = teachers.some(t => t.username === loggedInUser);
+
+    if (role !== "teacher" || !isValidTeacher) {
+      alert("Access denied. Please log in with a valid teacher account.");
+      window.location.href = "/teacher-login";
+    }
+
     function logout() {
-      // Clear any session or redirect to login page
-      //localStorage.clear(); 
-      window.location.href = "homepage"; // Change if you have a different login page
+      localStorage.removeItem("loggedInUser");
+      localStorage.removeItem("role");
+      window.location.href = "/homepage";
     }
   </script>
 </body>

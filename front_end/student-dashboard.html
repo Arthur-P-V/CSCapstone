@@ -63,20 +63,19 @@
       background-color: #f2f2f2;
     }
 
-    #downloadBtn, #goBackBtn {
+    #logoutBtn {
       margin-top: 20px;
       padding: 10px 20px;
       font-size: 16px;
-      background-color: #007bff;
+      background-color: #dc3545;
       color: white;
       border: none;
       border-radius: 5px;
       cursor: pointer;
-      margin-right: 10px;
     }
 
-    #downloadBtn:hover, #goBackBtn:hover {
-      background-color: #0056b3;
+    #logoutBtn:hover {
+      background-color: #c82333;
     }
   </style>
 </head>
@@ -98,48 +97,67 @@
         <th>Description</th>
         <th>Location</th>
         <th>Date</th>
-        <th>Recurring</th>
       </tr>
     </thead>
-    <tbody>
-      <!-- Dynamic rows will be loaded here -->
-    </tbody>
+    <tbody></tbody>
   </table>
 
-  <button id="downloadBtn">Download CSV</button>
-  <button id="goBackBtn">Go Back to Dashboard</button>
+  <button id="logoutBtn">Log Out</button>
 
   <script>
     const table = document.getElementById("studentTable");
     const tbody = table.querySelector("tbody");
 
-    // Load checked-in classes
     window.addEventListener("DOMContentLoaded", () => {
       tbody.innerHTML = "";
 
-      // ------------------------------------------------------------------------------------------------------------------------------------------------
-      // Change localStorage to our database
-      // ------------------------------------------------------------------------------------------------------------------------------------------------
-      const checkins = JSON.parse(localStorage.getItem("studentCheckins")) || [];
+      // currently logged-in student
+      const currentUser = localStorage.getItem("loggedInUser"); // Replaec localStorage
 
-      checkins.forEach(event => {
+      // Replaec localStorage
+      const checkins = JSON.parse(localStorage.getItem("studentCheckins") || "[]");
+
+      // Replaec localStorage
+      const activeEvents = [
+        ...JSON.parse(localStorage.getItem("adminTable") || "[]"),
+        ...JSON.parse(localStorage.getItem("events") || "[]")
+      ];
+
+      // deleted classes don’t appear on the dashboard
+      const validSignatures = new Set(
+        activeEvents.map(ev => `${ev.course}__${ev.date}`)
+      );
+
+      // Filter by logged-in user and active events
+      const filtered = checkins.filter(ci => {
+        const sig = `${ci.course}__${ci.date}`;
+        return ci.student === currentUser && validSignatures.has(sig);
+      });
+
+      if (filtered.length === 0) {
+        const row = document.createElement("tr");
+        row.innerHTML = `<td colspan="5" style="text-align:center;">No check-ins found.</td>`;
+        tbody.appendChild(row);
+        return;
+      }
+
+      // Display valid check-ins
+      filtered.forEach(event => {
         const row = document.createElement("tr");
         row.innerHTML = `
-          <td>${event.course}</td>
-          <td>${event.teacher}</td>
-          <td>${event.description}</td>
-          <td>${event.location}</td>
-          <td>${event.date}</td>
-          <td>${event.recurring}</td>
+          <td>${event.course || ""}</td>
+          <td>${event.teacher || ""}</td>
+          <td>${event.description || ""}</td>
+          <td>${event.location || ""}</td>
+          <td>${event.date || ""}</td>
         `;
         tbody.appendChild(row);
       });
     });
 
-    // Search filter
-    const searchInput = document.getElementById("searchInput");
-    searchInput.addEventListener("keyup", function () {
-      const filter = searchInput.value.toLowerCase();
+    // filtering
+    document.getElementById("searchInput").addEventListener("keyup", function () {
+      const filter = this.value.toLowerCase();
       const rows = tbody.getElementsByTagName("tr");
 
       for (let i = 0; i < rows.length; i++) {
@@ -155,29 +173,11 @@
       }
     });
 
-    // Download CSV
-    document.getElementById("downloadBtn").addEventListener("click", function () {
-      let csvContent = "data:text/csv;charset=utf-8,";
-      const rows = table.querySelectorAll("tr");
-
-      rows.forEach(row => {
-        const cols = row.querySelectorAll("td, th");
-        const rowData = Array.from(cols).map(col => `"${col.innerText}"`).join(",");
-        csvContent += rowData + "\r\n";
-      });
-
-      const encodedUri = encodeURI(csvContent);
-      const link = document.createElement("a");
-      link.setAttribute("href", encodedUri);
-      link.setAttribute("download", "student_class_schedule.csv");
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    });
-
-    // Go Back Button
-    document.getElementById("goBackBtn").addEventListener("click", function () {
-      window.location.href = "homepage"; // Update filename if needed
+    // Logout and redirect
+    document.getElementById("logoutBtn").addEventListener("click", function () {
+      localStorage.removeItem("loggedInUser");
+      localStorage.removeItem("role");
+      window.location.href = "homepage";
     });
   </script>
 

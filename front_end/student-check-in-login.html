@@ -1,8 +1,8 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Student Login</title>
+  <title>Student Check-In Login</title>
   <style>
     body {
       background-color: #003366;
@@ -58,20 +58,20 @@
     }
 
     .secondary-btn {
-      background-color: #007bff;
+      background-color: #6c757d;
       color: white;
     }
 
     .secondary-btn:hover {
-      background-color: #0056b3;
+      background-color: #5a6268;
     }
 
-    .forgot-btn {
+    .forgot-link {
       background-color: #ffc107;
       color: black;
     }
 
-    .forgot-btn:hover {
+    .forgot-link:hover {
       background-color: #e0a800;
     }
   </style>
@@ -79,14 +79,14 @@
 <body>
 
   <div class="login-container">
-    <h2>Student Login</h2>
+    <h2>Student Check-In</h2>
 
-    <input type="text" placeholder="Username" id="username" />
+    <input type="text" placeholder="eNumber" id="username" />
     <input type="password" placeholder="Password" id="password" />
 
     <button class="login-btn" onclick="login()">Login</button>
+    <button class="forgot-link" onclick="showHelp()">Forgot Password?</span>
     <button class="secondary-btn" onclick="goToRegister()">Create New User Account</button>
-    <button class="forgot-btn" onclick="forgotPassword()">Forgot Password?</button>
     <button class="secondary-btn" onclick="goBack()">Go Back</button>
   </div>
 
@@ -94,38 +94,46 @@
     function login() {
       const username = document.getElementById("username").value.trim();
       const password = document.getElementById("password").value.trim();
+      const params = new URLSearchParams(window.location.search);
+      const classId = params.get("classId");
 
       if (!username || !password) {
         alert("Please enter both username and password.");
         return;
       }
 
-      const students = JSON.parse(localStorage.getItem("studentUsers") || "[]");
-      const student = students.find(user => user.eNumber === username && user.password === password);
+      const users = JSON.parse(localStorage.getItem("studentUsers") || "[]");
+      const user = users.find(u => u.eNumber === username && u.password === password);
 
-      if (!student) {
-        alert("Invalid credentials or student account not found.\nPlease create an account or contact your admin.");
+      if (!user) {
+        alert("Invalid credentials or teacher account not found.\nPlease contact your admin.");
         return;
       }
 
       localStorage.setItem("loggedInUser", username);
       localStorage.setItem("role", "Student");
 
-      window.location.href = "student-dashboard";
+      if (!classId) {
+        alert("Missing class ID. Redirecting to dashboard.");
+        window.location.href = "/student-dashboard";
+      } else {
+        // Dyllon, this is where students checking in with QR-code will be sent after they log in
+        // Think about either cookie or using a user's enumber to auto populate the field
+        window.location.href = `/student-check-in/l-?classId=${encodeURIComponent(classId)}`;
+      }
+    }
+
+    function showHelp() {
+      alert("Invalid credentials or teacher account not found.\nPlease contact your admin.");
     }
 
     function goToRegister() {
-      window.location.href = "student-new-user";
+      window.location.href = "/student-new-user";
     }
 
     function goBack() {
-      window.location.href = "homepage";
-    }
-
-    function forgotPassword() {
-      alert("Please contact your administrator to reset your password.");
+      window.location.href = "/homepage";
     }
   </script>
-
 </body>
 </html>

@@ -13,17 +13,20 @@
       height: 100vh;
       margin: 0;
     }
+
     .login-container {
       background-color: white;
       padding: 30px 40px;
       border-radius: 10px;
       box-shadow: 0 4px 8px rgba(0,0,0,0.2);
       width: 300px;
-    }
-    .login-container h2 {
       text-align: center;
+    }
+
+    .login-container h2 {
       margin-bottom: 20px;
     }
+
     .login-container input[type="text"],
     .login-container input[type="password"] {
       width: 100%;
@@ -34,33 +37,89 @@
       font-size: 16px;
       box-sizing: border-box;
     }
+
     .login-container button {
       width: 100%;
       padding: 12px;
-      background-color: #007bff;
-      border: none;
-      color: white;
       font-size: 16px;
+      border: none;
       border-radius: 5px;
       cursor: pointer;
+      margin-bottom: 10px;
     }
-    .login-container button:hover {
+
+    .login-btn {
+      background-color: #007bff;
+      color: white;
+    }
+
+    .login-btn:hover {
       background-color: #0056b3;
+    }
+
+    .back-btn {
+      background-color: #6c757d;
+      color: white;
+    }
+
+    .back-btn:hover {
+      background-color: #5a6268;
+    }
+
+    .forgot-btn {
+      background-color: #ffc107;
+      color: black;
+    }
+
+    .forgot-btn:hover {
+      background-color: #e0a800;
     }
   </style>
 </head>
 <body>
+
+  <!-- Login form layout -->
   <div class="login-container">
     <h2>Teacher Login</h2>
     <input type="text" placeholder="Username" id="username" />
     <input type="password" placeholder="Password" id="password" />
-    <button onclick="login()">Login</button>
+    <button class="login-btn" onclick="login()">Login</button>
+    <button class="forgot-btn" onclick="forgotPassword()">Forgot Password?</button>
+    <button class="back-btn" onclick="goBack()">Go Back</button>
   </div>
 
   <script>
     function login() {
-      window.location.href = "teacher-dashboard";
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value.trim();
+
+      if (!username || !password) {
+        alert("Please enter both username and password.");
+        return;
+      }
+
+      const teachers = JSON.parse(localStorage.getItem("teachers") || "[]");
+      const teacher = teachers.find(t => t.username === username && t.password === password);
+
+      if (!teacher) {
+        alert("Invalid credentials or teacher account not found.\nPlease contact your admin.");
+        return;
+      }
+
+      localStorage.setItem("loggedInUser", username);
+      localStorage.setItem("role", "teacher");
+
+      window.location.href = "/teacher/dashboard";
+    }
+
+    function goBack() {
+      window.location.href = "/homepage";
+    }
+
+    function forgotPassword() {
+      alert("Please contact your administrator to reset your password.");
     }
   </script>
+
 </body>
 </html>
