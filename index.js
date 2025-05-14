@@ -316,17 +316,6 @@ const server = Bun.serve({
             },
         },
 
-        "/teacher-login":{
-            GET: async (req) =>{
-                const html = await Bun.file("front_end/teacher-login.html").text();
-                return new Response(html, {
-                    headers: {
-                        "Content-Type": "text/html",
-                    },
-                });
-            },
-        },
-
         // Teacher and Admin pages
         "/create-class":{
             GET: async (req) =>{
