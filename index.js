@@ -6,14 +6,16 @@ import { classes } from "./db/schema/classes";
 import { eq, ne, gt, gte} from "drizzle-orm";
 
 import {create_class, delete_class, get_all_classes, get_class_by_id, update_class} from "./functions/class_functions";
-import { get_all_users, get_user_by_eNumber, delete_user, create_user, update_password } from "./functions/user_functions";
+import { get_all_users, get_user_by_eNumber, delete_user, create_user, update_password, verify } from "./functions/user_functions";
 import { get_all_meetings, get_meeting_by_id, create_meeting, update_meeting, delete_meeting } from "./functions/meeting_functions";
 import { create_attendance_record, mark_checked_in, get_all_attendance } from "./functions/attendance_functions";
+
 
 import index from "./front_end/index.html";
 
 import { AdminCookies, StudentCookies, Option, TeacherCookies } from "./newCookies";
 
+// Making a connection with mySQL
 const connection = await mysql.createConnection({
     host: process.env.HOST,
     user: process.env.USER,
@@ -138,6 +140,20 @@ const server = Bun.serve({
             }
         },
 
+        "/api/verify":{
+            POST: async (req) => {
+                const data = await verify(db, req);
+                return Response.json(data);
+            }
+        },
+
+        "/api/hash":{
+            POST: async (req) => {
+                const data = await hash(db, req);
+                return Response.json(data);
+            }
+        },
+
 
 
       // Loads all the events or create a new event
@@ -219,56 +235,210 @@ const server = Bun.serve({
 
 
         // The front end, this is using functions in the "front_end" folder and creating front end pages.
-        // 
+        // index.html (homepage)
+        "/*":index,
+
+        // Making the homepage
+        "/homepage":index,
+
+        // Student pages
+        "/student-login":{
+            GET: async (req) =>{
+
+                const cookie = req.headers.get("cookie") || "";
+
+                 // Check if StudentSignIn cookie exists
+                if (cookie.includes("StudentSignIn=")) {
+                    return new Response(null, {
+                        status: 302,
+                        headers: {
+                        Location: "/student-dashboard",
+                        },
+                    });
+                 }
+
+                const html = await Bun.file("front_end/student-login.html").text();
+                return new Response(html, {
+                    headers: {
+                        "Content-Type": "text/html",
+                    },
+                });
+            },
+
+            POST: StudentCookies,
+            OPTIONS: Option,
+
+        },
+
+        "/student-check-in-login/:class_id":{
+            GET: async (req) =>{
+                const html = await Bun.file("front_end/student-check-in-login.html").text();
+                return new Response(html, {
+                    headers: {
+                        "Content-Type": "text/html",
+                    },
+                });
+            },
+        },
+
+        "/student-dashboard":{
+            GET: async (req) =>{
+                const html = await Bun.file("front_end/student-dashboard.html").text();
+                return new Response(html, {
+                    headers: {
+                        "Content-Type": "text/html",
+                    },
+                });
+            },
+        },
+
+        "/student-new-user":{
+            GET: async (req) =>{
+                const html = await Bun.file("front_end/new-student-user.html").text();
+                return new Response(html, {
+                    headers: {
+                        "Content-Type": "text/html",
+                    },
+                });
+            },
+        },
+
         
-        "/student-check-in/:meeting_id":{
-          GET: async (req) =>{
-            const html = await Bun.file("front_end/check-in.html").text();
+        "/student-confirmation/:class_id":{
+            GET: async (req) =>{
+                const html = await Bun.file("front_end/confirmation.html").text();
+                return new Response(html, {
+                    headers: {
+                        "Content-Type": "text/html",
+                    },
+                });
+            },
+        },
+
+        // Need to implement and work on
+        "/student-check-in/:class_id":{
+            GET: async (req) =>{
+                const html = await Bun.file("front_end/check-in.html").text();
+                return new Response(html, {
+                    headers: {
+                        "Content-Type": "text/html",
+                    },
+                });
+            },
+        },
+
+        // Teacher pages
+        "/teacher-login":{
+            GET: async (req) =>{
+
+               const cookie = req.headers.get("cookie") || "";
+
+                // Check if StudentSignIn cookie exists
+               if (cookie.includes("TeacherSign-In=")) {
+                   return new Response(null, {
+                       status: 302,
+                       headers: {
+                       Location: "/teacher-dashboard",
+                       },
+                   });
+                }
+
+                const html = await Bun.file("front_end/teacher-login.html").text();
+                return new Response(html, {
+                    headers: {
+                        "Content-Type": "text/html",
+                    },
+                });
+            },
+
+            POST: TeacherCookies,
+            OPTIONS: Option,
+        },
+
+        "/teacher/dashboard":{
+            GET: async (req) =>{
+                const html = await Bun.file("front_end/teacher-dashboard.html").text();
+                return new Response(html, {
+                    headers: {
+                        "Content-Type": "text/html",
+                    },
+                });
+            },
+        },
+
+        // Teacher and Admin pages
+        "/create-class":{
+            GET: async (req) =>{
+            const html = await Bun.file("front_end/create-class.html").text();
             return new Response(html, {
                 headers: {
                     "Content-Type": "text/html",
                 },
             });
+            },
         },
-        },
 
-      // Need to create these routes
-      // admin-dashboard.html
-      "/admin/dashboard":{
-        GET: async (req) =>{
-
-            const cookie = req.headers.get("cookie") || "";
-
-            if (cookie.includes("AdminSign-In=")) {
-                return new Response(null, {
-                    status: 302,
-                    headers: {
-                    Location: "/admin-dashboard",
-                    },
-                });
-             }
-            else if(cookie.includes("TeacherSign-In=")){
-                return new Response(null, {
-                    Location: "front_end/teacher-login.html",
-                });
-            }
-            else if(cookie.includes("StudentSign-In=")){
-                return new Response(null, {
-                    Location: "front_end/student-login.html",
-                });
-            }
-
-
-            const html = await Bun.file("front_end/admin-dashboard.html").text();
+        "/library":{
+            GET: async (req) =>{
+            const html = await Bun.file("front_end/library.html").text();
             return new Response(html, {
-                 headers: {
+                headers: {
                     "Content-Type": "text/html",
                 },
             });
-      },
-      },
-      // admin-login.html
-      "/admin-login":{
+            },
+        },
+
+        "/manage-templates":{
+            GET: async (req) =>{
+            const html = await Bun.file("front_end/manage-templates.html").text();
+            return new Response(html, {
+                headers: {
+                    "Content-Type": "text/html",
+                },
+            });
+            },
+        },
+
+
+        "/create-event":{
+            GET: async (req) =>{
+            const html = await Bun.file("front_end/create-event.html").text();
+            return new Response(html, {
+                headers: {
+                    "Content-Type": "text/html",
+                },
+            });
+            },
+        },
+
+        "/QR-display/:id":{
+            GET: async (req) =>{
+            const html = await Bun.file("front_end/QR-display.html").text();
+            return new Response(html, {
+                headers: {
+                    "Content-Type": "text/html",
+                },
+            });
+            },
+        },
+
+        "/reports/:classId":{
+            GET: async (req) =>{
+            const html = await Bun.file("front_end/reports.html").text();
+            return new Response(html, {
+                headers: {
+                    "Content-Type": "text/html",
+                },
+            });
+            },
+        },
+
+
+
+
+        // Admin pages
+        "/admin-login":{
             GET: async (req) =>{
 
                 const cookie = req.headers.get("cookie") || "";
@@ -305,164 +475,88 @@ const server = Bun.serve({
             OPTIONS: Option,
 
         },
-      // check-in.html
-      "/check-in":{
-            GET: async (req) =>{
-                const html = await Bun.file("front_end/check-in.html").text();
-                return new Response(html, {
+
+      "/admin/dashboard":{
+        GET: async (req) =>{
+
+            const cookie = req.headers.get("cookie") || "";
+
+            if (cookie.includes("AdminSign-In=")) {
+                return new Response(null, {
+                    status: 302,
                     headers: {
-                        "Content-Type": "text/html",
+                    Location: "/admin-dashboard",
                     },
                 });
-            },
-        },
-      // confirmation.html
-      // Need to work on this page.
-      "/confirmation":{
-            GET: async (req) =>{
-                const html = await Bun.file("front_end/confirmation.html").text();
-                return new Response(html, {
-                    headers: {
-                        "Content-Type": "text/html",
-                    },
+             }
+            else if(cookie.includes("TeacherSign-In=")){
+                return new Response(null, {
+                    Location: "front_end/teacher-login.html",
                 });
-            },
-        },
-      // create-event-option.html
-      "/create-event-option":{
-            GET: async (req) =>{
-                const html = await Bun.file("front_end/create-event-option.html").text();
-                return new Response(html, {
-                    headers: {
-                        "Content-Type": "text/html",
-                    },
+            }
+            else if(cookie.includes("StudentSign-In=")){
+                return new Response(null, {
+                    Location: "front_end/student-login.html",
                 });
-            },
+            }
+
+
+            const html = await Bun.file("front_end/admin-dashboard.html").text();
+            return new Response(html, {
+                 headers: {
+                    "Content-Type": "text/html",
+                },
+            });
+      },
+      },
+
+      "/admin/class-view":{
+        GET: async (req) =>{
+          const html = await Bun.file("front_end/admin-class-view.html").text();
+          return new Response(html, {
+              headers: {
+                  "Content-Type": "text/html",
+              },
+          });
         },
-      // create-event.html
-      "/create-event":{
-            GET: async (req) =>{
-                const html = await Bun.file("front_end/create-event.html").text();
-                return new Response(html, {
-                    headers: {
-                        "Content-Type": "text/html",
-                    },
-                });
-            },
+      },
+
+      "/admin/create-teacher":{
+        GET: async (req) =>{
+          const html = await Bun.file("front_end/create-teacher-account.html").text();
+          return new Response(html, {
+              headers: {
+                  "Content-Type": "text/html",
+              },
+          });
         },
-        "/*":index,
-      // index.html (homepage)
+      },
+
+      "/admin/view-teachers":{
+        GET: async (req) =>{
+          const html = await Bun.file("front_end/view-teachers.html").text();
+          return new Response(html, {
+              headers: {
+                  "Content-Type": "text/html",
+              },
+          });
+        },
+      },
+
+      "/admin/view-students":{
+        GET: async (req) =>{
+          const html = await Bun.file("front_end/view-students.html").text();
+          return new Response(html, {
+              headers: {
+                  "Content-Type": "text/html",
+              },
+          });
+        },
+      },
+
       
-      // libary.html
-      "/library":{
-            GET: async (req) =>{
-                const html = await Bun.file("front_end/library.html").text();
-                return new Response(html, {
-                    headers: {
-                        "Content-Type": "text/html",
-                    },
-                });
-            },
-        },
-      // QR-display.html
-      "/QR-display":{
-            GET: async (req) =>{
-                const html = await Bun.file("front_end/QR-display.html").text();
-                return new Response(html, {
-                    headers: {
-                        "Content-Type": "text/html",
-                    },
-                });
-            },
-        },
-      // reports.html
-      "/reports":{
-            GET: async (req) =>{
-                const html = await Bun.file("front_end/reports.html").text();
-                return new Response(html, {
-                    headers: {
-                        "Content-Type": "text/html",
-                    },
-                });
-            },
-        },
-      // student-dashboard.html
-      "/student-dashboard":{
-            GET: async (req) =>{
-                const html = await Bun.file("front_end/student-dashboard.html").text();
-                return new Response(html, {
-                    headers: {
-                        "Content-Type": "text/html",
-                    },
-                });
-            },
-        },
-      // student-login.html
-      "/student-login":{
-            GET: async (req) =>{
 
-                const cookie = req.headers.get("cookie") || "";
 
-                 // Check if StudentSignIn cookie exists
-                if (cookie.includes("StudentSignIn=")) {
-                    return new Response(null, {
-                        status: 302,
-                        headers: {
-                        Location: "/student-dashboard",
-                        },
-                    });
-                 }
-
-                const html = await Bun.file("front_end/student-login.html").text();
-                return new Response(html, {
-                    headers: {
-                        "Content-Type": "text/html",
-                    },
-                });
-            },
-
-            POST: StudentCookies,
-            OPTIONS: Option,
-
-        },
-      // teacher-dashboard.html
-      "/teacher/dashboard":{
-            GET: async (req) =>{
-                const html = await Bun.file("front_end/teacher-dashboard.html").text();
-                return new Response(html, {
-                    headers: {
-                        "Content-Type": "text/html",
-                    },
-                });
-            },
-        },
-      // teacher-login.html
-      "/teacher-login":{
-            GET: async (req) =>{
-
-               const cookie = req.headers.get("cookie") || "";
-
-                // Check if StudentSignIn cookie exists
-               if (cookie.includes("TeacherSign-In=")) {
-                   return new Response(null, {
-                       status: 302,
-                       headers: {
-                       Location: "/teacher-dashboard",
-                       },
-                   });
-                }
-
-                const html = await Bun.file("front_end/teacher-login.html").text();
-                return new Response(html, {
-                    headers: {
-                        "Content-Type": "text/html",
-                    },
-                });
-            },
-
-            POST: TeacherCookies,
-            OPTIONS: Option,
-        },
 
   // The Styles and Images used on the website
         "/styles.css": {

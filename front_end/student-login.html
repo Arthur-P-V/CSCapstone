@@ -91,7 +91,7 @@
   </div>
 
   <script>
-    function login() {
+    async function login() {
       const username = document.getElementById("username").value.trim();
       const password = document.getElementById("password").value.trim();
 
@@ -100,26 +100,64 @@
         return;
       }
 
-      const students = JSON.parse(localStorage.getItem("studentUsers") || "[]");
-      const student = students.find(user => user.eNumber === username && user.password === password);
+      // Data verificatoin
+      
+      try{
+      const checkUser = `http://localhost:8080/api/users/${encodeURIComponent(username)}`;
+      const userExist = await fetch(checkUser);
+      const data = await userExist.json();
+      
+      
 
-      if (!student) {
-        alert("Invalid credentials or student account not found.\nPlease create an account or contact your admin.");
-        return;
+      const validationURL = `http://localhost:8080/api/verify`;
+      
+      const validConnection = await fetch(validationURL, {
+          method: "POST",
+          headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ 
+          username: username,
+          password: password
+        })
+      });
+      
+      return;
+      
+      if (validConnection == true) {
+        // This is going to add a cookie to the browser saying the student is logged in
+      const res = await fetch('http://localhost:8080/student-login', {  //'https://cscapstone-production.up.railway.app/student-login', {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        credentials: "include", // Tells browser to include cookies
+        body: JSON.stringify({ Enumber: username})
+      });
+
+      window.location.href = "/student-dashboard";
+      }
+      else{
+          alert("Invalid credentials or student account not found.\nPlease create an account or contact your admin.");
+          return;
       }
 
-      localStorage.setItem("loggedInUser", username);
-      localStorage.setItem("role", "Student");
+      
 
-      window.location.href = "student-dashboard";
+      }catch (error){
+        console.log("STINKY POOP ERROR");
+        console.error("There is no user with that eNumber");
+      }
+
+      
     }
 
     function goToRegister() {
-      window.location.href = "student-new-user";
+      window.location.href = "/student-new-user";
     }
 
     function goBack() {
-      window.location.href = "homepage";
+      window.location.href = "/homepage";
     }
 
     function forgotPassword() {

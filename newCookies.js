@@ -13,7 +13,7 @@ export function Option(){
  }
 
 export async function StudentCookies(req){
-    const { Enmuber, password } = await req.json();
+    const { Enumber } = await req.json();
 
     const cookie = new Bun.Cookie({
         name: "StudentSign-In",
@@ -35,7 +35,7 @@ export async function StudentCookies(req){
  }
 
  export async function TeacherCookies(req){
-    const { Enmuber, password } = await req.json();
+    const { Enumber, password } = await req.json();
 
     const cookie = new Bun.Cookie({
         name: "TeacherSign-In",
@@ -57,7 +57,7 @@ export async function StudentCookies(req){
  }
 
  export async function AdminCookies(req){
-    const { Enmuber, password } = await req.json();
+    const { Enumber, password } = await req.json();
 
     const hash = bun.password.hash(AdminSign-In);
 
