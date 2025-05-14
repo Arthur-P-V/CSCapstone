@@ -6,7 +6,7 @@ import { classes } from "./db/schema/classes";
 import { eq, ne, gt, gte} from "drizzle-orm";
 
 import {create_class, delete_class, get_all_classes, get_class_by_id, update_class} from "./functions/class_functions";
-import { get_all_users, get_user_by_eNumber, delete_user, create_user, update_password, verify } from "./functions/user_functions";
+import { get_all_users, get_user_by_eNumber, delete_user, create_user, update_password, verifyStudentPassword } from "./functions/user_functions";
 import { get_all_meetings, get_meeting_by_id, create_meeting, update_meeting, delete_meeting } from "./functions/meeting_functions";
 import { create_attendance_record, mark_checked_in, get_all_attendance } from "./functions/attendance_functions";
 
@@ -136,13 +136,13 @@ const server = Bun.serve({
       "/api/users/update_password": {
             PUT: async req => {
                 const data = await update_password(db, req);
-                return Response.json(data);
+                return Response.json({ valid: data});
             }
         },
 
-        "/api/verify":{
+        "/api/verifyStudentPassword":{
             POST: async (req) => {
-                const data = await verify(db, req);
+                const data = await verifyStudentPassword(db, req);
                 return Response.json(data);
             }
         },
@@ -150,6 +150,7 @@ const server = Bun.serve({
         "/api/hash":{
             POST: async (req) => {
                 const data = await hash(db, req);
+                await console.log(data);
                 return Response.json(data);
             }
         },

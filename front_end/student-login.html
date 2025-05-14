@@ -99,19 +99,21 @@
         alert("Please enter both username and password.");
         return;
       }
-
       // Data verificatoin
-      
       try{
-      const checkUser = `http://localhost:8080/api/users/${encodeURIComponent(username)}`;
+        // When running on local machine
+      //const frontOfURL = "http://localhost:8080/";
+        // When running on server
+      const frontOfURL = "https://cscapstone-production.up.railway.app/";
+        
+      
+      const checkUser = frontOfURL + `api/users/${encodeURIComponent(username)}`;
       const userExist = await fetch(checkUser);
       const data = await userExist.json();
-      
-      
 
-      const validationURL = `http://localhost:8080/api/verify`;
+      const validationURL = frontOfURL + `api/verifyStudentPassword`;
       
-      const validConnection = await fetch(validationURL, {
+      const bodyConnection = await fetch(validationURL, {
           method: "POST",
           headers: {
           "Content-Type": "application/json"
@@ -121,35 +123,33 @@
           password: password
         })
       });
+      const validConnection = await bodyConnection.json();
       
-      return;
-      
-      if (validConnection == true) {
+      if (!!validConnection) {
+        const cookieURL = frontOfURL + 'student-login';
         // This is going to add a cookie to the browser saying the student is logged in
-      const res = await fetch('http://localhost:8080/student-login', {  //'https://cscapstone-production.up.railway.app/student-login', {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        credentials: "include", // Tells browser to include cookies
-        body: JSON.stringify({ Enumber: username})
-      });
-
-      window.location.href = "/student-dashboard";
+          const res = await fetch(cookieURL, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            credentials: "include", // Tells browser to include cookies
+            body: JSON.stringify({ Enumber: username})
+            
+          });
+          // This will redirect to the student-dashboard page with the cookie
+          window.location.href = "/student-dashboard";        
       }
       else{
           alert("Invalid credentials or student account not found.\nPlease create an account or contact your admin.");
           return;
       }
-
       
-
       }catch (error){
-        console.log("STINKY POOP ERROR");
-        console.error("There is no user with that eNumber");
+        console.error("There was a server error");
+        return;
       }
-
-      
+      return;
     }
 
     function goToRegister() {

@@ -1,7 +1,7 @@
 import { drizzle } from "drizzle-orm/mysql2";
 import mysql from "mysql2/promise";
 import { users } from "../db/schema/users";
-import { eq, ne, gt, gte} from "drizzle-orm";
+import { eq, ne, gt, gte, and} from "drizzle-orm";
 
 // User functions
 // Get all of the users from the users table
@@ -68,31 +68,80 @@ export async function delete_user(db, req) {
 
 }
 
-export async function verify(db, req) {
+export async function verifyStudentPassword(db, req) {
+    
   try {
-    const user = req.params.username;
-    const password = req.params.password;
-
-    // Await the DB query and get the actual result
+    const {username, password} = await req.json();
+    
+    
+    // Await the DB query and see if the user is in the database
     const result = await db
       .select({ password_hash: users.password_hash })
       .from(users)
-      .where(eq(users.eNumber, user));
-
+      .where(
+        and(
+        eq(users.eNumber, username),
+        eq(users.admin, 0)  // This is checking to see if the account is a student
+    ));
+    
     if (!result || result.length === 0) {
-      return new Response("User not found", { status: 404 });
+      return false;
     }
 
+    // Pulling the passwordHash from the querie
     const passwordHash = result[0].password_hash;
-
+    
+    // Using a built in function that compares plain text password to the hashed password
     const isValid = await Bun.password.verify(password, passwordHash);
-    return new Response(JSON.stringify({ valid: isValid }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
+
+    if(isValid){
+        // The password is correct
+        return true;
+    }
+    else{
+        // The password is incorrect
+        return false;
+    }
 
   } catch (error) {
     console.error('Error verifying username:', error);
-    return new Response("Internal Server Error", { status: 500 });
+    return false;
+  }
+}
+
+export async function verifyPassword(db, req) {
+    
+  try {
+    const {username, password} = await req.json();
+    
+    
+    // Await the DB query and see if the user is in the database
+    const result = await db
+      .select({ password_hash: users.password_hash })
+      .from(users)
+      .where(eq(users.eNumber, username));
+    
+    if (!result || result.length === 0) {
+      return false;
+    }
+
+    // Pulling the passwordHash from the querie
+    const passwordHash = result[0].password_hash;
+    
+    // Using a built in function that compares plain text password to the hashed password
+    const isValid = await Bun.password.verify(password, passwordHash);
+
+    if(isValid){
+        // The password is correct
+        return true;
+    }
+    else{
+        // The password is incorrect
+        return false;
+    }
+
+  } catch (error) {
+    console.error('Error verifying username:', error);
+    return false;
   }
 }

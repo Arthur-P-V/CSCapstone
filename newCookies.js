@@ -19,9 +19,10 @@ export async function StudentCookies(req){
         name: "StudentSign-In",
         value: Enumber,
         expires: new Date(Date.now() + 86400000),
-        secure: false,
+        secure: true,
         sameSite: "none",
-        httpOnly: true,
+        httpOnly: false,
+        sameSite: "lax",
         });
                 
                 //return response and sets the cookie, this doesnt send a cookie to a database
