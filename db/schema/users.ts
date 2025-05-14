@@ -6,7 +6,7 @@ export const users = table(
     {
         id: t.int().notNull().primaryKey().autoincrement(),
         eNumber: t.varchar({length: 10}).notNull(),
-        password_hash: t.mediumtext().notNull(),
+        password_hash: t.varchar({length: 255}).notNull(),
         admin: t.boolean().notNull(),
         first_name: t.varchar({length: 20}).notNull(),
         last_name: t.varchar({length: 20}).notNull()

@@ -1,7 +1,7 @@
 import { drizzle } from "drizzle-orm/mysql2";
 import mysql from "mysql2/promise";
 import { users } from "../db/schema/users";
-import { eq, ne, gt, gte} from "drizzle-orm";
+import { eq, ne, gt, gte, and} from "drizzle-orm";
 
 // User functions
 // Get all of the users from the users table
@@ -29,8 +29,9 @@ export async function get_user_by_eNumber(db, req) {
 // Create a new user in the users table
 export async function create_user(db, req) {
     try{
-        const {id, eNumber, password_hash, admin, first_name, last_name} = await req.json(); //the const variables are actually matched to the json body returned by req.json(), the order doesn't matter                                                      
-        const new_event = await db.insert(users).values({id:id, eNumber:eNumber, password_hash:password_hash, admin:admin, first_name:first_name, last_name:last_name});
+        const {id, eNumber, password, admin, first_name, last_name} = await req.json(); //the const variables are actually matched to the json body returned by req.json(), the order doesn't matter                                                      
+        const hash = await Bun.password.hash(password);
+        const new_event = await db.insert(users).values({id:id, eNumber:eNumber, password_hash:hash, admin:admin, first_name:first_name, last_name:last_name});
         return "Post Successful!"
     }catch (error) {
         console.error("An Error Occurred: ", error.message)
@@ -40,10 +41,11 @@ export async function create_user(db, req) {
 // Update a users password
 export async function update_password(db, req){
     try{
-        const {id, password_hash} = await req.json();
+        const {id, password} = await req.json();
+        const hash = await Bun.password.hash(password);
         const data = await db.update(users).set(
             {
-                password_hash: password_hash
+                password_hash: hash
             
             }).where(eq(users.id, Number(id)));
             
@@ -64,4 +66,82 @@ export async function delete_user(db, req) {
         console.error("An Error Occurred: ", error.message)
     }
 
+}
+
+export async function verifyStudentPassword(db, req) {
+    
+  try {
+    const {username, password} = await req.json();
+    
+    
+    // Await the DB query and see if the user is in the database
+    const result = await db
+      .select({ password_hash: users.password_hash })
+      .from(users)
+      .where(
+        and(
+        eq(users.eNumber, username),
+        eq(users.admin, 0)  // This is checking to see if the account is a student
+    ));
+    
+    if (!result || result.length === 0) {
+      return false;
+    }
+
+    // Pulling the passwordHash from the querie
+    const passwordHash = result[0].password_hash;
+    
+    // Using a built in function that compares plain text password to the hashed password
+    const isValid = await Bun.password.verify(password, passwordHash);
+
+    if(isValid){
+        // The password is correct
+        return true;
+    }
+    else{
+        // The password is incorrect
+        return false;
+    }
+
+  } catch (error) {
+    console.error('Error verifying username:', error);
+    return false;
+  }
+}
+
+export async function verifyPassword(db, req) {
+    
+  try {
+    const {username, password} = await req.json();
+    
+    
+    // Await the DB query and see if the user is in the database
+    const result = await db
+      .select({ password_hash: users.password_hash })
+      .from(users)
+      .where(eq(users.eNumber, username));
+    
+    if (!result || result.length === 0) {
+      return false;
+    }
+
+    // Pulling the passwordHash from the querie
+    const passwordHash = result[0].password_hash;
+    
+    // Using a built in function that compares plain text password to the hashed password
+    const isValid = await Bun.password.verify(password, passwordHash);
+
+    if(isValid){
+        // The password is correct
+        return true;
+    }
+    else{
+        // The password is incorrect
+        return false;
+    }
+
+  } catch (error) {
+    console.error('Error verifying username:', error);
+    return false;
+  }
 }

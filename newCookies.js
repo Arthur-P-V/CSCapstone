@@ -13,15 +13,16 @@ export function Option(){
  }
 
 export async function StudentCookies(req){
-    const { Enmuber, password } = await req.json();
+    const { Enumber } = await req.json();
 
     const cookie = new Bun.Cookie({
         name: "StudentSign-In",
         value: Enumber,
         expires: new Date(Date.now() + 86400000),
-        secure: false,
+        secure: true,
         sameSite: "none",
-        httpOnly: true,
+        httpOnly: false,
+        sameSite: "lax",
         });
                 
                 //return response and sets the cookie, this doesnt send a cookie to a database
@@ -35,7 +36,7 @@ export async function StudentCookies(req){
  }
 
  export async function TeacherCookies(req){
-    const { Enmuber, password } = await req.json();
+    const { Enumber, password } = await req.json();
 
     const cookie = new Bun.Cookie({
         name: "TeacherSign-In",
@@ -57,7 +58,7 @@ export async function StudentCookies(req){
  }
 
  export async function AdminCookies(req){
-    const { Enmuber, password } = await req.json();
+    const { Enumber, password } = await req.json();
 
     const hash = bun.password.hash(AdminSign-In);
 
