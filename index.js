@@ -6,7 +6,7 @@ import { classes } from "./db/schema/classes";
 import { eq, ne, gt, gte} from "drizzle-orm";
 
 import {create_class, delete_class, get_all_classes, get_class_by_id, update_class} from "./functions/class_functions";
-import { get_all_users, get_user_by_eNumber, delete_user, create_user } from "./functions/user_functions";
+import { get_all_users, get_user_by_eNumber, delete_user, create_user, update_password } from "./functions/user_functions";
 import { get_all_meetings, get_meeting_by_id, create_meeting, update_meeting, delete_meeting } from "./functions/meeting_functions";
 import { create_attendance_record, mark_checked_in, get_all_attendance } from "./functions/attendance_functions";
 
@@ -130,6 +130,15 @@ const server = Bun.serve({
        }
       },
 
+      "/api/users/update_password": {
+            PUT: async req => {
+                const data = await update_password(db, req);
+                return Response.json(data);
+            }
+        },
+
+
+
       // Loads all the events or create a new event
 
         "/api/classes": { //Considering adding an optional URL param that will allow us to snag all classes associated with one user
@@ -162,6 +171,8 @@ const server = Bun.serve({
                 return Response.json(data);
             }
         },
+
+        
 
 
         "/api/meetings": { //Considering adding an optional URL param that will allow us to snag all meetings associated with one class

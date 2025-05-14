@@ -37,8 +37,22 @@ export async function create_user(db, req) {
     }
 }
 
-// TODO:
-// Update User function
+// Update a users password
+export async function update_password(db, req){
+    try{
+        const {id, password_hash} = await req.json();
+        const data = await db.update(users).set(
+            {
+                password_hash: password_hash
+            
+            }).where(eq(users.id, Number(id)));
+            
+        return data;
+    }
+    catch(error){
+        console.error("An Error Occured: ", error.message);
+    }
+}
 
 
 // Deletes a user from the users table
