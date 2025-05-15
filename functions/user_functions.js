@@ -15,6 +15,26 @@ export async function get_all_users(db) {
 
 }
 
+export async function get_all_students(db) {
+    try{
+        const data = await db.select().from(users).where(eq(users.admin, 0));
+        return data
+    } catch (error) {
+        console.error("An Error Occurred: ", error.message)
+    }
+
+}
+
+export async function get_all_teachers(db) {
+    try{
+        const data = await db.select().from(users).where(eq(users.admin, 1));
+        return data
+    } catch (error) {
+        console.error("An Error Occurred: ", error.message)
+    }
+
+}
+
 // Search up a specfic user by enumber
 export async function get_user_by_eNumber(db, req) {
     try{
