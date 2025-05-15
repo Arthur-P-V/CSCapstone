@@ -143,12 +143,12 @@ const server = Bun.serve({
         // Get students
 
         // 
-        "api/getTeachers":{
+        "/api/getTeachers":{
             GET: async req => {
           const data = await get_teachers(db, req);
           return Response.json(data);
+            },
         },
-
         "/api/verifyStudentPassword":{
             POST: async (req) => {
                 const data = await verifyStudentPassword(db, req);
@@ -390,12 +390,29 @@ const server = Bun.serve({
 
         "/teacher/dashboard":{
             GET: async (req) =>{
+
+                const cookie = req.headers.get("cookie") || "";
+
+                if (cookie.includes("TeacherSign-In=")) {
                 const html = await Bun.file("front_end/teacher-dashboard.html").text();
                 return new Response(html, {
+                    status: 302,
                     headers: {
                         "Content-Type": "text/html",
                     },
                 });
+                }
+                else{
+                    return new Response(null, {
+                        status: 301,
+                        headers: {
+                        Location: "/teacher-login"
+                        },
+                    });
+                }
+                
+                
+
             },
         },
 

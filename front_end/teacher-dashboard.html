@@ -66,23 +66,15 @@
   </div>
 
   <script>
-    //user is a logged-in teacher AND exists in teacher accounts
-    const loggedInUser = localStorage.getItem("loggedInUser");
-    const role = localStorage.getItem("role");
-    const teachers = JSON.parse(localStorage.getItem("teachers") || "[]");
-
-    const isValidTeacher = teachers.some(t => t.username === loggedInUser);
-
-    if (role !== "teacher" || !isValidTeacher) {
-      alert("Access denied. Please log in with a valid teacher account.");
-      window.location.href = "/teacher-login";
-    }
-
+   
+    // We dont check for cookies on the html, we are checking it when the user is directed here.
+    
     function logout() {
       localStorage.removeItem("loggedInUser");
       localStorage.removeItem("role");
       window.location.href = "/homepage";
     }
+    
   </script>
 </body>
 </html>
