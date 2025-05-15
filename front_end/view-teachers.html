@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>View Teacher Accounts</title>
+  <style>
+    body {
+      background-color: #002D74;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      color: white;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: white;
+      color: black;
+    }
+
+    th, td {
+      padding: 12px;
+      border: 1px solid #ccc;
+      text-align: left;
+    }
+
+    th {
+      background-color: #004080;
+      color: white;
+    }
+
+    .action-btn {
+      padding: 6px 12px;
+      font-size: 14px;
+      background-color: #dc3545;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-right: 5px;
+    }
+
+    .action-btn:hover {
+      background-color: #b02a37;
+    }
+
+    .reset-btn {
+      background-color: #ffc107;
+      color: black;
+    }
+
+    .reset-btn:hover {
+      background-color: #e0a800;
+    }
+
+    .back-btn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #28a745;
+      border: none;
+      border-radius: 5px;
+      color: white;
+      cursor: pointer;
+    }
+
+    .back-btn:hover {
+      background-color: #218838;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Registered Teacher Accounts</h1>
+
+<table id="teacher-table">
+  <thead>
+    <tr>
+      <th>ID</th>
+        <th>eNumber</th>
+        <th>Name</th>
+        <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+<button class="back-btn" onclick="goBack()">Back to Dashboard</button>
+
+<script>
+    const frontOfURL = "http://localhost:8080/";
+     //const frontOfURL = "https://cscapstone-production.up.railway.app/";  
+    function loadTeachers() {
+      const fetchURL = frontOfURL + "api/getTeachers";
+      fetch(fetchURL)
+        .then(res => res.json())
+        .then(data => {
+          const tbody = document.querySelector("#teacher-table tbody");
+          if (!tbody) {
+            console.error("Table body not found!");
+            return;
+          }
+
+          data.forEach(teacher => {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+              <td>${teacher.id}</td>
+              <td>${teacher.eNumber}</td>
+              <td>${teacher.first_name} ${teacher.last_name}</td>
+              <td></td>
+            `;
+            // Create buttons and append them
+            const actionsCell = row.querySelector("td:last-child");
+
+            const updateBtn = document.createElement("button");
+            updateBtn.textContent = "Update Password";
+            updateBtn.classList.add("action-btn", "reset-btn"); // yellow style
+            updateBtn.addEventListener("click", () => updatePassword(teacher.id, teacher.eNumber));
+
+            const deleteBtn = document.createElement("button");
+            deleteBtn.textContent = "Delete";
+            deleteBtn.classList.add("action-btn"); // red style (default)
+            deleteBtn.addEventListener("click", () => deleteTeacher(teacher.id, teacher.eNumber));
+
+            actionsCell.appendChild(updateBtn);
+            actionsCell.appendChild(deleteBtn);
+            tbody.appendChild(row);
+          });
+        })
+        .catch(err => {
+          console.error("Error fetching Teachers:", err);
+        });
+    }
+
+    function updatePassword(id, eNumber) {
+      const newPassword = prompt(`Enter a new password for ${eNumber}:`);
+      if (!newPassword) return;
+
+      const fetchURLUpdate = frontOfURL + "api/users";
+      fetch(fetchURLUpdate, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ id: id, password: newPassword })
+      })
+      .then(res => {
+        if (!res.ok) throw new Error("Update failed");
+        return res.json();
+      })
+      .then(data => {
+        alert("Password updated successfully.");
+      })
+      .catch(err => {
+        console.error("Error updating password:", err);
+        alert("Failed to update password.");
+      });
+    }
+
+// ---------------------------------------------------------------------------------------------------------
+    
+function deleteTeacher(id, eNumber) {
+      if (!confirm(`Are you sure you want to delete teacher ${eNumber}?`)) return;
+
+      const fetchURLDelete = frontOfURL + "api/users";
+      fetch(fetchURLDelete, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ id })
+      })
+      .then(res => {
+        if (!res.ok) throw new Error("Delete failed");
+        return res.json();
+      })
+      .then(data => {
+        alert("teacher deleted successfully.");
+        window.location.href = "/admin/view-teachers";
+      })
+      .catch(err => {
+        console.error("Error deleting teacher:", err);
+        alert("Failed to delete teacher.");
+      });
+    }
+
+  function goBack() {
+    window.location.href = "/admin/dashboard";
+  }
+
+
+    // Safe to call here because the table is already loaded
+    loadTeachers();
+  </script>
+
+</body>
+</html>

@@ -23,9 +23,10 @@ export async function StudentCookies(req){
         name: StudentSingIn,
         value: value,
         expires: new Date(Date.now() + 86400000),
-        secure: false,
+        secure: true,
         sameSite: "none",
-        httpOnly: true,
+        httpOnly: false,
+        sameSite: "lax",
         });
                 
                 //return response and sets the cookie, this doesnt send a cookie to a database
@@ -50,6 +51,7 @@ export async function StudentCookies(req){
         secure: false,
         sameSite: "none",
         httpOnly: true,
+        sameSite: "lax",
         });
                 
                 //return response and sets the cookie, this doesnt send a cookie to a database
@@ -63,7 +65,7 @@ export async function StudentCookies(req){
  }
 
  export async function AdminCookies(req){
-    const { Enmuber, password } = await req.json();
+    const { Enumber, password } = await req.json();
 
     const AdminSingIn = caesarCipher("StudentSign-In");
     const value = caesarCipher(Enumber);
@@ -75,6 +77,7 @@ export async function StudentCookies(req){
         secure: false,
         sameSite: "none",
         httpOnly: true,
+        sameSite: "lax",
         });
                 
                 //return response and sets the cookie, this doesnt send a cookie to a database

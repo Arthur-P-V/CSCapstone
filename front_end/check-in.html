@@ -31,7 +31,9 @@
       color: white;
       cursor: pointer;
     }
-    button:hover { background-color: #218838; }
+    button:hover {
+      background-color: #218838;
+    }
   </style>
 </head>
 <body>
@@ -42,36 +44,85 @@
 <button onclick="submitCheckIn()">Submit</button>
 
 <script>
-function submitCheckIn() {
-  const eNumber = document.getElementById('eNumberInput').value.trim();
-  const params = new URLSearchParams(window.location.search);
-  const classId = params.get('classId');
+  //Validate login first
 
-  if (!eNumber || !classId) {
-    alert("Missing eNumber or class information.");
-    return;
+  window.addEventListener("DOMContentLoaded", () => {
+    const loggedInUser = localStorage.getItem("loggedInUser");
+    const role = (localStorage.getItem("role") || "").toLowerCase();
+
+    if (!loggedInUser || role !== "student") {
+      const params = new URLSearchParams(window.location.search);
+      const classId = params.get("classId") || "";
+      window.location.href = "/student-check-in-login/l-?classId=${encodeURIComponent(classId)}";
+    }
+  });
+
+  //Standard 12-hour time formatting
+  function formatTimestamp() {
+    const now = new Date();
+    const yyyy = now.getFullYear();
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    const dd = String(now.getDate()).padStart(2, '0');
+
+    let hours = now.getHours();
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12 || 12; // convert 0 to 12 for 12AM
+
+    return `${yyyy}-${mm}-${dd} ${hours}:${minutes}:${seconds} ${ampm}`;
   }
 
-  // ------------------------------------------------------------------------------------------------------------------------------------------------
-  // Need to change localStore with our database
-  // ------------------------------------------------------------------------------------------------------------------------------------------------
-  let reports = JSON.parse(localStorage.getItem('reports') || '{}');
+  function submitCheckIn() {
+    // Dyllon, I believe this is where you would use the cookie/user account to auto populate the eNumberInput field
+    const eNumber = document.getElementById('eNumberInput').value.trim();
+    const params = new URLSearchParams(window.location.search);
+    const classId = params.get('classId');
 
-  if (!reports[classId]) {
-    reports[classId] = [];
+    if (!eNumber || !classId) {
+      alert("Missing eNumber or class information.");
+      return;
+    }
+
+    const allEvents = [
+      ...JSON.parse(localStorage.getItem("adminTable") || "[]"),
+      ...JSON.parse(localStorage.getItem("events") || "[]")
+    ];
+    const event = allEvents.find(e => e.id === classId);
+
+    if (!event) {
+      alert("Class not found.");
+      return;
+    }
+
+    const timestamp = formatTimestamp();
+
+    // Save to reports
+    let reports = JSON.parse(localStorage.getItem('reports') || '{}');
+    if (!reports[classId]) reports[classId] = [];
+
+    if (!reports[classId].some(entry => entry.eNumber === eNumber)) {
+      reports[classId].push({ eNumber, time: timestamp });
+      localStorage.setItem('reports', JSON.stringify(reports));
+    }
+
+    // Save to studentCheckins
+    const checkins = JSON.parse(localStorage.getItem("studentCheckins") || "[]");
+    if (!checkins.some(ci => ci.student === eNumber && ci.course === event.course && ci.date === event.date)) {
+      checkins.push({
+        student: eNumber,
+        course: event.course || "",
+        teacher: event.teacher || "",
+        description: event.description || "",
+        location: event.location || "",
+        date: event.date || "",
+        time: timestamp
+      });
+      localStorage.setItem("studentCheckins", JSON.stringify(checkins));
+    }
+
+    window.location.href = `/student-confirmation/l-?classId=${classId}`;
   }
-
-  if (!reports[classId].includes(eNumber)) {
-    reports[classId].push(eNumber);
-  }
-
-  // ------------------------------------------------------------------------------------------------------------------------------------------------
-  localStorage.setItem('reports', JSON.stringify(reports));
-  // ------------------------------------------------------------------------------------------------------------------------------------------------
-
-  // After saving, redirect to confirmation
-  window.location.href = `confirmation?classId=${classId}`;
-}
 </script>
 
 </body>

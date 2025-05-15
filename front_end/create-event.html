@@ -2,27 +2,96 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Create New Event</title>
+  <title>Create New Class</title>
   <style>
-    body { font-family: Arial, sans-serif; background-color: #002D74; padding: 40px; }
-    h1 { text-align: center; margin-bottom: 20px; color: white; }
-    .event-form-container { background-color: #fff; padding: 30px; max-width: 600px; margin: 0 auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); }
-    .form-title { text-align: center; font-size: 24px; font-weight: bold; margin-bottom: 20px; }
-    .form-group { margin-bottom: 20px; }
-    label { display: block; font-weight: bold; margin-bottom: 8px; }
-    input[type="text"], input[type="date"], select, input[type="file"] { width: 100%; padding: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 4px; }
-    .checkbox-group { display: flex; gap: 10px; margin-top: 10px; }
-    .form-actions { display: flex; justify-content: space-between; margin-top: 20px; }
-    button { padding: 10px 20px; font-size: 16px; border: none; border-radius: 4px; cursor: pointer; }
-    .submit-btn, .clear-btn { background-color: #007bff; color: #fff; }
-    .template-save { margin-top: 10px; display: flex; align-items: center; gap: 8px; }
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #002D74;
+      padding: 40px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: white;
+    }
+    .event-form-container {
+      background-color: #fff;
+      padding: 30px;
+      max-width: 600px;
+      margin: 0 auto;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    .form-title {
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+    input[type="text"],
+    input[type="date"],
+    select,
+    input[type="file"] {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .form-actions {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .submit-btn,
+    .clear-btn {
+      background-color: #007bff;
+      color: #fff;
+    }
+    .go-back-btn {
+      background-color: #dc3545;
+      color: white;
+    }
+    .go-back-btn:hover {
+      background-color: #c82333;
+    }
+    #fileLabel {
+      display: block;
+      margin-top: 8px;
+      font-style: italic;
+      color: #555;
+    }
   </style>
 </head>
 <body>
 
 <div class="event-form-container">
-  <div class="form-title">Create Event Form</div>
+  <div class="form-title">Create Class Form</div>
   <form id="createEventForm">
+    <div class="form-group">
+      <label for="template">Use Class Template</label>
+      <select id="template">
+        <option value="">-- Select Template --</option>
+      </select>
+    </div>
+
     <div class="form-group">
       <label for="teacher">Teacher</label>
       <input type="text" id="teacher" name="teacher" required />
@@ -37,7 +106,8 @@
     </div>
     <div class="form-group">
       <label for="roster">Upload Roster (CSV)</label>
-      <input type="file" id="roster" name="roster" accept=".csv" required />
+      <input type="file" id="roster" name="roster" accept=".csv" />
+      <span id="fileLabel">No file chosen</span>
     </div>
     <div class="form-group">
       <label for="location">Location</label>
@@ -50,106 +120,127 @@
       <label for="date">Date</label>
       <input type="date" id="date" name="date" required />
     </div>
-    <div class="form-group">
-      <label><input type="checkbox" id="recurringCheckbox" /> Recurring</label>
-      <div id="recurringDays" class="checkbox-group" style="display: none;">
-        <label><input type="checkbox" name="days" value="Mon"> M</label>
-        <label><input type="checkbox" name="days" value="Tue"> T</label>
-        <label><input type="checkbox" name="days" value="Wed"> W</label>
-        <label><input type="checkbox" name="days" value="Thu"> T</label>
-        <label><input type="checkbox" name="days" value="Fri"> F</label>
-      </div>
-    </div>
-    <div class="form-group template-save">
-      <input type="checkbox" id="saveAsTemplate" />
-      <label for="saveAsTemplate">Save as Template</label>
-    </div>
+
     <div class="form-actions">
       <button type="submit" class="submit-btn">Submit</button>
       <button type="reset" class="clear-btn">Clear</button>
+      <button type="button" class="go-back-btn" onclick="goBack()">Go Back</button>
     </div>
   </form>
 </div>
 
 <script>
-const recurringCheckbox = document.getElementById('recurringCheckbox');
-const recurringDays = document.getElementById('recurringDays');
+  const templateSelect = document.getElementById("template");
+  const rosterInput = document.getElementById("roster");
+  const fileLabel = document.getElementById("fileLabel");
 
-recurringCheckbox.addEventListener('change', function () {
-  recurringDays.style.display = this.checked ? 'flex' : 'none';
-});
+  // Load templates into dropdown
+  window.addEventListener("DOMContentLoaded", () => {
+    const templates = JSON.parse(localStorage.getItem("classTemplates") || "[]");
 
-document.getElementById("createEventForm").addEventListener("submit", function (e) {
-  e.preventDefault();
+    templates.forEach(t => {
+      const option = document.createElement("option");
+      option.value = t.id;
+      option.textContent = `${t.course} - ${t.teacher}`;
+      option.dataset.teacher = t.teacher;
+      option.dataset.course = t.course;
+      option.dataset.description = t.description || "";
+      option.dataset.rosterFileBase64 = t.rosterFileBase64 || "";
+      option.dataset.rosterFilename = t.rosterFilename || "";
+      templateSelect.appendChild(option);
+    });
+  });
 
-  const teacher = document.getElementById("teacher").value.trim();
-  const course = document.getElementById("course").value.trim();
-  const description = document.getElementById("description").value.trim();
-  const location = document.getElementById("location").value.trim();
-  const date = document.getElementById("date").value.trim();
-  const rosterFile = document.getElementById("roster").files[0];
-  const saveAsTemplate = document.getElementById("saveAsTemplate").checked;
-  const recurring = recurringCheckbox.checked;
-  const days = Array.from(document.querySelectorAll('input[name="days"]:checked')).map(cb => cb.value);
+  // Fill form when template is selected
+  templateSelect.addEventListener("change", function () {
+    const selected = this.options[this.selectedIndex];
+    document.getElementById("teacher").value = selected.dataset.teacher || "";
+    document.getElementById("course").value = selected.dataset.course || "";
+    document.getElementById("description").value = selected.dataset.description || "";
 
-  if (!rosterFile) {
-    alert("Roster file is required.");
-    return;
-  }
+    if (selected.dataset.rosterFileBase64) {
+      rosterInput.dataset.base64 = selected.dataset.rosterFileBase64;
+      rosterInput.dataset.filename = selected.dataset.rosterFilename;
+      fileLabel.textContent = "Using CSV file used in Template";
+    } else {
+      delete rosterInput.dataset.base64;
+      delete rosterInput.dataset.filename;
+      fileLabel.textContent = "No file chosen";
+    }
+  });
 
-  const reader = new FileReader();
-  reader.onload = function(event) {
-    const rosterBase64 = event.target.result;
+  function goBack() {
+  window.location.href = "/admin-teacher-dashboard";
+}
 
-    const newEvent = {
-      id: Date.now(),
-      teacher,
-      course,
-      description,
-      location,
-      date,
-      rosterFilename: rosterFile.name,
-      rosterFileBase64: rosterBase64,
-      recurringDays: recurring ? days : [],
-      createdBy: "Teacher"
-    };
+  document.getElementById("createEventForm").addEventListener("submit", function (e) {
+    e.preventDefault();
 
-    // ------------------------------------------------------------------------------------------------------------------------------------------------
-    // Need to change localStore to our database
-    // ------------------------------------------------------------------------------------------------------------------------------------------------
-    const events = JSON.parse(localStorage.getItem("events") || "[]");
-    events.push(newEvent);
-    localStorage.setItem("events", JSON.stringify(events));
-    // ------------------------------------------------------------------------------------------------------------------------------------------------
+    const teacher = document.getElementById("teacher").value.trim();
+    const course = document.getElementById("course").value.trim();
+    const description = document.getElementById("description").value.trim();
+    const location = document.getElementById("location").value.trim();
+    const date = document.getElementById("date").value.trim();
+    const uploadedFile = rosterInput.files[0];
+    const templateBase64 = rosterInput.dataset.base64;
+    const templateFilename = rosterInput.dataset.filename;
 
-    if (saveAsTemplate) {
-      // ------------------------------------------------------------------------------------------------------------------------------------------------
-      const templates = JSON.parse(localStorage.getItem("templates") || "[]");
-      // ------------------------------------------------------------------------------------------------------------------------------------------------
-      templates.push({
-        name: course,
-        teacher,
-        description,
-        location
-      });
-      // ------------------------------------------------------------------------------------------------------------------------------------------------
-      localStorage.setItem("templates", JSON.stringify(templates));
-      // ------------------------------------------------------------------------------------------------------------------------------------------------
+    const rawRole = localStorage.getItem("role") || "Unknown";
+    const role = rawRole.charAt(0).toUpperCase() + rawRole.slice(1).toLowerCase();
+
+    if (!uploadedFile && !templateBase64) {
+      alert("You must upload a roster file or select a template with one.");
+      return;
     }
 
-    alert("Event created successfully!");
+    const processEvent = (base64, filename) => {
+      const newEvent = {
+        id: 'class-' + Math.random().toString(36).substr(2, 9),
+        teacher,
+        course,
+        description,
+        location,
+        date,
+        rosterFilename: filename,
+        rosterFileBase64: base64,
+        recurringDays: [],
+        createdBy: role
+      };
 
-    const params = new URLSearchParams({
-      id: newEvent.id,
-      course: newEvent.course,
-      date: newEvent.date,
-      location: newEvent.location
-    });
+      if (role === "Admin") {
+        const adminEvents = JSON.parse(localStorage.getItem("adminTable") || "[]");
+        adminEvents.push(newEvent);
+        localStorage.setItem("adminTable", JSON.stringify(adminEvents));
+      } else {
+        const teacherEvents = JSON.parse(localStorage.getItem("events") || "[]");
+        teacherEvents.push(newEvent);
+        localStorage.setItem("events", JSON.stringify(teacherEvents));
+      }
 
-    window.location.href = "QR-display?" + params.toString();
-  };
-  reader.readAsDataURL(rosterFile);
-});
+      alert("Class created successfully!");
+      const params = new URLSearchParams({
+        id: newEvent.id,
+        course: newEvent.course,
+        teacher: newEvent.teacher,
+        location: newEvent.location,
+        date: newEvent.date,
+        createdBy: newEvent.createdBy
+      });
+
+      window.location.href = "/QR-display/l-?" + params.toString();
+    };
+
+    if (uploadedFile) {
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        const base64 = event.target.result;
+        processEvent(base64, uploadedFile.name);
+      };
+      reader.readAsDataURL(uploadedFile);
+    } else {
+      processEvent(templateBase64, templateFilename);
+    }
+  });
 </script>
 
 </body>
