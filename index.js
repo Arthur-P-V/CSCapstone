@@ -295,6 +295,8 @@ const server = Bun.serve({
 
         },
 
+        // -----------------------------------------------------------------------------------------------------------------------------
+        // Need to add cookie validation (this will check if they have a cookie or not and that will determine what is done)
         "/student-check-in-login/:class_id":{
             GET: async (req) =>{
                 const html = await Bun.file("front_end/student-check-in-login.html").text();
@@ -306,6 +308,8 @@ const server = Bun.serve({
             },
         },
 
+        // -----------------------------------------------------------------------------------------------------------------------------
+        // Need to add cookie validation
         "/student-dashboard":{
             GET: async (req) =>{
                 const html = await Bun.file("front_end/student-dashboard.html").text();
@@ -317,6 +321,7 @@ const server = Bun.serve({
             },
         },
 
+        // Dont need cookies for this because they are creating a new account
         "/student-new-user":{
             GET: async (req) =>{
                 const html = await Bun.file("front_end/new-student-user.html").text();
@@ -328,7 +333,7 @@ const server = Bun.serve({
             },
         },
 
-        
+        // I dont think we need cookies for this one
         "/student-confirmation/:class_id":{
             GET: async (req) =>{
                 const html = await Bun.file("front_end/confirmation.html").text();
@@ -341,6 +346,8 @@ const server = Bun.serve({
         },
 
         // Need to implement and work on
+        // -----------------------------------------------------------------------------------------------------------------------------
+        // Need to add cookie validation
         "/student-check-in/:class_id":{
             GET: async (req) =>{
                 const html = await Bun.file("front_end/check-in.html").text();
@@ -417,6 +424,8 @@ const server = Bun.serve({
         },
 
         // Teacher and Admin pages
+        // -----------------------------------------------------------------------------------------------------------------------------
+        // Need to add cookie validation
         "/create-class":{
             GET: async (req) =>{
             const html = await Bun.file("front_end/create-class.html").text();
@@ -428,6 +437,8 @@ const server = Bun.serve({
             },
         },
 
+        // -----------------------------------------------------------------------------------------------------------------------------
+        // Need to add cookie validation
         "/library":{
             GET: async (req) =>{
             const html = await Bun.file("front_end/library.html").text();
@@ -439,6 +450,8 @@ const server = Bun.serve({
             },
         },
 
+        // -----------------------------------------------------------------------------------------------------------------------------
+        // Need to add cookie validation
         "/manage-templates":{
             GET: async (req) =>{
             const html = await Bun.file("front_end/manage-templates.html").text();
@@ -450,7 +463,8 @@ const server = Bun.serve({
             },
         },
 
-
+        // -----------------------------------------------------------------------------------------------------------------------------
+        // Need to add cookie validation
         "/create-event":{
             GET: async (req) =>{
             const html = await Bun.file("front_end/create-event.html").text();
@@ -462,6 +476,8 @@ const server = Bun.serve({
             },
         },
 
+        // -----------------------------------------------------------------------------------------------------------------------------
+        // Need to add cookie validation
         "/QR-display/:id":{
             GET: async (req) =>{
             const html = await Bun.file("front_end/QR-display.html").text();
@@ -472,7 +488,8 @@ const server = Bun.serve({
             });
             },
         },
-
+        // -----------------------------------------------------------------------------------------------------------------------------
+        // Need to add cookie validation
         "/reports/:classId":{
             GET: async (req) =>{
             const html = await Bun.file("front_end/reports.html").text();
@@ -483,9 +500,6 @@ const server = Bun.serve({
             });
             },
         },
-
-
-
 
         // Admin pages
         "/admin-login":{
@@ -530,13 +544,7 @@ const server = Bun.serve({
             OPTIONS: Option,
 
         },
-
-        "/admin/dashboard/main":{
-            GET: async (req) =>{
-            
-            },
-        },
-
+        // Can use this as a template for what to do for cookies
       "/admin/dashboard":{
         GET: async (req) =>{
 
@@ -551,16 +559,20 @@ const server = Bun.serve({
             });
                
              }
-             // Redirect to admin login if you dont have the cookie
-             const html = await Bun.file("front_end/admin-login.html").text();
-            return new Response(html, {
-                headers: {
-                    "Content-Type": "text/html",
-                },
-            });
-      },
+             else{
+                    return new Response(null, {
+                        status: 302,
+                        headers: {
+                        Location: "/admin-login"
+                        },
+                    });
+                }
+             
+            },
       },
 
+      // -----------------------------------------------------------------------------------------------------------------------------
+        // Need to add cookie validation
       "/admin/class-view":{
         GET: async (req) =>{
           const html = await Bun.file("front_end/admin-class-view.html").text();
@@ -572,6 +584,8 @@ const server = Bun.serve({
         },
       },
 
+      // -----------------------------------------------------------------------------------------------------------------------------
+        // Need to add cookie validation
       "/admin/create-teacher":{
         GET: async (req) =>{
           const html = await Bun.file("front_end/create-teacher-account.html").text();
@@ -583,6 +597,8 @@ const server = Bun.serve({
         },
       },
 
+      // -----------------------------------------------------------------------------------------------------------------------------
+        // Need to add cookie validation
       "/admin/view-teachers":{
         GET: async (req) =>{
           const html = await Bun.file("front_end/view-teachers.html").text();
@@ -594,6 +610,8 @@ const server = Bun.serve({
         },
       },
 
+      // -----------------------------------------------------------------------------------------------------------------------------
+        // Need to add cookie validation
       "/admin/view-students":{
         GET: async (req) =>{
           const html = await Bun.file("front_end/view-students.html").text();
