@@ -306,13 +306,26 @@ const server = Bun.serve({
         "/student-check-in-login/:class_id":{
             GET: async (req) =>{
                 // Have two routes
-                const cookie = req.headers.get("cookie") || "";
+                const cookieHeader = req.headers.get("cookie") || "";
                 // 1) Has a student cookie, should auto fill 
-                if (cookie.includes(studentCookieIdCookieId)) {
+                if (cookieHeader.includes(studentCookieId)) {
                     // Get the username
+                      const cookies = Object.fromEntries(
+                        cookieHeader.split(";").map(cookie => {
+                        const [name, value] = cookie.trim().split("=");
+                        return [name, decodeURIComponent(value)];
+                        })
+                    );
+                    // Grab the specific cookie
+                    const token = cookies[studentCookieId];
+
+                    if (!token) {
+                        return new Response("Missing token", { status: 401 });
+                    }
                     // Send the username to get checked in
+                    // TODO
                     // Redirect the user to confirmation
-                    confURL = "/student-confirmation/" + req.params.class_id;
+                    const confURL = "/student-confirmation/" + req.params.class_id;
                    return new Response(null, {
                        status: 302,
                        headers: {
