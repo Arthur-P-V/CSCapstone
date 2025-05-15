@@ -305,12 +305,30 @@ const server = Bun.serve({
         // Need to add cookie validation (this will check if they have a cookie or not and that will determine what is done)
         "/student-check-in-login/:class_id":{
             GET: async (req) =>{
+                // Have two routes
+                const cookie = req.headers.get("cookie") || "";
+                // 1) Has a student cookie, should auto fill 
+                if (cookie.includes(studentCookieIdCookieId)) {
+                    // Get the username
+                    // Send the username to get checked in
+                    // Redirect the user to confirmation
+                    confURL = "/student-confirmation/" + req.params.class_id;
+                   return new Response(null, {
+                       status: 302,
+                       headers: {
+                       Location: confURL,
+                       },
+                   });
+                }
+                else{
+                // 2) No cookie redirect to the login page
                 const html = await Bun.file("front_end/student-check-in-login.html").text();
                 return new Response(html, {
                     headers: {
                         "Content-Type": "text/html",
                     },
                 });
+            }
             },
         },
 

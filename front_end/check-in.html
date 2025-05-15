@@ -53,7 +53,7 @@
     if (!loggedInUser || role !== "student") {
       const params = new URLSearchParams(window.location.search);
       const classId = params.get("classId") || "";
-      window.location.href = "/student-check-in-login/l-?classId=${encodeURIComponent(classId)}";
+      window.location.href = `/student-check-in-login/${encodeURIComponent(classId)}`;
     }
   });
 
