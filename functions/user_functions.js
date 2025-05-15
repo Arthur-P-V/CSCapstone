@@ -29,12 +29,20 @@ export async function get_user_by_eNumber(db, req) {
 // Create a new user in the users table
 export async function create_user(db, req) {
     try{
-        const {id, eNumber, password, admin, first_name, last_name} = await req.json(); //the const variables are actually matched to the json body returned by req.json(), the order doesn't matter                                                      
-        const hash = await Bun.password.hash(password);
-        const new_event = await db.insert(users).values({id:id, eNumber:eNumber, password_hash:hash, admin:admin, first_name:first_name, last_name:last_name});
-        return "Post Successful!"
+        const { eNumber, password, admin, first_name, last_name} = await req.json(); //the const variables are actually matched to the json body returned by req.json(), the order doesn't matter                                                      
+        const check_if_eNumber_exists = await db.select( {eNumber : users.eNumber}).from(users).where(eq( users.eNumber, eNumber));
+        if( !check_if_eNumber_exists || check_if_eNumber_exists.length == 0){
+            const hash = await Bun.password.hash(password);
+            const new_event = await db.insert(users).values({ eNumber:eNumber, password_hash:hash, admin:admin, first_name:first_name, last_name:last_name});
+            return true;
+        }
+        else{
+            return false;
+        }
+        
     }catch (error) {
         console.error("An Error Occurred: ", error.message)
+        return false;
     }
 }
 

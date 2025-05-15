@@ -78,33 +78,72 @@
     <!--Student password input-->
     <input type="password" id="password" placeholder="Password" />
 
+    <!--First Name-->
+    <input type="text" id="firstName" placeholder="First Name" />
+
+    <!--Last Name-->
+    <input type="text" id="lastName" placeholder="Last Name" />
+
     <!--Submit and Go Back buttons-->
     <button class="create-btn" onclick="register()">Create Account</button>
     <button class="back-btn" onclick="goBack()">Go Back</button>
   </div>
 
   <script>
-    function register() {
+    async function register() {
       const eNumber = document.getElementById("eNumber").value.trim();
       const password = document.getElementById("password").value.trim();
+      const firstName = document.getElementById("firstName").value.trim();
+      const lastName = document.getElementById("lastName").value.trim();
+      
 
-      if (!eNumber || !password) {
-        alert("Please fill in both fields.");
+
+      if (!eNumber || !password || !firstName || !lastName) {
+        alert("Please fill in all fields.");
         return;
       }
 
-      const users = JSON.parse(localStorage.getItem("studentUsers") || "[]");
+      try{
+        // Make a call to the api, it will either add the user or say the user arleady exists
+        // When running on local machine
+      const frontOfURL = "http://localhost:8080/";
+        // When running on server
+      //const frontOfURL = "https://cscapstone-production.up.railway.app/";
+      const fetchURL = frontOfURL + "api/users";
+      const generateUser = await fetch(fetchURL,{
+        method: "POST",
+          headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ 
+          eNumber: eNumber,
+          password: password,
+          admin: 0,
+          first_name: firstName,
+          last_name: lastName,
+        })
+      });
+      console.log("HERE");
+      const isValid = await generateUser.json();
+      if(!!isValid){
+        alert("Account created successfully!");
+        window.location.href = "/student-login";
+      }
+      else{
+        alert("Account already exists with that eNumber");
+        return;
+      }
 
-      if (users.some(user => user.eNumber === eNumber)) {
-        alert("An account with this eNumber already exists.");
+      }catch(error){
+        // Somthing went wrong
+        console.error("An Error Occurred: ", error.message)
         return;
       }
 
       users.push({ eNumber, password });
       localStorage.setItem("studentUsers", JSON.stringify(users));
 
-      alert("Account created successfully!");
-      window.location.href = "/student-login";
+      
     }
 
     function goBack() {
