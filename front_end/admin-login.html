@@ -79,20 +79,66 @@
 </div>
 
 <script>
-  function login() {
-    const username = document.getElementById("username").value.trim();
-    const password = document.getElementById("password").value.trim();
+    async function login() {
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value.trim();
 
-    if (!username || !password) {
-      alert("Please enter both username and password.");
+      if (!username || !password) {
+        alert("Please enter both username and password.");
+        return;
+      }
+      // Data verificatoin
+      try{
+        // When running on local machine
+      const frontOfURL = "http://localhost:8080/";
+        // When running on server
+      //const frontOfURL = "https://cscapstone-production.up.railway.app/";
+        
+      
+      const checkUser = frontOfURL + `api/users/${encodeURIComponent(username)}`;
+      const userExist = await fetch(checkUser);
+      const data = await userExist.json();
+
+      const validationURL = frontOfURL + `api/verifyAdminPassword`;
+      
+      const bodyConnection = await fetch(validationURL, {
+          method: "POST",
+          headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ 
+          username: username,
+          password: password
+        })
+      });
+      const validConnection = await bodyConnection.json();
+      console.log(validConnection);
+      if (!!validConnection) {
+        const cookieURL = frontOfURL + 'admin-login';
+        // This is going to add a cookie to the browser saying the admin is logged in
+          const res = await fetch(cookieURL, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            credentials: "include", // Tells browser to include cookies
+            body: JSON.stringify({ Enumber: username})
+            
+          });
+          // This will redirect to the student-dashboard page with the cookie
+          window.location.href = "/admin/dashboard";        
+      }
+      else{
+          alert("Invalid credentials or admin account not found.\nPlease contact your admin.");
+          return;
+      }
+      
+      }catch (error){
+        console.error("There was a server error");
+        return;
+      }
       return;
     }
-
-    localStorage.setItem("loggedInUser", username);
-    localStorage.setItem("role", "admin");
-
-    window.location.href = "/admin/dashboard";
-  }
 
   function goBack() {
     window.location.href = "/homepage";

@@ -45,6 +45,7 @@ export async function StudentCookies(req){
         secure: false,
         sameSite: "none",
         httpOnly: true,
+        sameSite: "lax",
         });
                 
                 //return response and sets the cookie, this doesnt send a cookie to a database
@@ -60,7 +61,7 @@ export async function StudentCookies(req){
  export async function AdminCookies(req){
     const { Enumber, password } = await req.json();
 
-    const hash = bun.password.hash(AdminSign-In);
+    //const hash = bun.password.hash(AdminSign-In);
 
     const cookie = new Bun.Cookie({
         name: "AdminSign-In",
@@ -69,6 +70,7 @@ export async function StudentCookies(req){
         secure: false,
         sameSite: "none",
         httpOnly: true,
+        sameSite: "lax",
         });
                 
                 //return response and sets the cookie, this doesnt send a cookie to a database

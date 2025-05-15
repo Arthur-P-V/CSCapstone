@@ -95,14 +95,11 @@
       const password = document.getElementById("password").value.trim();
       const firstName = document.getElementById("firstName").value.trim();
       const lastName = document.getElementById("lastName").value.trim();
-      
-
-
+    
       if (!eNumber || !password || !firstName || !lastName) {
         alert("Please fill in all fields.");
         return;
       }
-
       try{
         // Make a call to the api, it will either add the user or say the user arleady exists
         // When running on local machine
@@ -123,7 +120,6 @@
           last_name: lastName,
         })
       });
-      console.log("HERE");
       const isValid = await generateUser.json();
       if(!!isValid){
         alert("Account created successfully!");
@@ -139,11 +135,6 @@
         console.error("An Error Occurred: ", error.message)
         return;
       }
-
-      users.push({ eNumber, password });
-      localStorage.setItem("studentUsers", JSON.stringify(users));
-
-      
     }
 
     function goBack() {

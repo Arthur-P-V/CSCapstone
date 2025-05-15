@@ -6,7 +6,7 @@ import { classes } from "./db/schema/classes";
 import { eq, ne, gt, gte} from "drizzle-orm";
 
 import {create_class, delete_class, get_all_classes, get_class_by_id, update_class} from "./functions/class_functions";
-import { get_all_users, get_user_by_eNumber, delete_user, create_user, update_password, verifyStudentPassword } from "./functions/user_functions";
+import { get_all_users, get_user_by_eNumber, delete_user, create_user, update_password, verifyStudentPassword, verifyTeacherPassword, verifyAdminPassword } from "./functions/user_functions";
 import { get_all_meetings, get_meeting_by_id, create_meeting, update_meeting, delete_meeting } from "./functions/meeting_functions";
 import { create_attendance_record, mark_checked_in, get_all_attendance } from "./functions/attendance_functions";
 
@@ -140,9 +140,32 @@ const server = Bun.serve({
             }
         },
 
+        // Get students
+
+        // 
+        "api/getTeachers":{
+            GET: async req => {
+          const data = await get_teachers(db, req);
+          return Response.json(data);
+        },
+
         "/api/verifyStudentPassword":{
             POST: async (req) => {
                 const data = await verifyStudentPassword(db, req);
+                return Response.json(data);
+            }
+        },
+
+        "/api/verifyTeacherPassword":{
+            POST: async (req) => {
+                const data = await verifyTeacherPassword(db, req);
+                return Response.json(data);
+            }
+        },
+
+        "/api/verifyAdminPassword":{
+            POST: async (req) => {
+                const data = await verifyAdminPassword(db, req);
                 return Response.json(data);
             }
         },
@@ -247,9 +270,10 @@ const server = Bun.serve({
             GET: async (req) =>{
 
                 const cookie = req.headers.get("cookie") || "";
-
+                console.log(cookie);
                  // Check if StudentSignIn cookie exists
-                if (cookie.includes("StudentSignIn=")) {
+                if (cookie.includes("StudentSign-In=")) {
+                    
                     return new Response(null, {
                         status: 302,
                         headers: {
@@ -339,7 +363,15 @@ const server = Bun.serve({
                    return new Response(null, {
                        status: 302,
                        headers: {
-                       Location: "/teacher-dashboard",
+                       Location: "/teacher/dashboard",
+                       },
+                   });
+                }
+                else if (cookie.includes("StudentSign-In=")) {
+                   return new Response(null, {
+                       status: 302,
+                       headers: {
+                       Location: "/student-dashboard",
                        },
                    });
                 }
@@ -442,28 +474,33 @@ const server = Bun.serve({
         "/admin-login":{
             GET: async (req) =>{
 
-                const cookie = req.headers.get("cookie") || "";
-
+                const cookie = await req.headers.get("cookie") || "";
                  // Check if StudentSignIn cookie exists
                  if (cookie.includes("AdminSign-In=")) {
                     return new Response(null, {
                         status: 302,
                         headers: {
-                        Location: "/admin-dashboard",
+                        Location: "admin/dashboard",
                         },
                     });
                  }
-                else if(cookie.includes("TeacherSign-In=")){
+                 else if (cookie.includes("TeacherSign-In=")) {
                     return new Response(null, {
-                        Location: "front_end/teacher-login.html",
+                        status: 302,
+                        headers: {
+                        Location: "teacher/dashboard",
+                        },
                     });
-                }
-                else if(cookie.includes("StudentSign-In=")){
+                 }
+                 else if (cookie.includes("StudentSign-In=")) {
                     return new Response(null, {
-                        Location: "front_end/student-login.html",
+                        status: 302,
+                        headers: {
+                        Location: "student-dashboard",
+                        },
                     });
-                }
-
+                 }
+                
                 const html = await Bun.file("front_end/admin-login.html").text();
                 return new Response(html, {
                     headers: {
@@ -477,34 +514,30 @@ const server = Bun.serve({
 
         },
 
+        "/admin/dashboard/main":{
+            GET: async (req) =>{
+            
+            },
+        },
+
       "/admin/dashboard":{
         GET: async (req) =>{
 
             const cookie = req.headers.get("cookie") || "";
 
             if (cookie.includes("AdminSign-In=")) {
-                return new Response(null, {
-                    status: 302,
-                    headers: {
-                    Location: "/admin-dashboard",
-                    },
-                });
-             }
-            else if(cookie.includes("TeacherSign-In=")){
-                return new Response(null, {
-                    Location: "front_end/teacher-login.html",
-                });
-            }
-            else if(cookie.includes("StudentSign-In=")){
-                return new Response(null, {
-                    Location: "front_end/student-login.html",
-                });
-            }
-
-
-            const html = await Bun.file("front_end/admin-dashboard.html").text();
+                const html = await Bun.file("front_end/admin-dashboard.html").text();
             return new Response(html, {
-                 headers: {
+                headers: {
+                    "Content-Type": "text/html",
+                },
+            });
+               
+             }
+             // Redirect to admin login if you dont have the cookie
+             const html = await Bun.file("front_end/admin-login.html").text();
+            return new Response(html, {
+                headers: {
                     "Content-Type": "text/html",
                 },
             });

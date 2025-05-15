@@ -30,7 +30,9 @@ export async function get_user_by_eNumber(db, req) {
 export async function create_user(db, req) {
     try{
         const { eNumber, password, admin, first_name, last_name} = await req.json(); //the const variables are actually matched to the json body returned by req.json(), the order doesn't matter                                                      
+        
         const check_if_eNumber_exists = await db.select( {eNumber : users.eNumber}).from(users).where(eq( users.eNumber, eNumber));
+        
         if( !check_if_eNumber_exists || check_if_eNumber_exists.length == 0){
             const hash = await Bun.password.hash(password);
             const new_event = await db.insert(users).values({ eNumber:eNumber, password_hash:hash, admin:admin, first_name:first_name, last_name:last_name});
@@ -117,7 +119,8 @@ export async function verifyStudentPassword(db, req) {
   }
 }
 
-export async function verifyPassword(db, req) {
+// Check the teacher password
+export async function verifyTeacherPassword(db, req) {
     
   try {
     const {username, password} = await req.json();
@@ -127,7 +130,52 @@ export async function verifyPassword(db, req) {
     const result = await db
       .select({ password_hash: users.password_hash })
       .from(users)
-      .where(eq(users.eNumber, username));
+      .where(
+        and(
+        eq(users.eNumber, username),
+        eq(users.admin, 1)  // This is checking to see if the account is a teacher
+    ));
+    
+    if (!result || result.length === 0) {
+      return false;
+    }
+
+    // Pulling the passwordHash from the querie
+    const passwordHash = result[0].password_hash;
+    
+    // Using a built in function that compares plain text password to the hashed password
+    const isValid = await Bun.password.verify(password, passwordHash);
+
+    if(isValid){
+        // The password is correct
+        return true;
+    }
+    else{
+        // The password is incorrect
+        return false;
+    }
+
+  } catch (error) {
+    console.error('Error verifying username:', error);
+    return false;
+  }
+}
+// Admin password checker
+export async function verifyAdminPassword(db, req) {
+    
+  try {
+    const {username, password} = await req.json();
+    
+    
+    // Await the DB query and see if the user is in the database
+    const result = await db
+      .select({ password_hash: users.password_hash })
+      .from(users)
+      .where(
+        and(
+        eq(users.eNumber, username),
+        eq(users.admin, 2)  // This is checking to see if the account is an admin
+    ));
     
     if (!result || result.length === 0) {
       return false;
