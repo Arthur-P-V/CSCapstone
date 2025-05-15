@@ -1,5 +1,5 @@
 import { drizzle } from "drizzle-orm/mysql2";
-import mysql from "mysql2/promise";
+import mysql, { escape } from "mysql2/promise";
 import { BlobServiceClient } from "@azure/storage-blob";
 
 import { classes } from "./db/schema/classes";
@@ -14,6 +14,7 @@ import { create_attendance_record, mark_checked_in, get_all_attendance } from ".
 import index from "./front_end/index.html";
 
 import { AdminCookies, StudentCookies, Option, TeacherCookies } from "./newCookies";
+import { decipher } from "./Cipher";
 
 const studentCookieId = "StudentSign-In";
 const teacherCookieId = "TeacherSign-In";
@@ -277,9 +278,12 @@ const server = Bun.serve({
             GET: async (req) =>{
 
                 const cookie = req.headers.get("cookie") || "";
+                const CookieName = cookie.substring(0, '=');
+
+                DecodedName = decipher(CookieName);
+
                  // Check if StudentSignIn cookie exists
-                if (cookie.includes(studentCookieId)) {
-                    
+                if ( DecodedName === "StudentSignIn=") {
                     return new Response(null, {
                         status: 302,
                         headers: {
@@ -390,9 +394,12 @@ const server = Bun.serve({
             GET: async (req) =>{
 
                const cookie = req.headers.get("cookie") || "";
+               const CookieName = cookie.substring(0, '=');
+
+               DecodedName = decipher(CookieName);
 
                 // Check if StudentSignIn cookie exists
-               if (cookie.includes(teacherCookieId)) {
+               if (DecodedName === "TeacherSign-In") {
                    return new Response(null, {
                        status: 302,
                        headers: {
@@ -400,7 +407,7 @@ const server = Bun.serve({
                        },
                    });
                 }
-                else if (cookie.includes(studentCookieId)) {
+                else if (DecodedName === "StudentSign-In") {
                    return new Response(null, {
                        status: 302,
                        headers: {
@@ -424,8 +431,11 @@ const server = Bun.serve({
         "/teacher/dashboard":{
             GET: async (req) =>{
                 const cookie = req.headers.get("cookie") || "";
+                const CookieName = cookie.substring(0, '=');
 
-                if (cookie.includes(teacherCookieId)) {
+                DecodedName = decipher(CookieName);
+
+                if (DecodedName === "TeacherSign-In") {
                 const html = await Bun.file("front_end/teacher-dashboard.html").text();
                 return new Response(html, {
                     status: 302,
@@ -455,8 +465,11 @@ const server = Bun.serve({
             // Has either a admin cookie, teacher cookie, or be redirected to the home page
             GET: async (req) =>{
                 const cookie = req.headers.get("cookie") || "";
+                const CookieName = cookie.substring(0, '=');
 
-                if (cookie.includes(adminCookieId)) {
+                DecodedName = decipher(CookieName);
+
+                if (DecodedName === "AdminSign-In") {
                 
                 return new Response(null, {
                     status: 301,
@@ -465,7 +478,7 @@ const server = Bun.serve({
                     },
                 });
                 }
-                else if (cookie.includes(teacherCookieId)) {
+                else if (DecodedName === "TeacherSign-In") {
                 return new Response(null, {
                     status: 301,
                     headers: {
@@ -570,8 +583,12 @@ const server = Bun.serve({
             GET: async (req) =>{
 
                 const cookie = await req.headers.get("cookie") || "";
+                const CookieName = cookie.substring(0, '=');
+
+                DecodedName = decipher(CookieName);
+                
                  // Check if StudentSignIn cookie exists
-                 if (cookie.includes(adminCookieId)) {
+                 if (DecodedName === "AdminSign-In") {
                     return new Response(null, {
                         status: 302,
                         headers: {
@@ -579,7 +596,7 @@ const server = Bun.serve({
                         },
                     });
                  }
-                 else if (cookie.includes(teacherCookieId)) {
+                 else if (DecodedName === "TeacherSign-In") {
                     return new Response(null, {
                         status: 302,
                         headers: {
@@ -587,7 +604,7 @@ const server = Bun.serve({
                         },
                     });
                  }
-                 else if (cookie.includes(studentCookieId)) {
+                 else if (DecodedName === "StudentSign-In") {
                     return new Response(null, {
                         status: 302,
                         headers: {
@@ -613,8 +630,11 @@ const server = Bun.serve({
         GET: async (req) =>{
 
             const cookie = req.headers.get("cookie") || "";
+            const CookieName = cookie.substring(0, '=');
 
-            if (cookie.includes(adminCookieId)) {
+            DecodedName = decipher(CookieName);
+
+            if (DecodedName === "AdminSign-In") {
                 const html = await Bun.file("front_end/admin-dashboard.html").text();
             return new Response(html, {
                 headers: {
@@ -639,12 +659,27 @@ const server = Bun.serve({
         // Need to add cookie validation
       "/admin/class-view":{
         GET: async (req) =>{
-          const html = await Bun.file("front_end/admin-class-view.html").text();
-          return new Response(html, {
+            const cookie = req.headers.get("cookie") || "";
+            const CookieName = cookie.substring(0, '=');
+
+            DecodedName = decipher(CookieName);
+            if (DecodedName === "AdminSign-In") {   
+                const html = await Bun.file("front_end/admin-class-view.html").text();
+                return new Response(html, {
               headers: {
                   "Content-Type": "text/html",
               },
           });
+        }
+        else{
+            return new Response(null, {
+                status: 302,
+                headers: {
+                Location: "/admin-login"
+                },
+            });
+        }
+        
         },
       },
 
@@ -652,12 +687,27 @@ const server = Bun.serve({
         // Need to add cookie validation
       "/admin/create-teacher":{
         GET: async (req) =>{
+
+            const cookie = req.headers.get("cookie") || "";
+            const CookieName = cookie.substring(0, '=');
+
+            DecodedName = decipher(CookieName);
+            if (DecodedName === "AdminSign-In"){
           const html = await Bun.file("front_end/create-teacher-account.html").text();
           return new Response(html, {
               headers: {
                   "Content-Type": "text/html",
               },
           });
+        }
+        else{
+            return new Response(null, {
+                status: 302,
+                headers: {
+                Location: "/admin-login"
+                },
+            });
+        }
         },
       },
 
@@ -665,12 +715,28 @@ const server = Bun.serve({
         // Need to add cookie validation
       "/admin/view-teachers":{
         GET: async (req) =>{
-          const html = await Bun.file("front_end/view-teachers.html").text();
-          return new Response(html, {
-              headers: {
-                  "Content-Type": "text/html",
-              },
-          });
+
+            const cookie = req.headers.get("cookie") || "";
+            const CookieName = cookie.substring(0, '=');
+
+            DecodedName = decipher(CookieName);
+            if (DecodedName === "AdminSign-In"){  
+                 const html = await Bun.file("front_end/view-teachers.html").text();
+                return new Response(html, {
+                 headers: {
+                    "Content-Type": "text/html",
+                    },
+                });
+            }
+            else{
+                return new Response(null, {
+                    status: 302,
+                    headers: {
+                    Location: "/admin-login"
+                    },
+                });
+            }
+
         },
       },
 
@@ -678,12 +744,27 @@ const server = Bun.serve({
         // Need to add cookie validation
       "/admin/view-students":{
         GET: async (req) =>{
-          const html = await Bun.file("front_end/view-students.html").text();
-          return new Response(html, {
-              headers: {
-                  "Content-Type": "text/html",
-              },
-          });
+
+            const cookie = req.headers.get("cookie") || "";
+            const CookieName = cookie.substring(0, '=');
+
+            DecodedName = decipher(CookieName);
+            if (DecodedName === "AdminSign-In"){  
+                const html = await Bun.file("front_end/view-students.html").text();
+                return new Response(html, {
+                headers: {
+                    "Content-Type": "text/html",
+                },
+                });
+            }
+            else{
+                return new Response(null, {
+                    status: 302,
+                    headers: {
+                    Location: "/admin-login"
+                    },
+                });
+            }
         },
       },
 
