@@ -113,7 +113,17 @@ const server = Bun.serve({
         POST: async (req) => {
           const data = await create_user(db, req);
           return Response.json(data);
-      }
+      },
+      // Delete user by eNumber
+        DELETE: async req => {
+           const data = await delete_user(db, req);
+           return Response.json(data);
+       },
+       
+        PUT: async req => {
+            const data = await update_password(db, req);
+            return Response.json({ valid: data});
+            }
         },
         // Searches up by enumber
         "/api/user/:eNumber":{
@@ -121,35 +131,24 @@ const server = Bun.serve({
         GET: async req => {
           const data = await get_user_by_eNumber(db, req);
           return Response.json(data);
-       },
-       // Delete user by eNumber
-       DELETE: async req => {
-           const data = await delete_user(db, req);
-           return Response.json(data);
-       },
-       // IDK right now
-       PUT: async req => {
-           return new Response("UPDATE UPDATE");
        }
       },
-
-      "/api/users/update_password": {
-            PUT: async req => {
-                const data = await update_password(db, req);
-                return Response.json({ valid: data});
-            }
-        },
 
         // Get students
         "/api/getStudents":{
             GET: async req => {
           const data = await get_all_students(db, req);
-          return Response.json(data);
+          return Response.json(data, {
+            headers: {
+                "Content-Type" : "application/json"
+            }
+          });
             },
+
         },
         // 
         "/api/getTeachers":{
-            GET: async req => {
+            GET: async req => { 
           const data = await get_all_teachers(db, req);
           return Response.json(data);
             },
@@ -178,7 +177,6 @@ const server = Bun.serve({
         "/api/hash":{
             POST: async (req) => {
                 const data = await hash(db, req);
-                await console.log(data);
                 return Response.json(data);
             }
         },
@@ -275,7 +273,6 @@ const server = Bun.serve({
             GET: async (req) =>{
 
                 const cookie = req.headers.get("cookie") || "";
-                console.log(cookie);
                  // Check if StudentSignIn cookie exists
                 if (cookie.includes("StudentSign-In=")) {
                     
@@ -404,7 +401,6 @@ const server = Bun.serve({
 
         "/teacher/dashboard":{
             GET: async (req) =>{
-
                 const cookie = req.headers.get("cookie") || "";
 
                 if (cookie.includes("TeacherSign-In=")) {
@@ -420,7 +416,7 @@ const server = Bun.serve({
                     return new Response(null, {
                         status: 301,
                         headers: {
-                        Location: "/teacher-login"
+                        Location: "/homepage"
                         },
                     });
                 }
@@ -431,6 +427,45 @@ const server = Bun.serve({
         },
 
         // Teacher and Admin pages
+        // -----------------------------------------------------------------------------------------------------------------------------
+        // Need to add cookie validation
+        "/admin-teacher-dashboard":{
+            // Has either a admin cookie, teacher cookie, or be redirected to the home page
+            GET: async (req) =>{
+                const cookie = req.headers.get("cookie") || "";
+
+                if (cookie.includes("AdminSign-In")) {
+                
+                return new Response(null, {
+                    status: 301,
+                    headers: {
+                        Location: "/admin/dashboard",
+                    },
+                });
+                }
+                else if (cookie.includes("TeacherSign-In")) {
+                return new Response(null, {
+                    status: 301,
+                    headers: {
+                        Location: "/admin/dashboard"
+                    },
+                });
+                }
+                else{
+                    return new Response(null, {
+                        status: 301,
+                        headers: {
+                        Location: "/"
+                        },
+                    });
+                }
+                
+                
+
+            },
+
+        },
+
         // -----------------------------------------------------------------------------------------------------------------------------
         // Need to add cookie validation
         "/create-class":{

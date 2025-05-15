@@ -170,12 +170,7 @@
   });
 
   function goBack() {
-  const role = (localStorage.getItem("role") || "").toLowerCase();
-  if (role === "admin") {
-    window.location.href = "/admin/dashboard"; 
-  } else {
-    window.location.href = "/teacher/dashboard"; 
-  }
+  window.location.href = "/admin-teacher-dashboard";
 }
 
   document.getElementById("createEventForm").addEventListener("submit", function (e) {

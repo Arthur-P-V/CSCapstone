@@ -22,7 +22,6 @@ export async function get_all_students(db) {
     } catch (error) {
         console.error("An Error Occurred: ", error.message)
     }
-
 }
 
 export async function get_all_teachers(db) {
@@ -90,7 +89,8 @@ export async function update_password(db, req){
 // Deletes a user from the users table
 export async function delete_user(db, req) {
     try{
-        const data = await db.delete(users).where(eq(users.eNumber, req.params.eNumber));
+        const { id } = await req.json();
+        const data = await db.delete(users).where(eq(users.id, id));
         return data
     } catch (error) {
         console.error("An Error Occurred: ", error.message)

@@ -104,10 +104,10 @@
         // When running on local machine
       const frontOfURL = "http://localhost:8080/";
         // When running on server
-      //const frontOfURL = "https://cscapstone-production.up.railway.app/";
-        
       
-      const checkUser = frontOfURL + `api/users/${encodeURIComponent(username)}`;
+      //const frontOfURL = "https://cscapstone-production.up.railway.app/";  
+      
+      const checkUser = frontOfURL + `api/user/${encodeURIComponent(username)}`;
       const userExist = await fetch(checkUser);
       const data = await userExist.json();
 

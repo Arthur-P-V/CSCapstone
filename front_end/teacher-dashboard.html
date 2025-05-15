@@ -70,8 +70,6 @@
     // We dont check for cookies on the html, we are checking it when the user is directed here.
     
     function logout() {
-      localStorage.removeItem("loggedInUser");
-      localStorage.removeItem("role");
       window.location.href = "/homepage";
     }
     
