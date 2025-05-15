@@ -15,6 +15,10 @@ import index from "./front_end/index.html";
 
 import { AdminCookies, StudentCookies, Option, TeacherCookies } from "./newCookies";
 
+const studentCookieId = "StudentSign-In";
+const teacherCookieId = "TeacherSign-In";
+const adminCookieId = "AdminSign-In";
+
 // Making a connection with mySQL
 const connection = await mysql.createConnection({
     host: process.env.HOST,
@@ -274,7 +278,7 @@ const server = Bun.serve({
 
                 const cookie = req.headers.get("cookie") || "";
                  // Check if StudentSignIn cookie exists
-                if (cookie.includes("StudentSign-In=")) {
+                if (cookie.includes(studentCookieId)) {
                     
                     return new Response(null, {
                         status: 302,
@@ -370,7 +374,7 @@ const server = Bun.serve({
                const cookie = req.headers.get("cookie") || "";
 
                 // Check if StudentSignIn cookie exists
-               if (cookie.includes("TeacherSign-In=")) {
+               if (cookie.includes(teacherCookieId)) {
                    return new Response(null, {
                        status: 302,
                        headers: {
@@ -378,7 +382,7 @@ const server = Bun.serve({
                        },
                    });
                 }
-                else if (cookie.includes("StudentSign-In=")) {
+                else if (cookie.includes(studentCookieId)) {
                    return new Response(null, {
                        status: 302,
                        headers: {
@@ -403,7 +407,7 @@ const server = Bun.serve({
             GET: async (req) =>{
                 const cookie = req.headers.get("cookie") || "";
 
-                if (cookie.includes("TeacherSign-In=")) {
+                if (cookie.includes(teacherCookieId)) {
                 const html = await Bun.file("front_end/teacher-dashboard.html").text();
                 return new Response(html, {
                     status: 302,
@@ -434,7 +438,7 @@ const server = Bun.serve({
             GET: async (req) =>{
                 const cookie = req.headers.get("cookie") || "";
 
-                if (cookie.includes("AdminSign-In")) {
+                if (cookie.includes(adminCookieId)) {
                 
                 return new Response(null, {
                     status: 301,
@@ -443,7 +447,7 @@ const server = Bun.serve({
                     },
                 });
                 }
-                else if (cookie.includes("TeacherSign-In")) {
+                else if (cookie.includes(teacherCookieId)) {
                 return new Response(null, {
                     status: 301,
                     headers: {
@@ -549,7 +553,7 @@ const server = Bun.serve({
 
                 const cookie = await req.headers.get("cookie") || "";
                  // Check if StudentSignIn cookie exists
-                 if (cookie.includes("AdminSign-In=")) {
+                 if (cookie.includes(adminCookieId)) {
                     return new Response(null, {
                         status: 302,
                         headers: {
@@ -557,7 +561,7 @@ const server = Bun.serve({
                         },
                     });
                  }
-                 else if (cookie.includes("TeacherSign-In=")) {
+                 else if (cookie.includes(teacherCookieId)) {
                     return new Response(null, {
                         status: 302,
                         headers: {
@@ -565,7 +569,7 @@ const server = Bun.serve({
                         },
                     });
                  }
-                 else if (cookie.includes("StudentSign-In=")) {
+                 else if (cookie.includes(studentCookieId)) {
                     return new Response(null, {
                         status: 302,
                         headers: {
@@ -592,7 +596,7 @@ const server = Bun.serve({
 
             const cookie = req.headers.get("cookie") || "";
 
-            if (cookie.includes("AdminSign-In=")) {
+            if (cookie.includes(adminCookieId)) {
                 const html = await Bun.file("front_end/admin-dashboard.html").text();
             return new Response(html, {
                 headers: {
