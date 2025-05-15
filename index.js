@@ -11,6 +11,7 @@ import { get_all_meetings, get_meeting_by_id, create_meeting, update_meeting, de
 import index from "./front_end/index.html";
 
 import { AdminCookies, StudentCookies, Option, TeacherCookies } from "./newCookies";
+import { decipher } from "./Cipher";
 
 const connection = await mysql.createConnection({
   host: process.env.HOST,
@@ -155,8 +156,11 @@ const server = Bun.serve({
         GET: async (req) =>{
 
             const cookie = req.headers.get("cookie") || "";
+            const CookieName = cookie.substring(0, '=');
 
-            if (cookie.includes("AdminSign-In=")) {
+            DecodedName = decipher(CookieName);
+
+            if (cookie.includes(DecodedName === "AdminSign-In=")) {
                 return new Response(null, {
                     status: 302,
                     headers: {
@@ -164,12 +168,12 @@ const server = Bun.serve({
                     },
                 });
              }
-            else if(cookie.includes("TeacherSign-In=")){
+            else if(cookie.includes(DecodedName === "TeacherSign-In=")){
                 return new Response(null, {
                     Location: "front_end/teacher-login.html",
                 });
             }
-            else if(cookie.includes("StudentSign-In=")){
+            else if(cookie.includes(DecodedName === "StudentSign-In=")){
                 return new Response(null, {
                     Location: "front_end/student-login.html",
                 });
@@ -189,9 +193,12 @@ const server = Bun.serve({
             GET: async (req) =>{
 
                 const cookie = req.headers.get("cookie") || "";
+                const CookieName = cookie.substring(0, '=');
+
+               DecodedName = decipher(CookieName);
 
                  // Check if StudentSignIn cookie exists
-                 if (cookie.includes("AdminSign-In=")) {
+                 if ( Decodedname === "AdminSign-In=") {
                     return new Response(null, {
                         status: 302,
                         headers: {
@@ -199,12 +206,12 @@ const server = Bun.serve({
                         },
                     });
                  }
-                else if(cookie.includes("TeacherSign-In=")){
+                else if(cookie.includes(DecodedName === "TeacherSign-In")){
                     return new Response(null, {
                         Location: "front_end/teacher-login.html",
                     });
                 }
-                else if(cookie.includes("StudentSign-In=")){
+                else if(cookie.includes(DecodedName === "StudentSign-In=")){
                     return new Response(null, {
                         Location: "front_end/student-login.html",
                     });
@@ -319,9 +326,12 @@ const server = Bun.serve({
             GET: async (req) =>{
 
                 const cookie = req.headers.get("cookie") || "";
+                const CookieName = cookie.substring(0, '=');
+
+                DecodedName = decipher(CookieName);
 
                  // Check if StudentSignIn cookie exists
-                if (cookie.includes("StudentSignIn=")) {
+                if ( DecodedName === "StudentSignIn=") {
                     return new Response(null, {
                         status: 302,
                         headers: {
@@ -358,9 +368,12 @@ const server = Bun.serve({
             GET: async (req) =>{
 
                const cookie = req.headers.get("cookie") || "";
+               const CookieName = cookie.substring(0, '=');
+
+               DecodedName = decipher(CookieName);
 
                 // Check if StudentSignIn cookie exists
-               if (cookie.includes("TeacherSign-In=")) {
+               if (DecodedName === "TeacherSign-In=") {
                    return new Response(null, {
                        status: 302,
                        headers: {

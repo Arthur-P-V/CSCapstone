@@ -1,4 +1,6 @@
 import { Cookie } from "bun";
+import { caesarCipher } from "./Cipher";
+
 
 export function Option(){
     return new Response(null, {
@@ -13,11 +15,13 @@ export function Option(){
  }
 
 export async function StudentCookies(req){
-    const { Enmuber, password } = await req.json();
+    const { Enumber } = await req.json();
+    const StudentSingIn = caesarCipher("StudentSign-In");
+    const value = caesarCipher(Enumber);
 
     const cookie = new Bun.Cookie({
-        name: "StudentSign-In",
-        value: Enumber,
+        name: StudentSingIn,
+        value: value,
         expires: new Date(Date.now() + 86400000),
         secure: false,
         sameSite: "none",
@@ -35,11 +39,13 @@ export async function StudentCookies(req){
  }
 
  export async function TeacherCookies(req){
-    const { Enmuber, password } = await req.json();
+    const { Enumber } = await req.json();
+    const TeacherSingIn = caesarCipher("StudentSign-In");
+    const value = caesarCipher(Enumber);
 
     const cookie = new Bun.Cookie({
-        name: "TeacherSign-In",
-        value: Enumber,
+        name: TeacherSingIn,
+        value: value,
         expires: new Date(Date.now() + 86400000),
         secure: false,
         sameSite: "none",
@@ -59,11 +65,12 @@ export async function StudentCookies(req){
  export async function AdminCookies(req){
     const { Enmuber, password } = await req.json();
 
-    const hash = bun.password.hash(AdminSign-In);
+    const AdminSingIn = caesarCipher("StudentSign-In");
+    const value = caesarCipher(Enumber);
 
     const cookie = new Bun.Cookie({
-        name: "AdminSign-In",
-        value: Enumber,
+        name: AdminSingIn,
+        value: value,
         expires: new Date(Date.now() + 86400000),
         secure: false,
         sameSite: "none",
