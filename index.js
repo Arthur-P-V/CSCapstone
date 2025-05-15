@@ -334,6 +334,7 @@ const server = Bun.serve({
         },
 
         // I dont think we need cookies for this one
+        // I think we will be able topass all the information through json
         "/student-confirmation/:class_id":{
             GET: async (req) =>{
                 const html = await Bun.file("front_end/confirmation.html").text();
@@ -345,7 +346,8 @@ const server = Bun.serve({
             },
         },
 
-        // Need to implement and work on
+        // Need to implement and work on. 
+        // I think we will be able to pass all the information through json
         // -----------------------------------------------------------------------------------------------------------------------------
         // Need to add cookie validation
         "/student-check-in/:class_id":{
