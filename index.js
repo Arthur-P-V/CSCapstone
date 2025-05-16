@@ -319,7 +319,7 @@ const server = Bun.serve({
                 if (DecodedName === "StudentSign-In") {
 
                     // Send the username to get checked in
-                    const result = await mark_checked_in(db, { eNumber: userName, meeting_id: req.params.meeting_id });
+                    const result = await mark_checked_in(db, { eNumber: decipher(userName), meeting_id: req.params.meeting_id });
                     if(result == "Check-in successful."){
                         // Redirect the user to confirmation
                     const confURL = "/student-confirmation/" + req.params.meeting_id;
@@ -388,6 +388,17 @@ const server = Bun.serve({
         "/student-new-user":{
             GET: async (req) =>{
                 const html = await Bun.file("front_end/new-student-user.html").text();
+                return new Response(html, {
+                    headers: {
+                        "Content-Type": "text/html",
+                    },
+                });
+            },
+        },
+
+        "/student-new-user/:meeting_id":{
+            GET: async (req) =>{
+                const html = await Bun.file("front_end/new-student-user-check-in.html").text();
                 return new Response(html, {
                     headers: {
                         "Content-Type": "text/html",

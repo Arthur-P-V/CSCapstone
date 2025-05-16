@@ -91,12 +91,13 @@
   </div>
 
   <script>
+    const path = window.location.pathname;
+    const parts = path.split("/");
+    const meeting_id = parts[2];
     async function login() {
       const username = document.getElementById("username").value.trim();
       const password = document.getElementById("password").value.trim();
-      const path = window.location.pathname;
-      const parts = path.split("/");
-      const meeting_id = parts[2];
+      
       
 
       if (!username || !password) {
@@ -167,7 +168,7 @@
     }
 
     function goToRegister() {
-      window.location.href = "/student-new-user";
+      window.location.href = ("/student-new-user/" + meeting_id);
     }
 
     function goBack() {
