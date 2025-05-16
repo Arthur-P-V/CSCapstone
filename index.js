@@ -283,7 +283,7 @@ const server = Bun.serve({
                 const DecodedName = decipher(CookieName);
 
                  // Check if StudentSignIn cookie exists
-                if ( DecodedName === "StudentSignIn=") {
+                if ( DecodedName === "StudentSign-In") {
                     return new Response(null, {
                         status: 302,
                         headers: {
