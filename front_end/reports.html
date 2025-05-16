@@ -67,6 +67,8 @@
   <thead>
     <tr>
       <th>eNumber</th>
+      <th>First Name</th>
+      <th>Last Name</th>
       <th>Class</th>
       <th>Check-In Time</th>
     </tr>
@@ -78,35 +80,40 @@
 <button onclick="goBack()">Back to Table</button>
 
 <script>
-function loadReports() {
-  const params = new URLSearchParams(window.location.search);
-  const classId = params.get('classId');
+async function loadReports() {
+  try {
+    const response = await fetch("http://localhost:8080/api/attendance"); // API call
+    if (!response.ok) throw new Error("Failed to fetch attendance data");
 
-  const reports = JSON.parse(localStorage.getItem('reports') || '{}');
-  const students = reports[classId] || [];
+    const students = await response.json();
 
-  const allEvents = [
-    ...JSON.parse(localStorage.getItem('adminTable') || '[]'),
-    ...JSON.parse(localStorage.getItem('events') || '[]')
-  ];
-  const classEvent = allEvents.find(e => e.id === classId);
-  const className = classEvent ? (classEvent.course || classEvent.name || 'Unknown') : 'Unknown';
+    const tbody = document.querySelector("#reportTable tbody");
+    tbody.innerHTML = "";
 
-  const tbody = document.querySelector("#reportTable tbody");
-  tbody.innerHTML = "";
+    students.forEach(entry => {
+      const eNumber = entry?.eNumber || 'N/A';
+      const firstName = entry?.firstName || 'N/A';
+      const lastName = entry?.lastName || 'N/A';
+      const className = entry?.className || 'N/A';
+      const time = entry?.checkInTime
+        ? new Date(entry.checkInTime).toLocaleString()
+        : 'N/A';
 
-  students.forEach(entry => {
-    const eNumber = typeof entry === 'object' ? entry.eNumber : entry;
-    const time = typeof entry === 'object' ? entry.time : 'N/A';
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${eNumber}</td>
+        <td>${firstName}</td>
+        <td>${lastName}</td>
+        <td>${className}</td>
+        <td>${time}</td>
+      `;
+      tbody.appendChild(tr);
+    });
 
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${eNumber}</td>
-      <td>${className}</td>
-      <td>${time}</td>
-    `;
-    tbody.appendChild(tr);
-  });
+  } catch (error) {
+    console.error("Error loading report:", error.message);
+    alert("Failed to load report.");
+  }
 }
 
 function goBack() {
@@ -123,6 +130,7 @@ function goBack() {
 
 window.onload = loadReports;
 </script>
+
 
 </body>
 </html>

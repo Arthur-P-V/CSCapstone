@@ -1,4 +1,7 @@
 import { attendance_record } from "../db/schema/attendance_record";
+import { users } from "../db/schema/users";
+import { classes } from "../db/schema/classes";
+import { meetings } from "../db/schema/meetings";
 import { eq, and } from "drizzle-orm";
 
 
