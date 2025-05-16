@@ -2,13 +2,14 @@ import { drizzle } from "drizzle-orm/mysql2";
 import mysql from "mysql2/promise";
 import { meetings } from "../db/schema/meetings";
 import { classes } from "../db/schema/classes";
+import { users } from "../db/schema/users";
 import { eq, ne, gt, gte} from "drizzle-orm";
 import { parseJsonText } from "typescript";
 
 export async function get_all_meetings(db) {
     
     try{
-        const data = await db.select().from(meetings).innerJoin(classes, eq(meetings.class_id, classes.id));
+        const data = await db.select().from(meetings).innerJoin(classes, eq(meetings.class_id, classes.id)).innerJoin(users, eq(classes.teacher, users.id));
         return data
     } catch (error) {
         console.error("An Error Occurred: ", error.message)

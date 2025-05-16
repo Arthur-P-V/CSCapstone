@@ -143,8 +143,9 @@
     window.location.href = "/manage-templates";
   }
 
+
   //template creation handler
-  document.getElementById("createTemplateForm").addEventListener("submit", function (e) {
+  document.getElementById("createTemplateForm").addEventListener("submit", async function (e) {
     e.preventDefault(); // prevent form refresh
 
     // get values from the form
@@ -152,6 +153,51 @@
     const course = document.getElementById("course").value.trim();
     const description = document.getElementById("description").value.trim();
     const rosterFile = document.getElementById("roster").files[0];
+
+    let enumber_cookie = "Value=";
+    let cookies = await browcookies.get(); //This doesn't work at all
+    console.log(cookies);
+    let cookie_array = cookies.split(';');
+    let enumber = ""
+
+    for (let i = 0; i < cookie_array.length; i++) {
+      let cookie = cookie_array[i];
+      while (cookie.charAt(0) == ' ' ) {
+        cookie = cookie.substring(0);
+      }
+      if(cookie.indexOf(enumber_cookie) == 0) {
+        enumber = cookie.substring(enumber_cookie.length, cookie.length)
+      }
+    }
+    
+    enumber = enumber.substring(0);
+    enumber = "e" + enumber;
+
+    console.log("Reeeee: ", enumber);
+
+    try {
+
+      var response = await fetch(`http://localhost:8080/api/user/${enumber}`, {
+        method: "GET"
+      })
+
+      const user = await response.json
+
+
+
+      var response = await fetch("http://localhost:8080/api/classes", {
+        method: "POST",
+        body: JSON.stringify({
+          teacher: user.id,
+          name: course,
+          description: description,
+          recurring: true
+        })
+      });
+
+  }catch(error) {
+    console.error("An Error Occurred: ", error.message);
+  }
 
     if (!rosterFile) {
       alert("Roster file is required.");
