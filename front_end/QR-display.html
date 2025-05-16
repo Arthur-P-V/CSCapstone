@@ -81,9 +81,15 @@
   <script>
     window.addEventListener('DOMContentLoaded', async () => {
       const params = new URLSearchParams(window.location.search);
-      const id = params.get('id');
-      const from = params.get('from'); // e.g., from=admin or from=teacher
+      const id = params.get('id'); // Meeting ID
+      const from = params.get('from'); // From admin/teacher
 
+      if (!id) {
+        alert("Missing meeting ID.");
+        return;
+      }
+
+      // student check-in URL and generate the QR code from it
       const checkInUrl = `/student-check-in-login/${encodeURIComponent(id)}`;
       const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(checkInUrl)}`;
 
@@ -93,61 +99,76 @@
       qrImage.src = qrUrl;
       qrLink.href = checkInUrl;
 
-  try {
-    const frontOfURL = "http://localhost:8080/";
-    //const frontOfURL = "https://cscapstone-production.up.railway.app/"; 
-    const fetchURL = frontOfURL + `api/classes/${id}`;
-    const res = await fetch(fetchURL);
-    if (!res.ok) throw new Error("Class not found in database");
+      // FETCHING event data from backend
+      try {
+        const baseURL = "http://localhost:8080";
+        //const baseURL = "https://cscapstone-production.up.railway.app/";
+        const fetchURL = `${baseURL}/api/meetings/${id}`;
+        const res = await fetch(fetchURL);
 
-    const event = await res.json();
+        if (!res.ok) throw new Error("Failed to fetch meeting data");
 
-    document.getElementById('course').textContent = event.course || 'N/A';
-    document.getElementById('location').textContent = event.location || 'N/A';
-    document.getElementById('date').textContent = event.date || 'N/A';
-    document.getElementById('teacher').textContent = event.teacher || 'N/A';
-    document.getElementById('createdBy').textContent = event.createdBy || 'N/A';
-  } catch (err) {
-    console.error(err);
-    document.querySelectorAll('.event-info span').forEach(span => span.textContent = 'N/A');
-  }
+        const result = await res.json();
+        const meetingData = result[0]; // [ { meetings: {}, classes: {} } ]
 
-  qrImage.onerror = () => {
-    qrImage.alt = 'QR Code failed to load.';
-    qrImage.style.border = '2px solid red';
-  };
+        if (!meetingData) {
+          alert("Meeting not found.");
+          return;
+        }
 
-  document.getElementById("downloadBtn").addEventListener("click", function () {
-    const link = document.createElement("a");
-    link.href = qrImage.src;
-    link.download = "event_qrcode.png";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  });
+        // data from meeting and class records
+        const { meetings, classes } = meetingData;
 
-  const actionBtn = document.getElementById("actionBtn");
+        document.getElementById('course').textContent = classes.name || "N/A";
+        document.getElementById('location').textContent = meetings.location || "N/A";
+        const formattedDate = new Date(meetings.date).toLocaleString();
+        document.getElementById('date').textContent = formattedDate;
+        document.getElementById('teacher').textContent = classes.teacher || "N/A";
+        document.getElementById('createdBy').textContent = classes.created_by || 'N/A';
 
-  if (from === "admin" || from === "teacher") {
-    actionBtn.textContent = "Go Back";
-    actionBtn.onclick = () => {
-      window.location.href = from === "admin" ? "/admin/class-view" : "/library";
-    };
-  } else {
-    actionBtn.textContent = "Continue";
-    actionBtn.onclick = () => {
-      const role = (localStorage.getItem("role") || "").toLowerCase();
-      if (role === "admin") {
-        window.location.href = "/admin/dashboard";
-      } else if (role === "teacher") {
-        window.location.href = "/library";
-      } else {
-        alert("Unknown role. Returning to home.");
-        window.location.href = "/homepage";
+      } catch (err) {
+        console.error(err);
+        alert("Error loading event data.");
       }
-    };
-  }
-});
+
+      // QR code failure
+      qrImage.onerror = () => {
+        qrImage.alt = 'QR Code failed to load.';
+        qrImage.style.border = '2px solid red';
+      };
+
+      // QR code download
+      document.getElementById("downloadBtn").addEventListener("click", function () {
+        const link = document.createElement("a");
+        link.href = qrImage.src;
+        link.download = "event_qrcode.png";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      });
+
+      // Go Back or Continue button
+      const actionBtn = document.getElementById("actionBtn");
+      if (from === "admin" || from === "teacher") {
+        actionBtn.textContent = "Go Back";
+        actionBtn.onclick = () => {
+          window.location.href = from === "admin" ? "/admin/class-view" : "/library";
+        };
+      } else {
+        actionBtn.textContent = "Continue";
+        actionBtn.onclick = () => {
+          const role = (localStorage.getItem("role") || "").toLowerCase(); // OK to use localStorage here
+          if (role === "admin") {
+            window.location.href = "/admin/dashboard";
+          } else if (role === "teacher") {
+            window.location.href = "/library";
+          } else {
+            alert("Unknown role. Returning to homepage.");
+            window.location.href = "/homepage";
+          }
+        };
+      }
+    });
   </script>
 </body>
 </html>
