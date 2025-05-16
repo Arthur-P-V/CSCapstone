@@ -74,7 +74,6 @@
   }
 
   function submitCheckIn() {
-    // Dyllon, I believe this is where you would use the cookie/user account to auto populate the eNumberInput field
     const eNumber = document.getElementById('eNumberInput').value.trim();
     const params = new URLSearchParams(window.location.search);
     const classId = params.get('classId');
@@ -121,7 +120,7 @@
       localStorage.setItem("studentCheckins", JSON.stringify(checkins));
     }
 
-    window.location.href = `/student-confirmation/l-?classId=${classId}`;
+    window.location.href = `/student-confirmation/${classId}`;
   }
 </script>
 

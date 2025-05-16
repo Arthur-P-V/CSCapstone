@@ -307,7 +307,7 @@ const server = Bun.serve({
 
         // -----------------------------------------------------------------------------------------------------------------------------
         // Need to add cookie validation (this will check if they have a cookie or not and that will determine what is done)
-        "/student-check-in-login/:class_id":{
+        "/student-check-in-login/:meeting_id":{
             GET: async (req) =>{
                 // Have two routes
                 const cookieHeader = req.headers.get("cookie") || "";
@@ -327,15 +327,27 @@ const server = Bun.serve({
                         return new Response("Missing token", { status: 401 });
                     }
                     // Send the username to get checked in
-                    // TODO
-                    // Redirect the user to confirmation
-                    const confURL = "/student-confirmation/" + req.params.class_id;
+                    const result = await mark_checked_in(db, { eNumber: token, meeting_id: req.params.meeting_id });
+                    if(result == "Check-in successful."){
+                        // Redirect the user to confirmation
+                    const confURL = "/student-confirmation/" + req.params.meeting_id;
                    return new Response(null, {
                        status: 302,
                        headers: {
                        Location: confURL,
                        },
                    });
+                    }
+                    else{
+                        // There was an error
+                        return new Response(null, {
+                       status: 400,
+                       headers: {
+                       Location: "/error",
+                       },
+                   });
+                    }
+                    
                 }
                 else{
                 // 2) No cookie redirect to the login page
@@ -376,7 +388,7 @@ const server = Bun.serve({
 
         // I dont think we need cookies for this one
         // I think we will be able topass all the information through json
-        "/student-confirmation/:class_id":{
+        "/student-confirmation/:meeting_id":{
             GET: async (req) =>{
                 const html = await Bun.file("front_end/confirmation.html").text();
                 return new Response(html, {
@@ -391,7 +403,7 @@ const server = Bun.serve({
         // I think we will be able to pass all the information through json
         // -----------------------------------------------------------------------------------------------------------------------------
         // Need to add cookie validation
-        "/student-check-in/:class_id":{
+        "/student-check-in/:meeting_id":{
             GET: async (req) =>{
                 const html = await Bun.file("front_end/check-in.html").text();
                 return new Response(html, {
@@ -446,7 +458,7 @@ const server = Bun.serve({
                 const cookie = req.headers.get("cookie") || "";
                 const CookieName = cookie.substring(0, '=');
 
-                DecodedName = decipher(CookieName);
+                const DecodedName = decipher(CookieName);
 
                 if (DecodedName === "TeacherSign-In") {
                 const html = await Bun.file("front_end/teacher-dashboard.html").text();

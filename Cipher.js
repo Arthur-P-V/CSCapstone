@@ -1,5 +1,5 @@
 
-function caesarCipher(text) {
+export function caesarCipher(text) {
     const shift = 5;
     let result = '';
     for (let i = 0; i < text.length; i++) {
@@ -20,7 +20,7 @@ function caesarCipher(text) {
     return result;
   }
 
-  function decipher(text) {
+  export function decipher(text) {
     const shift = 5;
     let result = '';
     for (let i = 0; i < text.length; i++) {

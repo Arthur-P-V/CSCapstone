@@ -115,11 +115,9 @@
 
       if (!classId) {
         alert("Missing class ID. Redirecting to dashboard.");
-        window.location.href = "/student-dashboard";
+        window.location.href = "/student-check-in-error";
       } else {
-        // Dyllon, this is where students checking in with QR-code will be sent after they log in
-        // Think about either cookie or using a user's enumber to auto populate the field
-        window.location.href = `/student-check-in/l-?classId=${encodeURIComponent(classId)}`;
+         window.location.href = `/student-check-in/${encodeURIComponent(classId)}`;
       }
     }
 
