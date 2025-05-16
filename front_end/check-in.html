@@ -50,11 +50,7 @@
     const loggedInUser = localStorage.getItem("loggedInUser");
     const role = (localStorage.getItem("role") || "").toLowerCase();
 
-    if (!loggedInUser || role !== "student") {
-      const params = new URLSearchParams(window.location.search);
-      const classId = params.get("classId") || "";
-      window.location.href = `/student-check-in-login/${encodeURIComponent(classId)}`;
-    }
+    
   });
 
   //Standard 12-hour time formatting

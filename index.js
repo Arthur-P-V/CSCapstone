@@ -324,7 +324,11 @@ const server = Bun.serve({
                     const token = cookies[studentCookieId];
 
                     if (!token) {
-                        return new Response("Missing token", { status: 401 });
+                        return new Response("Missing token", { status: 401,
+                            headers:{
+                                Locatoin: "/"
+                            }
+                         });
                     }
                     // Send the username to get checked in
                     const result = await mark_checked_in(db, { eNumber: token, meeting_id: req.params.meeting_id });
@@ -351,6 +355,7 @@ const server = Bun.serve({
                 }
                 else{
                 // 2) No cookie redirect to the login page
+                // When they log in they will get a cookie, then redirect to this page
                 const html = await Bun.file("front_end/student-check-in-login.html").text();
                 return new Response(html, {
                     headers: {
@@ -413,38 +418,6 @@ const server = Bun.serve({
                         "Content-Type": "text/html",
                     },
                 });
-            },
-        },
-
-        // Need to implement and work on. 
-        // I think we will be able to pass all the information through json
-        // -----------------------------------------------------------------------------------------------------------------------------
-        // Need to add cookie validation
-        "/student-check-in/:meeting_id":{
-            GET: async (req) =>{
-
-                const cookie = req.headers.get("cookie") || "";
-                const CookieName = cookie.split('=')[0];
-
-                const DecodedName = decipher(CookieName);
-
-                 // Check if StudentSignIn cookie exists
-                if (DecodedName === "StudentSign-In"){
-                const html = await Bun.file("front_end/check-in.html").text();
-                return new Response(html, {
-                    headers: {
-                        "Content-Type": "text/html",
-                    },
-                });
-                }
-                else{
-                    return new Response(null, {
-                        status: 302,
-                        headers: {
-                        Location: "/student-login",
-                        },
-                    });
-                }
             },
         },
 
