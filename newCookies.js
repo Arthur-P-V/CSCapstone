@@ -41,7 +41,7 @@ export async function StudentCookies(req){
 
  export async function TeacherCookies(req){
     const { Enumber } = await req.json();
-    const TeacherSingIn = caesarCipher("StudentSign-In");
+    const TeacherSingIn = caesarCipher("TeacherSign-In");
     const value = caesarCipher(Enumber);
 
     const cookie = new Bun.Cookie({
@@ -67,7 +67,7 @@ export async function StudentCookies(req){
  export async function AdminCookies(req){
     const { Enumber, password } = await req.json();
 
-    const AdminSingIn = caesarCipher("StudentSign-In");
+    const AdminSingIn = caesarCipher("AdminSign-In");
     const value = caesarCipher(Enumber);
 
     const cookie = new Bun.Cookie({

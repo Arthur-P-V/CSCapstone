@@ -14,7 +14,7 @@ import { create_attendance_record, mark_checked_in, get_all_attendance } from ".
 import index from "./front_end/index.html";
 
 import { AdminCookies, StudentCookies, Option, TeacherCookies } from "./newCookies";
-import { decipher } from "./Cipher";
+import { decipher, caesarCipher } from "./Cipher";
 
 const studentCookieId = "StudentSign-In";
 const teacherCookieId = "TeacherSign-In";
@@ -278,9 +278,9 @@ const server = Bun.serve({
             GET: async (req) =>{
 
                 const cookie = req.headers.get("cookie") || "";
-                const CookieName = cookie.substring(0, '=');
+                const CookieName = cookie.split('=')[0];
 
-                DecodedName = decipher(CookieName);
+                const DecodedName = decipher(CookieName);
 
                  // Check if StudentSignIn cookie exists
                 if ( DecodedName === "StudentSignIn=") {
@@ -419,9 +419,9 @@ const server = Bun.serve({
             GET: async (req) =>{
 
                const cookie = req.headers.get("cookie") || "";
-               const CookieName = cookie.substring(0, '=');
+               const CookieName = cookie.split('=')[0];
 
-               DecodedName = decipher(CookieName);
+               const DecodedName = decipher(CookieName);
 
                 // Check if StudentSignIn cookie exists
                if (DecodedName === "TeacherSign-In") {
@@ -456,7 +456,7 @@ const server = Bun.serve({
         "/teacher/dashboard":{
             GET: async (req) =>{
                 const cookie = req.headers.get("cookie") || "";
-                const CookieName = cookie.substring(0, '=');
+                const CookieName = cookie.split('=')[0];
 
                 const DecodedName = decipher(CookieName);
 
@@ -490,9 +490,9 @@ const server = Bun.serve({
             // Has either a admin cookie, teacher cookie, or be redirected to the home page
             GET: async (req) =>{
                 const cookie = req.headers.get("cookie") || "";
-                const CookieName = cookie.substring(0, '=');
+                const CookieName = cookie.split('=')[0];
 
-                DecodedName = decipher(CookieName);
+                const DecodedName = decipher(CookieName);
 
                 if (DecodedName === "AdminSign-In") {
                 
@@ -608,9 +608,11 @@ const server = Bun.serve({
             GET: async (req) =>{
 
                 const cookie = await req.headers.get("cookie") || "";
-                const CookieName = cookie.substring(0, '=');
-
-                DecodedName = decipher(CookieName);
+                
+                const CookieName = cookie.split('=')[0];
+                console.log("Cookie name is: ", CookieName);
+                const DecodedName = decipher(CookieName);
+                console.log("Decifered cookie: ", DecodedName);
                 
                  // Check if StudentSignIn cookie exists
                  if (DecodedName === "AdminSign-In") {
@@ -655,9 +657,9 @@ const server = Bun.serve({
         GET: async (req) =>{
 
             const cookie = req.headers.get("cookie") || "";
-            const CookieName = cookie.substring(0, '=');
+            const CookieName = cookie.split('=')[0];
 
-            DecodedName = decipher(CookieName);
+            const DecodedName = decipher(CookieName);
 
             if (DecodedName === "AdminSign-In") {
                 const html = await Bun.file("front_end/admin-dashboard.html").text();
@@ -685,9 +687,9 @@ const server = Bun.serve({
       "/admin/class-view":{
         GET: async (req) =>{
             const cookie = req.headers.get("cookie") || "";
-            const CookieName = cookie.substring(0, '=');
+            const CookieName = cookie.split('=')[0];
 
-            DecodedName = decipher(CookieName);
+            const DecodedName = decipher(CookieName);
             if (DecodedName === "AdminSign-In") {   
                 const html = await Bun.file("front_end/admin-class-view.html").text();
                 return new Response(html, {
@@ -714,9 +716,9 @@ const server = Bun.serve({
         GET: async (req) =>{
 
             const cookie = req.headers.get("cookie") || "";
-            const CookieName = cookie.substring(0, '=');
+            const CookieName = cookie.split('=')[0];
 
-            DecodedName = decipher(CookieName);
+            const DecodedName = decipher(CookieName);
             if (DecodedName === "AdminSign-In"){
           const html = await Bun.file("front_end/create-teacher-account.html").text();
           return new Response(html, {
@@ -742,9 +744,9 @@ const server = Bun.serve({
         GET: async (req) =>{
 
             const cookie = req.headers.get("cookie") || "";
-            const CookieName = cookie.substring(0, '=');
+            const CookieName = cookie.split('=')[0];
 
-            DecodedName = decipher(CookieName);
+            const DecodedName = decipher(CookieName);
             if (DecodedName === "AdminSign-In"){  
                  const html = await Bun.file("front_end/view-teachers.html").text();
                 return new Response(html, {
@@ -771,9 +773,9 @@ const server = Bun.serve({
         GET: async (req) =>{
 
             const cookie = req.headers.get("cookie") || "";
-            const CookieName = cookie.substring(0, '=');
+            const CookieName = cookie.split('=')[0];
 
-            DecodedName = decipher(CookieName);
+            const DecodedName = decipher(CookieName);
             if (DecodedName === "AdminSign-In"){  
                 const html = await Bun.file("front_end/view-students.html").text();
                 return new Response(html, {
