@@ -79,7 +79,7 @@
   </div>
 
   <script>
-    window.addEventListener('DOMContentLoaded', () => {
+    window.addEventListener('DOMContentLoaded', async () => {
       const params = new URLSearchParams(window.location.search);
       const id = params.get('id');
       const from = params.get('from'); // e.g., from=admin or from=teacher
@@ -93,58 +93,58 @@
       qrImage.src = qrUrl;
       qrLink.href = checkInUrl;
 
-      const allEvents = [
-        ...JSON.parse(localStorage.getItem("adminTable") || "[]"),
-        ...JSON.parse(localStorage.getItem("events") || "[]")
-      ];
-      const event = allEvents.find(e => e.id === id);
+  try {
+    const res = await fetch(`/api/classes/${id}`);
+    if (!res.ok) throw new Error("Class not found in database");
 
-      if (event) {
-        document.getElementById('course').textContent = event.course || 'N/A';
-        document.getElementById('location').textContent = event.location || 'N/A';
-        document.getElementById('date').textContent = event.date || 'N/A';
-        document.getElementById('teacher').textContent = event.teacher || 'N/A';
-        document.getElementById('createdBy').textContent = event.createdBy || 'N/A';
+    const event = await res.json();
+
+    document.getElementById('course').textContent = event.course || 'N/A';
+    document.getElementById('location').textContent = event.location || 'N/A';
+    document.getElementById('date').textContent = event.date || 'N/A';
+    document.getElementById('teacher').textContent = event.teacher || 'N/A';
+    document.getElementById('createdBy').textContent = event.createdBy || 'N/A';
+  } catch (err) {
+    console.error(err);
+    document.querySelectorAll('.event-info span').forEach(span => span.textContent = 'N/A');
+  }
+
+  qrImage.onerror = () => {
+    qrImage.alt = 'QR Code failed to load.';
+    qrImage.style.border = '2px solid red';
+  };
+
+  document.getElementById("downloadBtn").addEventListener("click", function () {
+    const link = document.createElement("a");
+    link.href = qrImage.src;
+    link.download = "event_qrcode.png";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  });
+
+  const actionBtn = document.getElementById("actionBtn");
+
+  if (from === "admin" || from === "teacher") {
+    actionBtn.textContent = "Go Back";
+    actionBtn.onclick = () => {
+      window.location.href = from === "admin" ? "/admin/class-view" : "/library";
+    };
+  } else {
+    actionBtn.textContent = "Continue";
+    actionBtn.onclick = () => {
+      const role = (localStorage.getItem("role") || "").toLowerCase();
+      if (role === "admin") {
+        window.location.href = "/admin/dashboard";
+      } else if (role === "teacher") {
+        window.location.href = "/library";
       } else {
-        document.querySelectorAll('.event-info span').forEach(span => span.textContent = 'N/A');
+        alert("Unknown role. Returning to home.");
+        window.location.href = "/homepage";
       }
-
-      qrImage.onerror = () => {
-        qrImage.alt = 'QR Code failed to load.';
-        qrImage.style.border = '2px solid red';
-      };
-
-      document.getElementById("downloadBtn").addEventListener("click", function () {
-        const link = document.createElement("a");
-        link.href = qrImage.src;
-        link.download = "event_qrcode.png";
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      });
-
-      const actionBtn = document.getElementById("actionBtn");
-
-      if (from === "admin" || from === "teacher") {
-        actionBtn.textContent = "Go Back";
-        actionBtn.onclick = () => {
-          window.location.href = from === "admin" ? "/admin/class-view" : "/library";
-        };
-      } else {
-        actionBtn.textContent = "Continue";
-        actionBtn.onclick = () => {
-          const role = (localStorage.getItem("role") || "").toLowerCase();
-          if (role === "admin") {
-            window.location.href = "/admin/dashboard";
-          } else if (role === "teacher") {
-            window.location.href = "/library";
-          } else {
-            alert("Unknown role. Returning to home.");
-            window.location.href = "/homepage";
-          }
-        };
-      }
-    });
+    };
+  }
+});
   </script>
 </body>
 </html>
