@@ -94,7 +94,10 @@
       qrLink.href = checkInUrl;
 
   try {
-    const res = await fetch(`/api/classes/${id}`);
+    const frontOfURL = "http://localhost:8080/";
+    //const frontOfURL = "https://cscapstone-production.up.railway.app/"; 
+    const fetchURL = frontOfURL + `api/classes/${id}`;
+    const res = await fetch(fetchURL);
     if (!res.ok) throw new Error("Class not found in database");
 
     const event = await res.json();
