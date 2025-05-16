@@ -14,7 +14,7 @@ import { create_attendance_record, mark_checked_in, get_all_attendance } from ".
 import index from "./front_end/index.html";
 
 import { AdminCookies, StudentCookies, Option, TeacherCookies } from "./newCookies";
-import { decipher } from "./Cipher";
+import { decipher, caesarCipher } from "./Cipher";
 
 const studentCookieId = "StudentSign-In";
 const teacherCookieId = "TeacherSign-In";
@@ -278,9 +278,9 @@ const server = Bun.serve({
             GET: async (req) =>{
 
                 const cookie = req.headers.get("cookie") || "";
-                const CookieName = cookie.substring(0, '=');
+                const CookieName = cookie.split('=')[0];
 
-                DecodedName = decipher(CookieName);
+                const DecodedName = decipher(CookieName);
 
                  // Check if StudentSignIn cookie exists
                 if ( DecodedName === "StudentSignIn=") {
@@ -307,31 +307,57 @@ const server = Bun.serve({
 
         // -----------------------------------------------------------------------------------------------------------------------------
         // Need to add cookie validation (this will check if they have a cookie or not and that will determine what is done)
-        "/student-check-in-login/:class_id":{
+        "/student-check-in-login/:meeting_id":{
             GET: async (req) =>{
+                // Have two routes
+                const cookieHeader = req.headers.get("cookie") || "";
+                // 1) Has a student cookie, should auto fill 
+                if (cookieHeader.includes(studentCookieId)) {
+                    // Get the username
+                      const cookies = Object.fromEntries(
+                        cookieHeader.split(";").map(cookie => {
+                        const [name, value] = cookie.trim().split("=");
+                        return [name, decodeURIComponent(value)];
+                        })
+                    );
+                    // Grab the specific cookie
+                    const token = cookies[studentCookieId];
 
-                const cookie = req.headers.get("cookie") || "";
-                const CookieName = cookie.substring(0, '=');
-
-                DecodedName = decipher(CookieName);
-
-                 // Check if StudentSignIn cookie exists
-                if (DecodedName === "StudentSign-In"){
-                    const html = await Bun.file("front_end/student-check-in-login.html").text();
-                    return new Response(html, {
-                        headers: {
-                            "Content-Type": "text/html",
-                        },
-                    });
-                 }
-                 else{
-                    return new Response(null, {
-                        status: 302,
-                        headers: {
-                        Location: "/student-login",
-                        },
-                    });
-                 }
+                    if (!token) {
+                        return new Response("Missing token", { status: 401 });
+                    }
+                    // Send the username to get checked in
+                    const result = await mark_checked_in(db, { eNumber: token, meeting_id: req.params.meeting_id });
+                    if(result == "Check-in successful."){
+                        // Redirect the user to confirmation
+                    const confURL = "/student-confirmation/" + req.params.meeting_id;
+                   return new Response(null, {
+                       status: 302,
+                       headers: {
+                       Location: confURL,
+                       },
+                   });
+                    }
+                    else{
+                        // There was an error
+                        return new Response(null, {
+                       status: 400,
+                       headers: {
+                       Location: "/error",
+                       },
+                   });
+                    }
+                    
+                }
+                else{
+                // 2) No cookie redirect to the login page
+                const html = await Bun.file("front_end/student-check-in-login.html").text();
+                return new Response(html, {
+                    headers: {
+                        "Content-Type": "text/html",
+                    },
+                });
+            }
             },
         },
 
@@ -379,7 +405,7 @@ const server = Bun.serve({
 
         // I dont think we need cookies for this one
         // I think we will be able topass all the information through json
-        "/student-confirmation/:class_id":{
+        "/student-confirmation/:meeting_id":{
             GET: async (req) =>{
                 const html = await Bun.file("front_end/confirmation.html").text();
                 return new Response(html, {
@@ -394,7 +420,7 @@ const server = Bun.serve({
         // I think we will be able to pass all the information through json
         // -----------------------------------------------------------------------------------------------------------------------------
         // Need to add cookie validation
-        "/student-check-in/:class_id":{
+        "/student-check-in/:meeting_id":{
             GET: async (req) =>{
 
                 const cookie = req.headers.get("cookie") || "";
@@ -427,9 +453,9 @@ const server = Bun.serve({
             GET: async (req) =>{
 
                const cookie = req.headers.get("cookie") || "";
-               const CookieName = cookie.substring(0, '=');
+               const CookieName = cookie.split('=')[0];
 
-               DecodedName = decipher(CookieName);
+               const DecodedName = decipher(CookieName);
 
                 // Check if StudentSignIn cookie exists
                if (DecodedName === "TeacherSign-In") {
@@ -464,9 +490,9 @@ const server = Bun.serve({
         "/teacher/dashboard":{
             GET: async (req) =>{
                 const cookie = req.headers.get("cookie") || "";
-                const CookieName = cookie.substring(0, '=');
+                const CookieName = cookie.split('=')[0];
 
-                DecodedName = decipher(CookieName);
+                const DecodedName = decipher(CookieName);
 
                 if (DecodedName === "TeacherSign-In") {
                 const html = await Bun.file("front_end/teacher-dashboard.html").text();
@@ -498,9 +524,9 @@ const server = Bun.serve({
             // Has either a admin cookie, teacher cookie, or be redirected to the home page
             GET: async (req) =>{
                 const cookie = req.headers.get("cookie") || "";
-                const CookieName = cookie.substring(0, '=');
+                const CookieName = cookie.split('=')[0];
 
-                DecodedName = decipher(CookieName);
+                const DecodedName = decipher(CookieName);
 
                 if (DecodedName === "AdminSign-In" || DecodedName === "TeacherSign-In" ) {
                 
@@ -713,9 +739,9 @@ const server = Bun.serve({
             GET: async (req) =>{
 
                 const cookie = await req.headers.get("cookie") || "";
-                const CookieName = cookie.substring(0, '=');
-
-                DecodedName = decipher(CookieName);
+                
+                const CookieName = cookie.split('=')[0];
+                const DecodedName = decipher(CookieName);
                 
                  // Check if StudentSignIn cookie exists
                  if (DecodedName === "AdminSign-In") {
@@ -760,9 +786,9 @@ const server = Bun.serve({
         GET: async (req) =>{
 
             const cookie = req.headers.get("cookie") || "";
-            const CookieName = cookie.substring(0, '=');
+            const CookieName = cookie.split('=')[0];
 
-            DecodedName = decipher(CookieName);
+            const DecodedName = decipher(CookieName);
 
             if (DecodedName === "AdminSign-In") {
                 const html = await Bun.file("front_end/admin-dashboard.html").text();
@@ -790,9 +816,9 @@ const server = Bun.serve({
       "/admin/class-view":{
         GET: async (req) =>{
             const cookie = req.headers.get("cookie") || "";
-            const CookieName = cookie.substring(0, '=');
+            const CookieName = cookie.split('=')[0];
 
-            DecodedName = decipher(CookieName);
+            const DecodedName = decipher(CookieName);
             if (DecodedName === "AdminSign-In") {   
                 const html = await Bun.file("front_end/admin-class-view.html").text();
                 return new Response(html, {
@@ -819,9 +845,9 @@ const server = Bun.serve({
         GET: async (req) =>{
 
             const cookie = req.headers.get("cookie") || "";
-            const CookieName = cookie.substring(0, '=');
+            const CookieName = cookie.split('=')[0];
 
-            DecodedName = decipher(CookieName);
+            const DecodedName = decipher(CookieName);
             if (DecodedName === "AdminSign-In"){
           const html = await Bun.file("front_end/create-teacher-account.html").text();
           return new Response(html, {
@@ -847,9 +873,9 @@ const server = Bun.serve({
         GET: async (req) =>{
 
             const cookie = req.headers.get("cookie") || "";
-            const CookieName = cookie.substring(0, '=');
+            const CookieName = cookie.split('=')[0];
 
-            DecodedName = decipher(CookieName);
+            const DecodedName = decipher(CookieName);
             if (DecodedName === "AdminSign-In"){  
                  const html = await Bun.file("front_end/view-teachers.html").text();
                 return new Response(html, {
@@ -876,9 +902,9 @@ const server = Bun.serve({
         GET: async (req) =>{
 
             const cookie = req.headers.get("cookie") || "";
-            const CookieName = cookie.substring(0, '=');
+            const CookieName = cookie.split('=')[0];
 
-            DecodedName = decipher(CookieName);
+            const DecodedName = decipher(CookieName);
             if (DecodedName === "AdminSign-In"){  
                 const html = await Bun.file("front_end/view-students.html").text();
                 return new Response(html, {

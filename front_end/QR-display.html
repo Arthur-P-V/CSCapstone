@@ -84,7 +84,7 @@
       const id = params.get('id');
       const from = params.get('from'); // e.g., from=admin or from=teacher
 
-      const checkInUrl = `/student-check-in-login/l-?classId=${encodeURIComponent(id)}`;
+      const checkInUrl = `/student-check-in-login/${encodeURIComponent(id)}`;
       const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(checkInUrl)}`;
 
       const qrImage = document.getElementById('qrImage');

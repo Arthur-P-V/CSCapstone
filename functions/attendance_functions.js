@@ -18,9 +18,8 @@ export async function create_attendance_record(db, req) {
 
 
 
-export async function mark_checked_in(db, req) {
+export async function mark_checked_in(db, { eNumber, meeting_id}) {
   try {
-    const { eNumber, meeting_id } = await req.json();
     await db.update(attendance_record)
       .set({ check_in_time: new Date() })
       .where(
