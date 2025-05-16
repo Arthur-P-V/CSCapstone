@@ -367,7 +367,7 @@ const server = Bun.serve({
             GET: async (req) =>{
                 
                 const cookie = req.headers.get("cookie") || "";
-                const CookieName = cookie.substring(0, '=');
+                const CookieName = cookie.split('=')[0];
 
                 DecodedName = decipher(CookieName);
 
@@ -424,7 +424,7 @@ const server = Bun.serve({
             GET: async (req) =>{
 
                 const cookie = req.headers.get("cookie") || "";
-                const CookieName = cookie.substring(0, '=');
+                const CookieName = cookie.split('=')[0];
 
                 DecodedName = decipher(CookieName);
 
@@ -566,7 +566,7 @@ const server = Bun.serve({
             GET: async (req) =>{
 
                 const cookie = await req.headers.get("cookie") || "";
-                const CookieName = cookie.substring(0, '=');
+                const CookieName = cookie.split('=')[0];
 
                 DecodedName = decipher(CookieName);
                 
@@ -595,7 +595,7 @@ const server = Bun.serve({
             GET: async (req) =>{
                 
                 const cookie = await req.headers.get("cookie") || "";
-                const CookieName = cookie.substring(0, '=');
+                const CookieName = cookie.split('=')[0];
 
                 DecodedName = decipher(CookieName);
                 
@@ -624,7 +624,7 @@ const server = Bun.serve({
             GET: async (req) =>{
 
                 const cookie = await req.headers.get("cookie") || "";
-                const CookieName = cookie.substring(0, '=');
+                const CookieName = cookie.split('=')[0];
 
                 DecodedName = decipher(CookieName);
                 
@@ -653,7 +653,7 @@ const server = Bun.serve({
             GET: async (req) =>{
             
                 const cookie = await req.headers.get("cookie") || "";
-                const CookieName = cookie.substring(0, '=');
+                const CookieName = cookie.split('=')[0];
 
                 DecodedName = decipher(CookieName);
                 
@@ -683,7 +683,7 @@ const server = Bun.serve({
             GET: async (req) =>{
 
                 const cookie = await req.headers.get("cookie") || "";
-                const CookieName = cookie.substring(0, '=');
+                const CookieName = cookie.split('=')[0];
 
                 DecodedName = decipher(CookieName);
                 
@@ -711,7 +711,7 @@ const server = Bun.serve({
             GET: async (req) =>{
                
                 const cookie = await req.headers.get("cookie") || "";
-                const CookieName = cookie.substring(0, '=');
+                const CookieName = cookie.split('=')[0];
 
                 DecodedName = decipher(CookieName);
                 
