@@ -91,34 +91,75 @@
   </div>
 
   <script>
-    function login() {
+    async function login() {
       const username = document.getElementById("username").value.trim();
       const password = document.getElementById("password").value.trim();
-      const params = new URLSearchParams(window.location.search);
-      const classId = params.get("classId");
+      const path = window.location.pathname;
+      const parts = path.split("/");
+      const meeting_id = parts[2];
+      
 
       if (!username || !password) {
         alert("Please enter both username and password.");
-        return; 
-      }
-
-      const users = JSON.parse(localStorage.getItem("studentUsers") || "[]");
-      const user = users.find(u => u.eNumber === username && u.password === password);
-
-      if (!user) {
-        alert("Invalid credentials or teacher account not found.\nPlease contact your admin.");
         return;
       }
+      // Data verificatoin
+      try{
+        // When running on local machine
+      const frontOfURL = "http://localhost:8080/";
+        // When running on server
+      
+      //const frontOfURL = "https://cscapstone-production.up.railway.app/";  
+      
+      const checkUser = frontOfURL + `api/user/${encodeURIComponent(username)}`;
+      const userExist = await fetch(checkUser);
+      const data = await userExist.json();
 
-      localStorage.setItem("loggedInUser", username);
-      localStorage.setItem("role", "Student");
-
-      if (!classId) {
-        alert("Missing class ID. Redirecting to dashboard.");
-        window.location.href = "/student-check-in-error";
+      const validationURL = frontOfURL + `api/verifyStudentPassword`;
+      
+      const bodyConnection = await fetch(validationURL, {
+          method: "POST",
+          headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ 
+          username: username,
+          password: password
+        })
+      });
+      const validConnection = await bodyConnection.json();
+      
+      if (!!validConnection) {
+        const cookieURL = frontOfURL + 'student-login';
+        // This is going to add a cookie to the browser saying the student is logged in
+          const res = await fetch(cookieURL, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            credentials: "include", // Tells browser to include cookies
+            body: JSON.stringify({ Enumber: username})
+            
+          });
+          // This will redirect to the student-check-in-login page with the cookie
+          console.log("Meeting_id: ", meeting_id);
+          if (!meeting_id) {
+        alert("Missing class ID. Redirecting to homepage.");
+        window.location.href = "/homepage";
       } else {
-         window.location.href = `/student-check-in/${encodeURIComponent(classId)}`;
+         window.location.href = `/student-check-in-login/${encodeURIComponent(meeting_id)}`;
+      }     
       }
+      else{
+          alert("Invalid credentials or student account not found.\nPlease create an account or contact your admin.");
+          return;
+      }
+      
+      }catch (error){
+        console.error("There was a server error");
+        return;
+      }
+      return;      
     }
 
     function showHelp() {
