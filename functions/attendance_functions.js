@@ -39,7 +39,19 @@ export async function mark_checked_in(db, { eNumber, meeting_id}) {
 
 export async function get_all_attendance(db) {
   try {
-    const data = await db.select().from(attendance_record);
+    const data = await db
+      .select({
+        eNumber: users.eNumber,
+        firstName: users.first_name,
+        lastName: users.last_name,
+        className: classes.name,
+        checkInTime: attendance_record.check_in_time,
+      })
+      .from(attendance_record)
+      .innerJoin(users, eq(users.eNumber, attendance_record.eNumber))
+      .innerJoin(meetings, eq(meetings.id, attendance_record.meeting_id))
+      .innerJoin(classes, eq(classes.id, meetings.class_id));
+
     return data;
   } catch (error) {
     console.error("Fetch attendance failed:", error.message);
