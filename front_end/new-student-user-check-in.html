@@ -90,14 +90,15 @@
   </div>
 
   <script>
+    const path = window.location.pathname; 
+      const parts = path.split("/");       
+      const meetingId = parts[2];
     async function register() {
       const eNumber = document.getElementById("eNumber").value.trim();
       const password = document.getElementById("password").value.trim();
       const firstName = document.getElementById("firstName").value.trim();
       const lastName = document.getElementById("lastName").value.trim();
-      const path = window.location.pathname; 
-      const parts = path.split("/");       
-      const meetingId = parts[2]; 
+       
     
       if (!eNumber || !password || !firstName || !lastName) {
         alert("Please fill in all fields.");
@@ -142,7 +143,7 @@
     }
 
     function goBack() {
-      window.location.href = "/student-login";
+      window.location.href = "/student-check-in-login/"+ meetingId;
     }
   </script>
 </body>
