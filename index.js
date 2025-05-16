@@ -310,28 +310,16 @@ const server = Bun.serve({
         "/student-check-in-login/:meeting_id":{
             GET: async (req) =>{
                 // Have two routes
-                const cookieHeader = req.headers.get("cookie") || "";
+                const cookie = req.headers.get("cookie") || "";
+                const CookieName = cookie.split('=')[0];
+                const userName = cookie.split('=')[1];
+                
+                const DecodedName = decipher(CookieName);
                 // 1) Has a student cookie, should auto fill 
-                if (cookieHeader.includes(studentCookieId)) {
-                    // Get the username
-                      const cookies = Object.fromEntries(
-                        cookieHeader.split(";").map(cookie => {
-                        const [name, value] = cookie.trim().split("=");
-                        return [name, decodeURIComponent(value)];
-                        })
-                    );
-                    // Grab the specific cookie
-                    const token = cookies[studentCookieId];
+                if (DecodedName === "StudentSign-In") {
 
-                    if (!token) {
-                        return new Response("Missing token", { status: 401,
-                            headers:{
-                                Locatoin: "/"
-                            }
-                         });
-                    }
                     // Send the username to get checked in
-                    const result = await mark_checked_in(db, { eNumber: token, meeting_id: req.params.meeting_id });
+                    const result = await mark_checked_in(db, { eNumber: userName, meeting_id: req.params.meeting_id });
                     if(result == "Check-in successful."){
                         // Redirect the user to confirmation
                     const confURL = "/student-confirmation/" + req.params.meeting_id;

@@ -110,15 +110,7 @@ function loadReports() {
 }
 
 function goBack() {
-  const role = (localStorage.getItem("role") || "").toLowerCase();
-  if (role === "admin") {
-    window.location.href = "/admin/class-view";
-  } else if (role === "teacher") {
-    window.location.href = "/library";
-  } else {
-    alert("Access denied. Role not recognized.");
-    window.location.href = "/homepage";
-  }
+  window.location.href = "/admin-teacher-dashboard";
 }
 
 window.onload = loadReports;
