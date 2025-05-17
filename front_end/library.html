@@ -182,7 +182,7 @@ async function loadEvents() {
 }
 
 function showQRCode(id) {
-  window.location.href = `/QR-display/l-?id=${encodeURIComponent(id)}&from=teacher`;
+  window.location.href = `/QR-display/${encodeURIComponent(id)}&from=teacher`;
 }
 
 function sortTableBy(columnIndex) {
@@ -261,7 +261,7 @@ function deleteRow(button) {
 }
 
 function viewCheckIns(id) {
-  window.location.href = `/reports/l-?classId=${id}`;
+  window.location.href = `/reports/${id}`;
 }
 
 function downloadRoster(id) {
