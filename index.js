@@ -22,10 +22,10 @@ const adminCookieId = "AdminSign-In";
 
 // Making a connection with mySQL
 const connection = await mysql.createConnection({
-    host: process.env.HOST,
-    user: process.env.USER,
-    password: process.env.PASSWORD,
-    database: process.env.DATABASE,
+    host: process.env.localhost,
+    user: process.env.root,
+    password: process.env.test,
+    database: process.env.capstone,
 });
 
 // ---------------------------------------------------------------------------------------------
