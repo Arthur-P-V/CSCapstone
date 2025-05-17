@@ -198,11 +198,15 @@ const server = Bun.serve({
             POST: async (req) => {
                 const cookie = req.headers.get("cookie") || "";
                 const CookieUser = cookie.split('=')[1];
-
                 const DecodedName = decipher(CookieUser);
+
                 // Add this cookieUser to the req, for the teacher name
                 const teacherID = await get_user_by_eNumber_backend(db, DecodedName);
-                await req.append("teacher", teacherID);
+
+                const headers = new Headers();
+                await headers.append(req);
+                await headers.append("teacher", teacherID);
+                
                 const data = await create_class(db, req)
                 //const {name, location, current_qr, description, type} = await req.json(); //the const variables are actually matched to the json body returned by req.json(), the order doesn't matter
                 //const new_event = await db.insert(events).values({event_name: name, location: location, current_qr: current_qr, description: description, type: type});
