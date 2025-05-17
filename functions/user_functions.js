@@ -45,6 +45,17 @@ export async function get_user_by_eNumber(db, req) {
 
 }
 
+// Search up a specfic user by enumber
+export async function get_user_by_eNumber_backend(db, eNumber) {
+    try{
+        const data = await db.select().from(users).where(eq(users.eNumber, eNumber));
+        return data
+    } catch (error) {
+        console.error("An Error Occurred: ", error.message)
+    }
+
+}
+
 // Create a new user in the users table
 export async function create_user(db, req) {
     try{

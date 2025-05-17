@@ -6,7 +6,7 @@ import { classes } from "./db/schema/classes";
 import { eq, ne, gt, gte} from "drizzle-orm";
 
 import {create_class, delete_class, get_all_classes, get_class_by_id, update_class} from "./functions/class_functions";
-import { get_all_users, get_user_by_eNumber, delete_user, create_user, update_password, verifyStudentPassword, verifyTeacherPassword, verifyAdminPassword, get_all_students, get_all_teachers } from "./functions/user_functions";
+import { get_all_users, get_user_by_eNumber, delete_user, create_user, update_password, verifyStudentPassword, verifyTeacherPassword, verifyAdminPassword, get_all_students, get_all_teachers, get_user_by_eNumber_backend } from "./functions/user_functions";
 import { get_all_meetings, get_meeting_by_id, create_meeting, update_meeting, delete_meeting } from "./functions/meeting_functions";
 import { create_attendance_record, mark_checked_in, get_all_attendance } from "./functions/attendance_functions";
 
@@ -196,6 +196,13 @@ const server = Bun.serve({
                 return Response.json(data);
             },
             POST: async (req) => {
+                const cookie = req.headers.get("cookie") || "";
+                const CookieUser = cookie.split('=')[1];
+
+                const DecodedName = decipher(CookieUser);
+                // Add this cookieUser to the req, for the teacher name
+                const teacherID = await get_user_by_eNumber_backend(db, DecodedName);
+                await req.append("teacher", teacherID);
                 const data = await create_class(db, req)
                 //const {name, location, current_qr, description, type} = await req.json(); //the const variables are actually matched to the json body returned by req.json(), the order doesn't matter
                 //const new_event = await db.insert(events).values({event_name: name, location: location, current_qr: current_qr, description: description, type: type});
