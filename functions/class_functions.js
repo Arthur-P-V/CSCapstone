@@ -48,6 +48,17 @@ export async function delete_class(db, req) {
     }
 }
 
+// removes a class from the Class table
+export async function delete_class_backend(db, req) {
+    try{
+        const { class_id } = await req.json();
+        const data = await db.delete(classes).where(eq(classes.id, class_id));
+        return data;
+    } catch (error) {
+        console.error("An Error Occurred: ", error.message);
+    }
+}
+
 export async function update_class(db, req) {
     try{
 
