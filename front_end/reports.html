@@ -82,10 +82,24 @@
 <script>
 async function loadReports() {
   try {
-    const response = await fetch("http://localhost:8080/api/attendance"); // API call
-    if (!response.ok) throw new Error("Failed to fetch attendance data");
+    const baseResponseURL = "http://localhost:8080/api/attendacnce/";
+    const urlPath = window.location.pathname;
+    const segments = urlPath.split("/").filter(Boolean);
+    const lastSegment = segments[segments.length - 1];
 
+
+    const responseURL = baseResponseURL + lastSegment;
+    console.log(responseURL);
+
+    const response = await fetch(responseURL);
+
+
+
+
+    if (!response.ok) throw new Error("Failed to fetch attendance data");
+    console.log("before");
     const students = await response.json();
+    console.log(students);
 
     const tbody = document.querySelector("#reportTable tbody");
     tbody.innerHTML = "";

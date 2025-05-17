@@ -181,7 +181,7 @@ async function loadEvents() {
 }
 
 function viewQr(id) {
-  window.location.href = `/QR-display/l-?id=${id}&from=admin`;
+  window.location.href = `/QR-display/${id}&from=admin`;
 }
 
 let sortDirection = {};
@@ -276,7 +276,7 @@ async function deleteEvent(id) {
 }
 
 function viewCheckIns(id) {
-  window.location.href = `/reports/l-?classId=${id}`;
+  window.location.href = `/reports/${id}`;
 }
 
 function downloadRoster(id) {

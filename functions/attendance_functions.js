@@ -3,6 +3,7 @@ import { users } from "../db/schema/users";
 import { classes } from "../db/schema/classes";
 import { meetings } from "../db/schema/meetings";
 import { eq, and } from "drizzle-orm";
+import { attendanceRecord } from "../drizzle/schema";
 
 
 export async function create_attendance_record(db, req) {
@@ -38,8 +39,6 @@ export async function mark_checked_in(db, { eNumber, meeting_id}) {
   }
 }
 
-
-
 export async function get_all_attendance(db) {
   try {
     const data = await db
@@ -54,6 +53,30 @@ export async function get_all_attendance(db) {
       .innerJoin(users, eq(users.eNumber, attendance_record.eNumber))
       .innerJoin(meetings, eq(meetings.id, attendance_record.meeting_id))
       .innerJoin(classes, eq(classes.id, meetings.class_id));
+
+    return data;
+  } catch (error) {
+    console.error("Fetch attendance failed:", error.message);
+    return [];
+  }
+}
+
+export async function get_meeting_attendance(db, req) {
+  try {
+
+    const data = await db
+      .select({
+        eNumber: users.eNumber,
+        firstName: users.first_name,
+        lastName: users.last_name,
+        className: classes.name,
+        checkInTime: attendance_record.check_in_time,
+      })
+      .from(attendance_record)
+      .innerJoin(users, eq(users.eNumber, attendance_record.eNumber))
+      .innerJoin(meetings, eq(meetings.id, attendance_record.meeting_id))
+      .innerJoin(classes, eq(classes.id, meetings.class_id))
+      .where(eq(attendance_record.meeting_id, req.params.meeting_id));
 
     return data;
   } catch (error) {
