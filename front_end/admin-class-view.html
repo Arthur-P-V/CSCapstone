@@ -130,13 +130,27 @@
 </div>
 
 <script>
-function loadEvents() {
+async function loadEvents() {
   const tbody = document.querySelector("#adminTable tbody");
   tbody.innerHTML = "";
 
-  const adminEvents = JSON.parse(localStorage.getItem('adminTable') || "[]");
-  const teacherEvents = JSON.parse(localStorage.getItem('events') || "[]");
-  const allEvents = [...adminEvents, ...teacherEvents];
+  //const adminEvents = JSON.parse(localStorage.getItem('adminTable') || "[]");
+  //const teacherEvents = JSON.parse(localStorage.getItem('events') || "[]");
+  //const allEvents = [...adminEvents, ...teacherEvents];
+
+  try {
+    var response = await fetch("http://localhost:8080/api/meetings", {
+      method: "GET"
+    });
+
+    if (!response.ok) {
+      throw new Error(`Response status: ${response.status}`);
+    }
+  }catch(error) {
+    console.error("An Error Occurred: ", error.message);
+  }
+
+  const allEvents = await response.json();
 
   allEvents.forEach(event => {
     const tr = document.createElement("tr");
@@ -148,18 +162,18 @@ function loadEvents() {
       : `N/A`;
 
     tr.innerHTML = `
-      <td contenteditable="false">${event.teacher || "Unknown"}</td>
-      <td contenteditable="false">${event.course || "Unknown"}</td>
-      <td contenteditable="false">${event.description || ""}</td>
+      <td contenteditable="false">${event.users.first_name + " " + event.users.last_name || "Unknown"}</td>
+      <td contenteditable="false">${event.classes.name || "Unknown"}</td>
+      <td contenteditable="false">${event.classes.description || ""}</td>
       <td>${rosterCell}</td>
-      <td contenteditable="false">${event.location || ""}</td>
-      <td contenteditable="false">${event.date || ""}</td>
-      <td>${event.createdBy || "Teacher"}</td>
-      <td><button onclick="viewCheckIns('${event.id}')">View</button></td>
-      <td><button onclick="viewQr('${event.id}')" style="background-color:#007bff;color:white;border:none;padding:6px 12px;border-radius:5px;cursor:pointer;">QR</button></td>
+      <td contenteditable="false">${event.meetings.location || ""}</td>
+      <td contenteditable="false">${event.meetings.date || ""}</td>
+      <td>${event.users.first_name + " " + event.users.last_name || "Teacher"}</td>
+      <td><button onclick="viewCheckIns('${event.meetings.id}')">View</button></td>
+      <td><button onclick="viewQr('${event.meetings.id}')" style="background-color:#007bff;color:white;border:none;padding:6px 12px;border-radius:5px;cursor:pointer;">QR</button></td>
       <td class="action-buttons">
         <button onclick="toggleEdit(this)">Edit</button>
-        <button onclick="deleteEvent('${event.id}')">Delete</button>
+        <button onclick="deleteEvent('${event.meetings.id}')">Delete</button>
       </td>
     `;
     tbody.appendChild(tr);
@@ -237,17 +251,25 @@ function toggleEdit(btn) {
   }
 }
 
-function deleteEvent(id) {
+async function deleteEvent(id) {
   if (!confirm("Are you sure you want to delete this event?")) return;
 
-  let adminEvents = JSON.parse(localStorage.getItem('adminTable') || "[]");
-  let teacherEvents = JSON.parse(localStorage.getItem('events') || "[]");
+  //let adminEvents = JSON.parse(localStorage.getItem('adminTable') || "[]");
+  //let teacherEvents = JSON.parse(localStorage.getItem('events') || "[]");
 
-  adminEvents = adminEvents.filter(e => e.id !== id);
-  teacherEvents = teacherEvents.filter(e => e.id !== id);
+  //adminEvents = adminEvents.filter(e => e.id !== id);
+  //teacherEvents = teacherEvents.filter(e => e.id !== id);
 
-  localStorage.setItem('adminTable', JSON.stringify(adminEvents));
-  localStorage.setItem('events', JSON.stringify(teacherEvents));
+  //localStorage.setItem('adminTable', JSON.stringify(adminEvents));
+  //localStorage.setItem('events', JSON.stringify(teacherEvents));
+
+  try{
+    var response = await fetch(`http://localhost8080/api/meetings/${parseInt(id)}`, {
+      method: "DELETE"
+    })
+  }catch(error){
+    console.error("An Error Occurred: ", error.message)
+  }
 
   loadEvents();
   alert("Event deleted successfully!");
@@ -271,15 +293,21 @@ function downloadRoster(id) {
   }
 }
 
-function downloadCSV() {
+async function downloadCSV() {
   let csv = "Teacher,Course,Description,Roster,Location,Date,Created By\n";
-  const events = [
-    ...JSON.parse(localStorage.getItem('adminTable') || "[]"),
-    ...JSON.parse(localStorage.getItem('events') || "[]")
-  ];
+
+  try {
+    var response = await fetch("http://localhost:8080/api/meetings", {
+      method: "GET"
+    });
+  }catch(error) {
+    console.error("An Error Occurred: ", error.message);
+  }
+
+  const events = await response.json();
 
   events.forEach(e => {
-    csv += `"${e.teacher || "Unknown"}","${e.course || "Unknown"}","${e.description || ""}","${e.rosterFilename || ""}","${e.location || ""}","${e.date || ""}","${e.createdBy || "Teacher"}"\n`;
+    csv += `"${e.users.first_name + " " + e.users.last_name|| "Unknown"}","${e.classes.name || "Unknown"}","${e.classes.description || ""}","${e.rosterFilename || ""}","${e.meetings.location || ""}","${e.meetings.date || ""}","Teacher"\n`;
   });
 
   const blob = new Blob([csv], { type: "text/csv" });

@@ -143,9 +143,18 @@ let sortDirection = {};
 
 window.addEventListener("DOMContentLoaded", loadEvents);
 
-function loadEvents() {
+async function loadEvents() {
   tbody.innerHTML = "";
-  const events = JSON.parse(localStorage.getItem("events") || "[]");
+  
+  try {
+    var response = await fetch("http://localhost:8080/api/meetings", {
+      method: "GET"
+    })
+  }catch(error) {
+    console.error("An Error Occurred: ", error.message);
+  }
+
+  const events = await response.json();
 
   events.forEach(event => {
     const row = document.createElement("tr");
@@ -156,13 +165,13 @@ function loadEvents() {
       : "No Roster";
 
     row.innerHTML = `
-      <td>${event.course || ""}</td>
-      <td>${event.description || ""}</td>
+      <td>${event.classes.name || ""}</td>
+      <td>${event.classes.description || ""}</td>
       <td>${rosterCell}</td>
-      <td>${event.location || ""}</td>
-      <td>${event.date || ""}</td>
-      <td><button onclick="showQRCode('${event.id}')">QR Code</button></td>
-      <td><button onclick="viewCheckIns('${event.id}')">View</button></td>
+      <td>${event.meetings.location || ""}</td>
+      <td>${event.meetings.date || ""}</td>
+      <td><button onclick="showQRCode('${event.meetings.id}')">QR Code</button></td>
+      <td><button onclick="viewCheckIns('${event.meetings.id}')">View</button></td>
       <td class="action-buttons">
         <button onclick="toggleEdit(this)">Edit</button>
         <button onclick="deleteRow(this)">Delete</button>
