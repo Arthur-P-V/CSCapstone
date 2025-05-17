@@ -374,8 +374,10 @@ const server = Bun.serve({
                 
                 const cookie = req.headers.get("cookie") || "";
                 const CookieName = cookie.split('=')[0];
+                const Username = cookie.split('=')[1];
 
                 const DecodedName = decipher(CookieName);
+                const DecodedUsername = decipher(Username);
 
                  // Check if StudentSignIn cookie exists
                 if (DecodedName === "StudentSign-In"){
