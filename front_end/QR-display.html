@@ -71,7 +71,6 @@
       <p><strong>Location:</strong> <span id="location"></span></p>
       <p><strong>Date:</strong> <span id="date"></span></p>
       <p><strong>Teacher:</strong> <span id="teacher"></span></p>
-      <p><strong>Created By:</strong> <span id="createdBy"></span></p>
     </div>
 
     <button id="downloadBtn" class="btn">Download QR Code</button>
@@ -80,9 +79,9 @@
 
   <script>
     window.addEventListener('DOMContentLoaded', async () => {
-      const params = new URLSearchParams(window.location.search);
-      const id = params.get('id'); // Meeting ID
-      const from = params.get('from'); // From admin/teacher
+      const urlPath = window.location.pathname;
+      const segments = urlPath.split("/").filter(Boolean);
+      const id = segments[segments.length - 1];
 
       if (!id) {
         alert("Missing meeting ID.");
