@@ -135,25 +135,40 @@
   const fileLabel = document.getElementById("fileLabel");
 
   // Load templates into dropdown
-  window.addEventListener("DOMContentLoaded", () => {
-    const templates = JSON.parse(localStorage.getItem("classTemplates") || "[]");
+  window.addEventListener("DOMContentLoaded", async () => {
+    //const templates = JSON.parse(localStorage.getItem("classTemplates") || "[]");
+
+    try{
+      var response = await fetch("http://localhost:8080/api/classes", {
+        method: "GET",
+      })
+
+      if (!response.ok) {
+        console.log("Error fetching templates: ", response.status);
+      }
+    }catch(error) {
+      console.error("An Error has occurred: ", error)
+    }
+
+    const templates = await response.json();
 
     templates.forEach(t => {
       const option = document.createElement("option");
-      option.value = t.id;
-      option.textContent = `${t.course} - ${t.teacher}`;
-      option.dataset.teacher = t.teacher;
-      option.dataset.course = t.course;
-      option.dataset.description = t.description || "";
+      option.value = t.classes.id;
+      option.textContent = `${t.classes.name} - ${t.users.last_name}`;
+      option.dataset.teacher = t.users.first_name + " " + t.users.last_name;
+      option.dataset.course = t.classes.name;
+      option.dataset.description = t.classes.description || "";
       option.dataset.rosterFileBase64 = t.rosterFileBase64 || "";
       option.dataset.rosterFilename = t.rosterFilename || "";
       templateSelect.appendChild(option);
     });
   });
 
+  var selected;
   // Fill form when template is selected
   templateSelect.addEventListener("change", function () {
-    const selected = this.options[this.selectedIndex];
+    selected = this.options[this.selectedIndex];
     document.getElementById("teacher").value = selected.dataset.teacher || "";
     document.getElementById("course").value = selected.dataset.course || "";
     document.getElementById("description").value = selected.dataset.description || "";
@@ -170,10 +185,10 @@
   });
 
   function goBack() {
-  window.location.href = "/admin-teacher-dashboard";
-}
+    window.location.href = "/admin-teacher-dashboard";
+  }
 
-  document.getElementById("createEventForm").addEventListener("submit", function (e) {
+  document.getElementById("createEventForm").addEventListener("submit", async function (e) {
     e.preventDefault();
 
     const teacher = document.getElementById("teacher").value.trim();
@@ -185,14 +200,45 @@
     const templateBase64 = rosterInput.dataset.base64;
     const templateFilename = rosterInput.dataset.filename;
 
-    const rawRole = localStorage.getItem("role") || "Unknown";
-    const role = rawRole.charAt(0).toUpperCase() + rawRole.slice(1).toLowerCase();
+    //const rawRole = localStorage.getItem("role") || "Unknown";
+    //const role = rawRole.charAt(0).toUpperCase() + rawRole.slice(1).toLowerCase();
 
     if (!uploadedFile && !templateBase64) {
       alert("You must upload a roster file or select a template with one.");
       return;
     }
 
+
+    try {
+      var response = await fetch("http://localhost:8080/api/meetings", {
+        method: 'POST',
+        body: JSON.stringify({
+          class_id: selected.value,
+          location: location,
+          date: date,
+        })
+      })
+
+      if (!response.ok) {
+        console.error("Error Posting meeting: ", response.status);
+      }
+    } catch (error) {
+      console.error("An Error Occurred: ", error.message);
+    }
+
+    alert("Class created successfully!");
+      /*const params = new URLSearchParams({
+        id: newEvent.id,
+        course: newEvent.course,
+        teacher: newEvent.teacher,
+        location: newEvent.location,
+        date: newEvent.date,
+        createdBy: newEvent.createdBy
+      });
+
+      window.location.href = "/QR-display/" + params.toString();
+
+    
     const processEvent = (base64, filename) => {
       const newEvent = {
         id: 'class-' + Math.random().toString(36).substr(2, 9),
@@ -207,6 +253,9 @@
         createdBy: role
       };
 
+
+
+      
       if (role === "Admin") {
         const adminEvents = JSON.parse(localStorage.getItem("adminTable") || "[]");
         adminEvents.push(newEvent);
@@ -216,6 +265,7 @@
         teacherEvents.push(newEvent);
         localStorage.setItem("events", JSON.stringify(teacherEvents));
       }
+      
 
       alert("Class created successfully!");
       const params = new URLSearchParams({
@@ -229,7 +279,7 @@
 
       window.location.href = "/QR-display/" + params.toString();
     };
-
+    */
     if (uploadedFile) {
       const reader = new FileReader();
       reader.onload = function (event) {
