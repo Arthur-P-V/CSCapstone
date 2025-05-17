@@ -124,7 +124,6 @@
         const formattedDate = new Date(meetings.date).toLocaleString();
         document.getElementById('date').textContent = formattedDate;
         document.getElementById('teacher').textContent = classes.teacher || "N/A";
-        document.getElementById('createdBy').textContent = meetings.created_by || 'N/A';
 
       } catch (err) {
         console.error(err);
