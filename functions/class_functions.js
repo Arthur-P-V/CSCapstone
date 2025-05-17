@@ -28,10 +28,10 @@ export async function get_class_by_id(db, req) {
 }
 
 // create a new Class and put it in the Class table
-export async function create_class(db, req) {
+export async function create_class(db, req, teacherID) {
     try{
-        const {name, description, teacher, recurring} = await req.json(); //the const variables are actually matched to the json body returned by req.json(), the order doesn't matter
-        const new_class = await db.insert(classes).values({name: name, description: description, teacher: teacher, recurring: recurring});
+        const {name, description, recurring} = await req.json(); //the const variables are actually matched to the json body returned by req.json(), the order doesn't matter
+        const new_class = await db.insert(classes).values({name: name, description: description, teacher: teacherID, recurring: recurring});
         return "Post Successful!";
     }catch (error) {
         console.error("An Error Occurred: ", error.message);
