@@ -39,6 +39,8 @@ export async function mark_checked_in(db, { eNumber, meeting_id}) {
   }
 }
 
+
+
 export async function get_all_attendance(db) {
   try {
     const data = await db
@@ -84,3 +86,6 @@ export async function get_meeting_attendance(db, req) {
     return [];
   }
 }
+
+
+
