@@ -102,10 +102,6 @@
 <div class="event-form-container">
   <div class="form-title">Create Class</div>
   <form id="createTemplateForm">
-    <div class="form-group">
-      <label for="teacher">Teacher</label>
-      <input type="text" id="teacher" name="teacher" required />
-    </div>
 
     <div class="form-group">
       <label for="course">Course</label>
@@ -149,46 +145,16 @@
     e.preventDefault(); // prevent form refresh
 
     // get values from the form
-    const teacher = document.getElementById("teacher").value.trim();
+    //const teacher = document.getElementById("teacher").value.trim();
     const course = document.getElementById("course").value.trim();
     const description = document.getElementById("description").value.trim();
     const rosterFile = document.getElementById("roster").files[0];
 
-    let enumber_cookie = "Value=";
-    let cookies = await browcookies.get(); //This doesn't work at all
-    console.log(cookies);
-    let cookie_array = cookies.split(';');
-    let enumber = ""
-
-    for (let i = 0; i < cookie_array.length; i++) {
-      let cookie = cookie_array[i];
-      while (cookie.charAt(0) == ' ' ) {
-        cookie = cookie.substring(0);
-      }
-      if(cookie.indexOf(enumber_cookie) == 0) {
-        enumber = cookie.substring(enumber_cookie.length, cookie.length)
-      }
-    }
-    
-    enumber = enumber.substring(0);
-    enumber = "e" + enumber;
-
-    console.log("Reeeee: ", enumber);
-
     try {
-
-      var response = await fetch(`http://localhost:8080/api/user/${enumber}`, {
-        method: "GET"
-      })
-
-      const user = await response.json
-
-
 
       var response = await fetch("http://localhost:8080/api/classes", {
         method: "POST",
         body: JSON.stringify({
-          teacher: user.id,
           name: course,
           description: description,
           recurring: true
@@ -210,7 +176,7 @@
       const rosterBase64 = event.target.result;
 
       // template object
-      const newTemplate = {
+      /* const newTemplate = {
         id: 'template-' + Math.random().toString(36).substr(2, 9),
         teacher,
         course,
@@ -224,7 +190,7 @@
       const templates = JSON.parse(localStorage.getItem("classTemplates") || "[]");
       templates.push(newTemplate);
       localStorage.setItem("classTemplates", JSON.stringify(templates)); // 🔁 Replace with DB insert
-
+      */
       alert("Template saved successfully!");
       window.location.href = "/teacher/dashboard";
     };
