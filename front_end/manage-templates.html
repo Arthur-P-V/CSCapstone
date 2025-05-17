@@ -89,11 +89,20 @@
   const tbody = document.querySelector("#templateTable tbody");
 
   // Load templates into the table
-  function loadTemplates() {
+  window.addEventListener("DOMContentLoaded", async () => {
+  async function loadTemplates() {
     tbody.innerHTML = "";
 
     //Replace localStorage
-    const templates = JSON.parse(localStorage.getItem("classTemplates") || "[]");
+    const frontOfURL = "http://localhost:8080/";
+    const responseURL = frontOfURL + "api/classes";
+
+    const response = await fetch(responseURL, {
+      method: "GET"
+    }); 
+
+    const templates = await response.json();
+    //const templates = JSON.parse(localStorage.getItem("classTemplates") || "[]");
 
     // If empty, show message
     if (templates.length === 0) {
@@ -105,7 +114,7 @@
     templates.forEach(template => {
       const row = document.createElement("tr");
       row.innerHTML = `
-        <td>${template.course}</td>
+        <td>${template.id}</td>
         <td>${template.teacher}</td>
         <td>${template.description}</td>
         <td class="action-buttons">
@@ -116,6 +125,7 @@
       tbody.appendChild(row);
     });
   }
+
 
   // Show template details in alert
   function viewTemplate(template) {
@@ -137,7 +147,8 @@
   }
 
   // Initialize table on load
-  window.onload = loadTemplates;
+  loadTemplates();
+});
 </script>
 
 </body>
