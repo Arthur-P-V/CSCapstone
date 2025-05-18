@@ -130,6 +130,8 @@
 </div>
 
 <script>
+  //const frontOfURL = `http://localhost:8080/`;
+    const frontOfURL = "https://cscapstone-production.up.railway.app/"; 
 async function loadEvents() {
   const tbody = document.querySelector("#adminTable tbody");
   tbody.innerHTML = "";
@@ -139,7 +141,7 @@ async function loadEvents() {
   //const allEvents = [...adminEvents, ...teacherEvents];
 
   try {
-    var response = await fetch("http://localhost:8080/api/meetings", {
+    var response = await fetch(frontOfURL + "api/meetings", {
       method: "GET"
     });
 
@@ -265,8 +267,7 @@ async function deleteEvent(id) {
   //localStorage.setItem('adminTable', JSON.stringify(adminEvents));
   //localStorage.setItem('events', JSON.stringify(teacherEvents));
 
-    //const frontOfURL = `http://localhost:8080/`;
-    const frontOfURL = "https://cscapstone-production.up.railway.app/"; 
+    
   try{
     const responseFetchURL = frontOfURL + `api/meetings/${id}`;
     var response = await fetch(responseFetchURL, {
