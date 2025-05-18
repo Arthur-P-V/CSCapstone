@@ -109,7 +109,7 @@
         if (!res.ok) throw new Error("Failed to fetch meeting data");
 
         const result = await res.json();
-        const meetingData = result[0]; // [ { meetings: {}, classes: {} } ]
+        const meetingData = result; // [ { meetings: {}, classes: {} } ]
 
         if (!meetingData) {
           alert("Meeting not found.");
