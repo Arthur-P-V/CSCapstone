@@ -20,7 +20,13 @@ export async function get_all_meetings(db) {
 export async function get_meeting_by_id(db, req) {
 
     try {
-        const data = await db.select().from(meetings).where(eq(meetings.id, req.params.id)).innerJoin(classes, eq(meetings.class_id, classes.id));
+        const meetingId = Number(req.params.id);
+        if (isNaN(meetingId)) {
+        console.error("Invalid meeting ID:", req.params.id);
+        return []; // simulate "not found"
+    }
+        
+    const data = await db.select().from(meetings).where(eq(meetings.id, meetingId)).innerJoin(classes, eq(meetings.class_id, classes.id));
         return data;
 
     } catch (error) {
