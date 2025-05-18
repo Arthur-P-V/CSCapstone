@@ -54,6 +54,43 @@ console.log("Hello via Bun!");
 const server = Bun.serve({
 
     routes: {
+        "/logout": {
+  GET: async () => {
+    const headers = new Headers();
+    // Set the cookie expiration to a past date, which tells the browser to delete it
+    const cookieExpire = "Expires=Thu, 01 Jan 1970 00:00:00 GMT; Path=/; SameSite=Lax";
+    
+    // Append Set-Cookie headers to expire all three role cookies
+    headers.append(
+      "Set-Cookie",
+      `${caesarCipher("StudentSign-In")}=; ${cookieExpire}; Secure`
+    ); // Not HttpOnly, so frontend JS can access it if needed
+
+    headers.append(
+      "Set-Cookie",
+      `${caesarCipher("TeacherSign-In")}=; ${cookieExpire}; HttpOnly`
+    ); // HttpOnly means JavaScript cannot access this cookie (more secure)
+
+    headers.append(
+      "Set-Cookie",
+      `${caesarCipher("AdminSign-In")}=; ${cookieExpire}; HttpOnly`
+    ); // Same as above for Admin
+
+    // Allow the frontend to receive cookies from this response
+    headers.set("Access-Control-Allow-Origin", "http://localhost:8080"); // Change to your production domain in deployment
+    // headers.set("Access-Control-Allow-Origin", "railway");
+
+    headers.set("Access-Control-Allow-Credentials", "true"); // Needed to allow cookie deletion across origins
+    headers.set("Content-Type", "text/plain"); // Response content type
+
+    // Return a 200 OK response with headers
+    return new Response("Logged out", {
+      status: 200,
+      headers
+    });
+  }
+},
+
         "/api/upload_roster":{
             // Uploading a roster with a post request
             POST: async (req) => {
