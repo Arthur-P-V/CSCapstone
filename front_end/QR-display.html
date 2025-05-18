@@ -100,8 +100,8 @@
 
       // FETCHING event data from backend
       try {
-        const baseURL = "http://localhost:8080";
-        //const baseURL = "https://cscapstone-production.up.railway.app/";
+        //const baseURL = "http://localhost:8080";
+        const baseURL = "https://cscapstone-production.up.railway.app/";
         const fetchURL = `${baseURL}/api/meetings/${id}`;
         const res = await fetch(fetchURL);
 

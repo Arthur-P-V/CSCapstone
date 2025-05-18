@@ -107,9 +107,9 @@
       try{
         // Make a call to the api, it will either add the user or say the user arleady exists
         // When running on local machine
-      const frontOfURL = "http://localhost:8080/";
+      //const frontOfURL = "http://localhost:8080/";
         // When running on server
-      //const frontOfURL = "https://cscapstone-production.up.railway.app/";
+      const frontOfURL = "https://cscapstone-production.up.railway.app/";
       const fetchURL = frontOfURL + "api/users";
       const generateUser = await fetch(fetchURL,{
         method: "POST",

@@ -265,8 +265,11 @@ async function deleteEvent(id) {
   //localStorage.setItem('adminTable', JSON.stringify(adminEvents));
   //localStorage.setItem('events', JSON.stringify(teacherEvents));
 
+    //const frontOfURL = `http://localhost:8080/`;
+    const frontOfURL = "https://cscapstone-production.up.railway.app/"; 
   try{
-    var response = await fetch(`http://localhost:8080/api/meetings/${id}`, {
+    const responseFetchURL = frontOfURL + `api/meetings/${id}`;
+    var response = await fetch(responseFetchURL, {
       method: "DELETE"
     })
 
@@ -304,7 +307,8 @@ async function downloadCSV() {
   let csv = "Teacher,Course,Description,Roster,Location,Date,Created By\n";
 
   try {
-    var response = await fetch("http://localhost:8080/api/meetings", {
+    const responseFetch = frontOfURL + "api/meetings";
+    var response = await fetch(responseFetch, {
       method: "GET"
     });
   }catch(error) {

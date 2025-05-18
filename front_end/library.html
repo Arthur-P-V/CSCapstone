@@ -139,6 +139,8 @@
 
 <script>
 const tbody = document.querySelector("#teacherTable tbody");
+//const frontOfURL = "http://localhost:8080";
+const frontOfURL = "https://cscapstone-production.up.railway.app/"; 
 let sortDirection = {};
 
 window.addEventListener("DOMContentLoaded", loadEvents);
@@ -147,7 +149,8 @@ async function loadEvents() {
   tbody.innerHTML = "";
   
   try {
-    var response = await fetch("http://localhost:8080/api/meetings", {
+    const fetchRequestURL = frontOfURL + "api/meetings";
+    var response = await fetch(fetchRequestURL, {
       method: "GET"
     })
   }catch(error) {

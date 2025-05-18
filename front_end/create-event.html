@@ -133,7 +133,8 @@
   const templateSelect = document.getElementById("template");
   const rosterInput = document.getElementById("roster");
   const fileLabel = document.getElementById("fileLabel");
-  const frontOfURL = "http://localhost:8080/";
+  //const frontOfURL = "http://localhost:8080/";
+  const frontOfURL = "https://cscapstone-production.up.railway.app/"; 
 
   // Load templates into dropdown
   window.addEventListener("DOMContentLoaded", async () => {
@@ -202,7 +203,8 @@
 
     // Create a meeting
     try {
-      var response = await fetch("http://localhost:8080/api/meetings", {
+      const newMeetingURL = frontOfURL + "api/meetings";
+      var response = await fetch(newMeetingURL, {
         method: 'POST',
         body: JSON.stringify({
           class_id: selected.value,

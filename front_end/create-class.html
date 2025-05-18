@@ -159,16 +159,16 @@
 
     const formData = new FormData();
     formData.append("file", rosterFile);
-    
-    const frontOfURL = "http://localhost:8080/";
+    //const frontOfURL = "http://localhost:8080/";
+    const frontOfURL = "https://cscapstone-production.up.railway.app/"; 
     const uploadURL = frontOfURL + "api/upload_roster";
 
     var uplaodFile = await fetch(uploadURL, {
       method: "POST",
       body: formData,
     });
-
-      var response = await fetch("http://localhost:8080/api/classes", {
+      var classURL = frontOfURL + "api/classes";
+      var response = await fetch(classURL, {
         method: "POST",
         body: JSON.stringify({
           name: course,

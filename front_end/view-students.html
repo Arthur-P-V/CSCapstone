@@ -89,8 +89,8 @@
   <button class="back-btn" onclick="goBack()">Back to Dashboard</button>
 
   <script>
-    const frontOfURL = "http://localhost:8080/";
-     //const frontOfURL = "https://cscapstone-production.up.railway.app/";  
+    //const frontOfURL = "http://localhost:8080/";
+    const frontOfURL = "https://cscapstone-production.up.railway.app/";  
     function loadStudents() {
       const fetchURL = frontOfURL + "api/getStudents";
       fetch(fetchURL)

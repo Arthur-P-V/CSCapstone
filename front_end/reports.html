@@ -82,13 +82,14 @@
 <script>
 async function loadReports() {
   try {
-    const baseResponseURL = "http://localhost:8080/api/attendacnce/";
+    //const frontOfURL = "http://localhost:8080/";
+    const frontOfURL = "https://cscapstone-production.up.railway.app/"; 
     const urlPath = window.location.pathname;
     const segments = urlPath.split("/").filter(Boolean);
     const lastSegment = segments[segments.length - 1];
 
 
-    const responseURL = baseResponseURL + lastSegment;
+    const responseURL = frontOfURL + "api/attendance/" + lastSegment;
 
     const response = await fetch(responseURL);
 
