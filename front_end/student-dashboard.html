@@ -127,7 +127,7 @@
               <td>${teacherName}</td>
               <td>${meeting.description}</td>
               <td>${meeting.location}</td>
-              <td>${meeting.checkInTime}</td>
+              <td>${meeting.checkInTime ? new Date(meeting.checkInTime).toLocaleDateString() : ""}</td>
             `;
             
             tbody.appendChild(row);
