@@ -282,18 +282,24 @@ const server = Bun.serve({
         },
 
         "/api/meetings/:id": {
-            GET: async req => {
-                const data = await get_meeting_by_id(db, req);
-                return Response.json(data);
-            },
-            DELETE: async req => {
-                const data = await delete_meeting(db, req);
-                return Response.json(data);
-            },
-            PUT: async req => {
-                const data = await update_meeting(db, req);
-                return Response.json(data);
-            },
+        GET: async req => {
+            const data = await get_meeting_by_id(db, req);
+            if (!data || data.length === 0) {
+            return new Response("Meeting not found", { status: 404 });
+        }
+
+            return Response.json(data[0]); //return the first item directly
+        },
+
+        DELETE: async req => {
+            const data = await delete_meeting(db, req);
+            return Response.json(data);
+        },
+
+        PUT: async req => {
+            const data = await update_meeting(db, req);
+            return Response.json(data);
+        }
         },
 
         "/api/attendance": {
