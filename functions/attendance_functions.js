@@ -87,5 +87,30 @@ export async function get_meeting_attendance(db, req) {
   }
 }
 
+export async function get_user_attendance(db, PassedeNumber) {
+  try {
+
+    const data = await db
+  .select({
+    firstName: users.first_name,
+    lastName: users.last_name,
+    className: classes.name,
+    description: classes.description,
+    location: meetings.location,
+    checkInTime: attendance_record.check_in_time,
+  })
+  .from(attendance_record)
+  .innerJoin(meetings, eq(meetings.id, attendance_record.meeting_id))
+  .innerJoin(classes, eq(classes.id, meetings.class_id))
+  .innerJoin(users, eq(classes.teacher, users.id))
+  .where(eq(attendance_record.eNumber, PassedeNumber));
+
+    return data;
+  } catch (error) {
+    console.error("Fetch attendance failed:", error.message);
+    return [];
+  }
+}
+
 
 
