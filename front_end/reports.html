@@ -90,11 +90,11 @@ async function loadReports() {
     const lastSegment = segments[segments.length - 1];
 
 
-    const responseURL = frontOfURL + "api/attendance/" + lastSegment;
+    const responseURL = frontOfURL + "api/attendacnce/" + lastSegment;
 
     const response = await fetch(responseURL);
     
-    const students = await response.json();
+    const students = await response.json(); // Problem line
     console.log(students);
     
     const tbody = document.querySelector("#reportTable tbody");
