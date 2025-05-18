@@ -77,11 +77,16 @@
 </table>
 
 <!--Back Button-->
-<button onclick="goBack()">Back to Table</button>
+<div class="button-group">
+  <button onclick="goBack()">Back to Table</button>
+  <button id="downloadBtn">Download Report</button>
+</div>
+
 
 <script>
+  const tbody = document.querySelector("#reportTable tbody");
   //const frontOfURL = "http://localhost:8080/";
-    const frontOfURL = "https://cscapstone-production.up.railway.app/"; 
+  const frontOfURL = "https://cscapstone-production.up.railway.app/"; 
 async function loadReports() {
   try {
     
@@ -129,6 +134,32 @@ async function loadReports() {
 function goBack() {
   window.location.href = "/admin-teacher-dashboard";
 }
+
+document.getElementById("downloadBtn").addEventListener("click", () => {
+  let csv = "eNumber,First Name,Last Name,Class,Check-in Time\n";
+  tbody.querySelectorAll("tr").forEach(row => {
+    const cells = row.querySelectorAll("td");
+    const rowData = [
+      cells[0].innerText,
+      cells[1].innerText,
+      cells[2].innerText,
+      cells[3].innerText,
+      cells[4].innerText
+    ];
+    csv += rowData.map(val => `"${val}"`).join(",") + "\n";
+  });
+
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "AttendanceReport.csv";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+});
+
+
 
 loadReports();
 </script>
