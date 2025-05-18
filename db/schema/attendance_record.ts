@@ -8,7 +8,7 @@ import { meetings } from "./meetings"
 export const attendance_record = table(
     "attendance_record",
     {
-        eNumber: t.varchar({length: 10}).notNull().references((): AnyMySqlColumn => users.eNumber),
+        eNumber: t.varchar({length: 10}).notNull(),
         meeting_id: t.int().notNull().references((): AnyMySqlColumn => meetings.id),
         check_in_time: t.date(),
     },(table) => [
