@@ -150,27 +150,13 @@
         document.body.removeChild(link);
       });
 
-      // Go Back or Continue button
-      const actionBtn = document.getElementById("actionBtn");
-      if (from === "admin" || from === "teacher") {
-        actionBtn.textContent = "Go Back";
-        actionBtn.onclick = () => {
-          window.location.href = from === "admin" ? "/admin/class-view" : "/library";
-        };
-      } else {
-        actionBtn.textContent = "Continue";
-        actionBtn.onclick = () => {
-          const role = (localStorage.getItem("role") || "").toLowerCase(); // OK to use localStorage here
-          if (role === "admin") {
-            window.location.href = "/admin/dashboard";
-          } else if (role === "teacher") {
-            window.location.href = "/library";
-          } else {
-            alert("Unknown role. Returning to homepage.");
-            window.location.href = "/homepage";
-          }
-        };
-      }
+      /// Go to reports page for the class
+    const actionBtn = document.getElementById("actionBtn");
+    actionBtn.textContent = "Go to Reports";
+    actionBtn.onclick = () => {
+    window.location.href = `/reports/${id}`;
+    
+};
     });
   </script>
 </body>
