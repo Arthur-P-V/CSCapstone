@@ -93,10 +93,9 @@ async function loadReports() {
     const responseURL = frontOfURL + "api/attendance/" + lastSegment;
 
     const response = await fetch(responseURL);
-    console.log(response);
-
-    if (!response.ok) throw new Error("Failed to fetch attendance data");
+    
     const students = await response.json();
+    console.log(students);
     
     const tbody = document.querySelector("#reportTable tbody");
     tbody.innerHTML = "";
