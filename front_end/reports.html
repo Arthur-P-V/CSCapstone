@@ -80,10 +80,11 @@
 <button onclick="goBack()">Back to Table</button>
 
 <script>
+  //const frontOfURL = "http://localhost:8080/";
+    const frontOfURL = "https://cscapstone-production.up.railway.app/"; 
 async function loadReports() {
   try {
-    //const frontOfURL = "http://localhost:8080/";
-    const frontOfURL = "https://cscapstone-production.up.railway.app/"; 
+    
     const urlPath = window.location.pathname;
     const segments = urlPath.split("/").filter(Boolean);
     const lastSegment = segments[segments.length - 1];
