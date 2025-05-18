@@ -86,20 +86,18 @@ async function loadReports() {
   try {
     
     const urlPath = window.location.pathname;
-    const segments = urlPath.split("/").filter(Boolean);
+    const segments = urlPath.split("/");
     const lastSegment = segments[segments.length - 1];
 
 
     const responseURL = frontOfURL + "api/attendance/" + lastSegment;
 
     const response = await fetch(responseURL);
-
-
-
+    console.log(response);
 
     if (!response.ok) throw new Error("Failed to fetch attendance data");
     const students = await response.json();
-
+    
     const tbody = document.querySelector("#reportTable tbody");
     tbody.innerHTML = "";
 
