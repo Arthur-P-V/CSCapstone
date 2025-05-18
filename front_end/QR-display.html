@@ -78,6 +78,8 @@
   </div>
 
   <script>
+    //const baseURL = "http://localhost:8080";
+      const baseURL = "https://cscapstone-production.up.railway.app/";
     window.addEventListener('DOMContentLoaded', async () => {
       const urlPath = window.location.pathname;
       const segments = urlPath.split("/").filter(Boolean);
@@ -89,7 +91,7 @@
       }
 
       // student check-in URL and generate the QR code from it
-      const checkInUrl = `/student-check-in-login/${encodeURIComponent(id)}`;
+      const checkInUrl = baseURL + `student-check-in-login/${encodeURIComponent(id)}`;
       const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(checkInUrl)}`;
 
       const qrImage = document.getElementById('qrImage');
@@ -100,8 +102,7 @@
 
       // FETCHING event data from backend
       try {
-        //const baseURL = "http://localhost:8080";
-        const baseURL = "https://cscapstone-production.up.railway.app/";
+        
         const fetchURL = `${baseURL}/api/meetings/${id}`;
         const res = await fetch(fetchURL);
 
