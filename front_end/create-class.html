@@ -152,50 +152,39 @@
 
     try {
 
+      if (!rosterFile) {
+      alert("Roster file is required.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", rosterFile);
+    
+    const frontOfURL = "http://localhost:8080/";
+    const uploadURL = frontOfURL + "api/upload_roster";
+
+    var uplaodFile = await fetch(uploadURL, {
+      method: "POST",
+      body: formData,
+    });
+
       var response = await fetch("http://localhost:8080/api/classes", {
         method: "POST",
         body: JSON.stringify({
           name: course,
           description: description,
+          roster_file: rosterFile.name,
           recurring: true
         })
       });
 
+      alert("Template saved successfully!");
+      //window.location.href = "/teacher/dashboard";
+
   }catch(error) {
     console.error("An Error Occurred: ", error.message);
-  }
+  } 
 
-    if (!rosterFile) {
-      alert("Roster file is required.");
-      return;
-    }
-
-    // read the file content and encode it in base64
-    const reader = new FileReader();
-    reader.onload = function (event) {
-      const rosterBase64 = event.target.result;
-
-      // template object
-      /* const newTemplate = {
-        id: 'template-' + Math.random().toString(36).substr(2, 9),
-        teacher,
-        course,
-        description,
-        rosterFilename: rosterFile.name,
-        rosterFileBase64: rosterBase64,
-        createdBy: "Teacher"
-      };
-
-      // Replace localStorage 
-      const templates = JSON.parse(localStorage.getItem("classTemplates") || "[]");
-      templates.push(newTemplate);
-      localStorage.setItem("classTemplates", JSON.stringify(templates)); // 🔁 Replace with DB insert
-      */
-      alert("Template saved successfully!");
-      window.location.href = "/teacher/dashboard";
-    };
-
-    reader.readAsDataURL(rosterFile); // triggers onload above
   });
 </script>
 

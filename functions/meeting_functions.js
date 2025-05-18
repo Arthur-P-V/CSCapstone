@@ -3,7 +3,7 @@ import mysql from "mysql2/promise";
 import { meetings } from "../db/schema/meetings";
 import { classes } from "../db/schema/classes";
 import { users } from "../db/schema/users";
-import { eq, ne, gt, gte} from "drizzle-orm";
+import { eq, ne, gt, gte, and} from "drizzle-orm";
 import { parseJsonText } from "typescript";
 
 export async function get_all_meetings(db) {
@@ -46,7 +46,8 @@ export async function create_meeting(db, req) {
          qrcode: encoded_link
         }).where(eq(meetings.id, data[0].id));
 
-        return data_with_qr;
+        //return data_with_qr;
+        return data[0].id;
 
     }catch (error) {
         console.error("An Error Occurred: ", error.message);

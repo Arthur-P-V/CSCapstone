@@ -106,7 +106,7 @@
     </div>
     <div class="form-group">
       <label for="roster">Upload Roster (CSV)</label>
-      <input type="file" id="roster" name="roster" accept=".csv" />
+      
       <span id="fileLabel">No file chosen</span>
     </div>
     <div class="form-group">
@@ -133,13 +133,15 @@
   const templateSelect = document.getElementById("template");
   const rosterInput = document.getElementById("roster");
   const fileLabel = document.getElementById("fileLabel");
+  const frontOfURL = "http://localhost:8080/";
 
   // Load templates into dropdown
   window.addEventListener("DOMContentLoaded", async () => {
     //const templates = JSON.parse(localStorage.getItem("classTemplates") || "[]");
 
     try{
-      var response = await fetch("http://localhost:8080/api/classes", {
+      const classesURL = frontOfURL + "api/classes"
+      var response = await fetch(classesURL, {
         method: "GET",
       })
 
@@ -159,29 +161,21 @@
       option.dataset.teacher = t.users.first_name + " " + t.users.last_name;
       option.dataset.course = t.classes.name;
       option.dataset.description = t.classes.description || "";
-      option.dataset.rosterFileBase64 = t.rosterFileBase64 || "";
-      option.dataset.rosterFilename = t.rosterFilename || "";
+      option.dataset.roster_file = t.classes.roster_file || "No file chosen";
       templateSelect.appendChild(option);
     });
   });
 
   var selected;
   // Fill form when template is selected
-  templateSelect.addEventListener("change", function () {
+  templateSelect.addEventListener("change", async function () {
     selected = this.options[this.selectedIndex];
     document.getElementById("teacher").value = selected.dataset.teacher || "";
     document.getElementById("course").value = selected.dataset.course || "";
     document.getElementById("description").value = selected.dataset.description || "";
 
-    if (selected.dataset.rosterFileBase64) {
-      rosterInput.dataset.base64 = selected.dataset.rosterFileBase64;
-      rosterInput.dataset.filename = selected.dataset.rosterFilename;
-      fileLabel.textContent = "Using CSV file used in Template";
-    } else {
-      delete rosterInput.dataset.base64;
-      delete rosterInput.dataset.filename;
-      fileLabel.textContent = "No file chosen";
-    }
+    document.getElementById("fileLabel").textContent = selected.dataset.roster_file || "No file chosen";
+    
   });
 
   function goBack() {
@@ -196,19 +190,17 @@
     const description = document.getElementById("description").value.trim();
     const location = document.getElementById("location").value.trim();
     const date = document.getElementById("date").value.trim();
-    const uploadedFile = rosterInput.files[0];
-    const templateBase64 = rosterInput.dataset.base64;
-    const templateFilename = rosterInput.dataset.filename;
+    const rosterName = document.getElementById("fileLabel").textContent.trim();
 
     //const rawRole = localStorage.getItem("role") || "Unknown";
     //const role = rawRole.charAt(0).toUpperCase() + rawRole.slice(1).toLowerCase();
 
-    if (!uploadedFile && !templateBase64) {
-      alert("You must upload a roster file or select a template with one.");
+    if (rosterName == "No file chosen") {
+      alert("You must select a template with a roster file.");
       return;
     }
 
-
+    // Create a meeting
     try {
       var response = await fetch("http://localhost:8080/api/meetings", {
         method: 'POST',
@@ -222,74 +214,66 @@
       if (!response.ok) {
         console.error("Error Posting meeting: ", response.status);
       }
-    } catch (error) {
+      const meetingID = await response.json();
+      
+    // Fill the attendance table with the roster
+      const rosterFetchURL = frontOfURL + "api/download_roster/" + rosterName;
+      // Download the roster
+      console.log("Before fileStreamResponse");
+      const fileStreamResponse = await fetch(rosterFetchURL, {
+        method: 'GET'
+      });
+      // Make sure it was grabbed
+      console.log("After fileStreamResponse");
+      // Create attendance_record with the meeting id and the eNumber's from the roster file
+      const getMeetingIDFetch = frontOfURL + "api/get_meeting";
+      
+      // This is the meeting id we are connecting to the student : meetingID
+      console.log("Before CSV Things");
+      // We have the meeting id and all of the students
+      const csvText = await fileStreamResponse.text();
+      console.log(csvText);
+      const lines = csvText.trim().split('\n'); // Trim the csv into seperate lines
+      const headers = lines[0].split(',').map(h => h.replace(/"/g, '').trim());
+      const studentIdIndex = (headers.indexOf("Student ID")) + 1; // First name and last name are seperated by a , which means we have to skip past one
+      
+      if (studentIdIndex === -1) {
+        throw new Error("Student ID column not found.");
+    }
+
+    const ids = [];
+
+    for (let i = 1; i < lines.length; i++) {
+        const row = lines[i].split(',').map(v => v.replace(/"/g, '').trim());
+        if (row[studentIdIndex]) {
+            ids.push('e' + row[studentIdIndex]);
+        }
+    }
+    console.log(ids[0]);
+    console.log(meetingID);
+    const meetingURL = frontOfURL + "api/attendance";
+    // We now have all the id's from the roster
+    for(let i = 0; i < ids.length; i++){
+      // Send a fetch request to push this id onto the attendance roster for the class
+      var result = await fetch(meetingURL, {
+        method: "POST",
+        body: JSON.stringify({
+          eNumber: ids[i] ,
+          meeting_id: meetingID
+        })
+      });
+      if(!result.ok){
+        throw new Error("Failed to upload roster");
+      }
+    }
+
+    }catch(error){
       console.error("An Error Occurred: ", error.message);
     }
 
+
     alert("Class created successfully!");
-      /*const params = new URLSearchParams({
-        id: newEvent.id,
-        course: newEvent.course,
-        teacher: newEvent.teacher,
-        location: newEvent.location,
-        date: newEvent.date,
-        createdBy: newEvent.createdBy
-      });
-
-      window.location.href = "/QR-display/" + params.toString();
-
-    
-    const processEvent = (base64, filename) => {
-      const newEvent = {
-        id: 'class-' + Math.random().toString(36).substr(2, 9),
-        teacher,
-        course,
-        description,
-        location,
-        date,
-        rosterFilename: filename,
-        rosterFileBase64: base64,
-        recurringDays: [],
-        createdBy: role
-      };
-
-
-
       
-      if (role === "Admin") {
-        const adminEvents = JSON.parse(localStorage.getItem("adminTable") || "[]");
-        adminEvents.push(newEvent);
-        localStorage.setItem("adminTable", JSON.stringify(adminEvents));
-      } else {
-        const teacherEvents = JSON.parse(localStorage.getItem("events") || "[]");
-        teacherEvents.push(newEvent);
-        localStorage.setItem("events", JSON.stringify(teacherEvents));
-      }
-      
-
-      alert("Class created successfully!");
-      const params = new URLSearchParams({
-        id: newEvent.id,
-        course: newEvent.course,
-        teacher: newEvent.teacher,
-        location: newEvent.location,
-        date: newEvent.date,
-        createdBy: newEvent.createdBy
-      });
-
-      window.location.href = "/QR-display/" + params.toString();
-    };
-    */
-    if (uploadedFile) {
-      const reader = new FileReader();
-      reader.onload = function (event) {
-        const base64 = event.target.result;
-        processEvent(base64, uploadedFile.name);
-      };
-      reader.readAsDataURL(uploadedFile);
-    } else {
-      processEvent(templateBase64, templateFilename);
-    }
   });
 </script>
 

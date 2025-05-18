@@ -8,7 +8,7 @@ import { eq, ne, gt, gte} from "drizzle-orm";
 import {create_class, delete_class, delete_class_backend, get_all_classes, get_class_by_id, update_class} from "./functions/class_functions";
 import { get_all_users, get_user_by_eNumber, delete_user, create_user, update_password, verifyStudentPassword, verifyTeacherPassword, verifyAdminPassword, get_all_students, get_all_teachers, get_user_by_eNumber_backend } from "./functions/user_functions";
 import { get_all_meetings, get_meeting_by_id, create_meeting, update_meeting, delete_meeting } from "./functions/meeting_functions";
-import { create_attendance_record, mark_checked_in, get_all_attendance, get_meeting_attendance } from "./functions/attendance_functions";
+import { create_attendance_record, mark_checked_in, get_all_attendance, get_meeting_attendance, get_user_attendance } from "./functions/attendance_functions";
 
 
 import index from "./front_end/index.html";
@@ -95,12 +95,13 @@ const server = Bun.serve({
                 // If the file exists we should pull the file and display it.
                 // Curently is downloading to the local machine, want to do somthing different when we have a better idea of how we are displaying.
                 const downloadBlockBlobResponse = await blockBlobClient.download();
+                
                 const readable = downloadBlockBlobResponse.readableStreamBody;
                 // Returning the .csv in readable json
                 return new Response(readable, {
                     headers: {
-                        "Content-Type": "text/plain",
-                        "Content-Dispostion": 'inline; filename="${blobName}"',
+                        "Content-Type": "text/csv",
+                        "Content-Disposition": 'inline; filename="${blobName}"',
                     }
                 });
            }
@@ -231,8 +232,6 @@ const server = Bun.serve({
             }
         },
 
-        
-
 
         "/api/meetings": { //Considering adding an optional URL param that will allow us to snag all meetings associated with one class
             GET: async req => {
@@ -282,9 +281,18 @@ const server = Bun.serve({
             },
         },
 
-        "/api/attendacnce_user/:eNumber":{
+        "/api/attendacnce_user":{
             GET: async (req) => {
-               const data = await get_user_attendance(db, req);
+                const cookie = req.headers.get("cookie") || "";
+                // Dont return anything if there is no cookie
+                if(cookie == ""){
+                    return ;
+                }
+                const userName = cookie.split('=')[1];
+                const eNumber = decipher(userName);
+                
+               const data = await get_user_attendance(db, eNumber);
+               console.log(data);
                return Response.json(data);
             },
         },
@@ -385,6 +393,15 @@ const server = Bun.serve({
             GET: async (req) =>{
                 
                 const cookie = req.headers.get("cookie") || "";
+                if(cookie == ""){
+                    return new Response(null, {
+                        status: 302,
+                        headers: {
+                        Location: "/student-login",
+                        },
+                    });
+                }
+                // There is somthing inside of cookie
                 const CookieName = cookie.split('=')[0];
                 const Username = cookie.split('=')[1];
 

@@ -89,7 +89,7 @@
     </div>
   </div>
 
-  <table id="studentTable">
+  <table id="student-table">
     <thead>
       <tr>
         <th>Course</th>
@@ -105,81 +105,49 @@
   <button id="logoutBtn">Log Out</button>
 
   <script>
-    // Need to update this to get the eNumber from the cookie
-    const table = document.getElementById("studentTable");
-    const tbody = table.querySelector("tbody");
-
-    window.addEventListener("DOMContentLoaded", () => {
-      tbody.innerHTML = "";
-
-      // currently logged-in student
-      const currentUser = localStorage.getItem("loggedInUser"); // Replaec localStorage
-
-      // Replaec localStorage
-      const checkins = JSON.parse(localStorage.getItem("studentCheckins") || "[]");
-
-      // Replaec localStorage
-      const activeEvents = [
-        ...JSON.parse(localStorage.getItem("adminTable") || "[]"),
-        ...JSON.parse(localStorage.getItem("events") || "[]")
-      ];
-
-      // deleted classes don’t appear on the dashboard
-      const validSignatures = new Set(
-        activeEvents.map(ev => `${ev.course}__${ev.date}`)
-      );
-
-      // Filter by logged-in user and active events
-      const filtered = checkins.filter(ci => {
-        const sig = `${ci.course}__${ci.date}`;
-        return ci.student === currentUser && validSignatures.has(sig);
-      });
-
-      if (filtered.length === 0) {
-        const row = document.createElement("tr");
-        row.innerHTML = `<td colspan="5" style="text-align:center;">No check-ins found.</td>`;
-        tbody.appendChild(row);
-        return;
-      }
-
-      // Display valid check-ins
-      filtered.forEach(event => {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-          <td>${event.course || ""}</td>
-          <td>${event.teacher || ""}</td>
-          <td>${event.description || ""}</td>
-          <td>${event.location || ""}</td>
-          <td>${event.date || ""}</td>
-        `;
-        tbody.appendChild(row);
-      });
-    });
-
-    // filtering
-    document.getElementById("searchInput").addEventListener("keyup", function () {
-      const filter = this.value.toLowerCase();
-      const rows = tbody.getElementsByTagName("tr");
-
-      for (let i = 0; i < rows.length; i++) {
-        const cells = rows[i].getElementsByTagName("td");
-        let showRow = false;
-        for (let j = 0; j < cells.length; j++) {
-          if (cells[j].innerText.toLowerCase().includes(filter)) {
-            showRow = true;
-            break;
+    // Get information
+    const frontOfURL = "http://localhost:8080/";
+     //const frontOfURL = "https://cscapstone-production.up.railway.app/";  
+    async function loadAttendance() {
+      const fetchURL = frontOfURL + "api/attendacnce_user";
+      console.log("Hi");
+      await fetch(fetchURL)
+        .then(res => res.json())
+        .then(data => {
+          const tbody = document.querySelector("#student-table tbody");
+          if (!tbody) {
+            console.error("Table body not found!");
+            return;
           }
-        }
-        rows[i].style.display = showRow ? "" : "none";
-      }
-    });
 
-    // Logout and redirect
-    document.getElementById("logoutBtn").addEventListener("click", function () {
-      localStorage.removeItem("loggedInUser");
-      localStorage.removeItem("role");
+          data.forEach(meeting => {
+            const row = document.createElement("tr");
+            const teacherName = meeting.firstName + meeting.lastName;
+            row.innerHTML = `
+              <td>${meeting.className}</td>
+              <td>${teacherName}</td>
+              <td>${meeting.description}</td>
+              <td>${meeting.location}</td>
+              <td>${meeting.checkInTime}</td>
+            `;
+            
+            tbody.appendChild(row);
+            
+          });
+        })
+        .catch(err => {
+          console.error("Error fetching student attendence:", err);
+        });
+    }
+
+
+
+    // Make a logout button funcitonality
+    function logout(){
       window.location.href = "/homepage";
-    });
+    }
+
+    loadAttendance();
   </script>
 
 </body>
