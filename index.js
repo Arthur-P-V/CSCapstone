@@ -284,6 +284,7 @@ const server = Bun.serve({
         "/api/meetings/:id": {
         GET: async req => {
             const data = await get_meeting_by_id(db, req);
+            console.log(data);
             if (!data || data.length === 0) {
             return new Response("Meeting not found", { status: 404 });
         }
