@@ -69,7 +69,7 @@ const server = Bun.serve({
     headers.append(
       "Set-Cookie",
       `${caesarCipher("TeacherSign-In")}=; ${cookieExpire}; HttpOnly`
-    ); // HttpOnly means JavaScript cannot access this cookie (more secure)
+    );
 
     headers.append(
       "Set-Cookie",
