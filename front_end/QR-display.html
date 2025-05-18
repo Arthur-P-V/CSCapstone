@@ -110,7 +110,7 @@
 
         if (!res.ok) throw new Error("Failed to fetch meeting data");
         console.log("Before json");
-        const meetingData = await res.json();
+        const meetingData = await res;
         console.log("After json");
         //const meetingData = await res.json(); // [ { meetings: {}, classes: {} } ]
 
