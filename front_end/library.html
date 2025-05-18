@@ -169,7 +169,7 @@ async function loadEvents() {
       <td>${event.classes.description || ""}</td>
       <td>${rosterCell}</td>
       <td>${event.meetings.location || ""}</td>
-      <td>${event.meetings.date || ""}</td>
+      <td>${event.meetings.date ? new Date(event.meetings.date).toLocaleDateString() : ""}</td>
       <td><button onclick="showQRCode('${event.meetings.id}')">QR Code</button></td>
       <td><button onclick="viewCheckIns('${event.meetings.id}')">View</button></td>
       <td class="action-buttons">

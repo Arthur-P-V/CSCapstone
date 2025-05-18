@@ -167,7 +167,7 @@ async function loadEvents() {
       <td contenteditable="false">${event.classes.description || ""}</td>
       <td>${rosterCell}</td>
       <td contenteditable="false">${event.meetings.location || ""}</td>
-      <td contenteditable="false">${event.meetings.date || ""}</td>
+      <td contenteditable="false">${event.meetings.date.split("T")[0] || ""}</td>
       <td>${event.users.first_name + " " + event.users.last_name || "Teacher"}</td>
       <td><button onclick="viewCheckIns('${event.meetings.id}')">View</button></td>
       <td><button onclick="viewQr('${event.meetings.id}')" style="background-color:#007bff;color:white;border:none;padding:6px 12px;border-radius:5px;cursor:pointer;">QR</button></td>
