@@ -111,7 +111,6 @@
         if (!res.ok) throw new Error("Failed to fetch meeting data");
   
         const meetingData = await res.json();
-        console.log("After json");
         //const meetingData = await res.json(); // [ { meetings: {}, classes: {} } ]
 
         if (!meetingData || !meetingData.meetings || !meetingData.classes) {
