@@ -70,8 +70,20 @@
     // We dont check for cookies on the html, we are checking it when the user is directed here.
     
     function logout() {
+  fetch("/logout", {
+    method: "GET",
+    credentials: "include"
+  })
+    .then(() => {
+      localStorage.clear(); // Optional, for cleanup
+      sessionStorage.clear(); // Optional
       window.location.href = "/homepage";
-    }
+    })
+    .catch(err => {
+      console.error("Logout failed:", err);
+      window.location.href = "/homepage";
+    });
+}
     
   </script>
 </body>
