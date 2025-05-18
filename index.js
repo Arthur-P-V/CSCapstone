@@ -270,7 +270,6 @@ const server = Bun.serve({
             },
            PUT: async (req) => {
               const data = await mark_checked_in(db, req);
-              console.log(data);
               return Response.json(data);
             }
         },
