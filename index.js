@@ -311,14 +311,14 @@ const server = Bun.serve({
             }
         },
 
-        "/api/attendacnce/:meeting_id":{
+        "/api/attendance/:meeting_id":{
             GET: async (req) => {
                const data = await get_meeting_attendance(db, req);
                return Response.json(data);
             },
         },
 
-        "/api/attendacnce_user":{
+        "/api/attendance_user":{
             GET: async (req) => {
                 const cookie = req.headers.get("cookie") || "";
                 // Dont return anything if there is no cookie

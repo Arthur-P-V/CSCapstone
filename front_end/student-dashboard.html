@@ -109,7 +109,7 @@
     //const frontOfURL = "http://localhost:8080/";
     const frontOfURL = "https://cscapstone-production.up.railway.app/";  
     async function loadAttendance() {
-      const fetchURL = frontOfURL + "api/attendacnce_user";
+      const fetchURL = frontOfURL + "api/attendance_user";
       await fetch(fetchURL)
         .then(res => res.json())
         .then(data => {
