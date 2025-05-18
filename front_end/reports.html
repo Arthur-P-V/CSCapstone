@@ -89,7 +89,6 @@ async function loadReports() {
 
 
     const responseURL = baseResponseURL + lastSegment;
-    console.log(responseURL);
 
     const response = await fetch(responseURL);
 
@@ -97,9 +96,7 @@ async function loadReports() {
 
 
     if (!response.ok) throw new Error("Failed to fetch attendance data");
-    console.log("before");
     const students = await response.json();
-    console.log(students);
 
     const tbody = document.querySelector("#reportTable tbody");
     tbody.innerHTML = "";

@@ -146,7 +146,7 @@
       })
 
       if (!response.ok) {
-        console.log("Error fetching templates: ", response.status);
+        console.error("Error fetching templates: ", response.status);
       }
     }catch(error) {
       console.error("An Error has occurred: ", error)
@@ -219,20 +219,16 @@
     // Fill the attendance table with the roster
       const rosterFetchURL = frontOfURL + "api/download_roster/" + rosterName;
       // Download the roster
-      console.log("Before fileStreamResponse");
       const fileStreamResponse = await fetch(rosterFetchURL, {
         method: 'GET'
       });
       // Make sure it was grabbed
-      console.log("After fileStreamResponse");
       // Create attendance_record with the meeting id and the eNumber's from the roster file
       const getMeetingIDFetch = frontOfURL + "api/get_meeting";
       
       // This is the meeting id we are connecting to the student : meetingID
-      console.log("Before CSV Things");
       // We have the meeting id and all of the students
       const csvText = await fileStreamResponse.text();
-      console.log(csvText);
       const lines = csvText.trim().split('\n'); // Trim the csv into seperate lines
       const headers = lines[0].split(',').map(h => h.replace(/"/g, '').trim());
       const studentIdIndex = (headers.indexOf("Student ID")) + 1; // First name and last name are seperated by a , which means we have to skip past one
@@ -249,8 +245,6 @@
             ids.push('e' + row[studentIdIndex]);
         }
     }
-    console.log(ids[0]);
-    console.log(meetingID);
     const meetingURL = frontOfURL + "api/attendance";
     // We now have all the id's from the roster
     for(let i = 0; i < ids.length; i++){

@@ -112,7 +112,6 @@
         })
       });
       const validConnection = await bodyConnection.json();
-      console.log(validConnection);
       if (!!validConnection) {
         const cookieURL = frontOfURL + 'admin-login';
         // This is going to add a cookie to the browser saying the admin is logged in

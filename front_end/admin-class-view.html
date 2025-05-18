@@ -271,7 +271,7 @@ async function deleteEvent(id) {
     })
 
     if (!response.ok) {
-      console.log("Error Deleting Meeting: ", response.status);
+      console.error("Error Deleting Meeting: ", response.status);
     }
 
   }catch(error){
