@@ -58,12 +58,12 @@ const server = Bun.serve({
   GET: async () => {
     const headers = new Headers();
     // Set the cookie expiration to a past date, which tells the browser to delete it
-    const cookieExpire = "Expires=Thu, 01 Jan 1970 00:00:00 GMT; Path=/; SameSite=Lax";
+    const cookieExpire = "Expires=Thu, 01 Jan 1970 00:00:00 GMT; Path=/; SameSite=None; Secure";
     
     // Append Set-Cookie headers to expire all three role cookies
     headers.append(
       "Set-Cookie",
-      `${caesarCipher("StudentSign-In")}=; ${cookieExpire}; Secure`
+      `${caesarCipher("StudentSign-In")}=; ${cookieExpire}`
     ); // Not HttpOnly, so frontend JS can access it if needed
 
     headers.append(
