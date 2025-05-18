@@ -270,6 +270,7 @@ const server = Bun.serve({
             },
            PUT: async (req) => {
               const data = await mark_checked_in(db, req);
+              console.log(data);
               return Response.json(data);
             }
         },
@@ -292,7 +293,6 @@ const server = Bun.serve({
                 const eNumber = decipher(userName);
                 
                const data = await get_user_attendance(db, eNumber);
-               console.log(data);
                return Response.json(data);
             },
         },
@@ -349,6 +349,7 @@ const server = Bun.serve({
                 
                 const DecodedName = decipher(CookieName);
                 // 1) Has a student cookie, should auto fill 
+                
                 if (DecodedName === "StudentSign-In") {
 
                     // Send the username to get checked in

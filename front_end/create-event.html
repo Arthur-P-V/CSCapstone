@@ -265,15 +265,13 @@
       if(!result.ok){
         throw new Error("Failed to upload roster");
       }
+      alert("Class created successfully!");
+      window.location.href = "/QR-display/" + meetingID;
     }
 
     }catch(error){
       console.error("An Error Occurred: ", error.message);
     }
-
-
-    alert("Class created successfully!");
-      
   });
 </script>
 

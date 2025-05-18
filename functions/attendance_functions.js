@@ -3,7 +3,8 @@ import { users } from "../db/schema/users";
 import { classes } from "../db/schema/classes";
 import { meetings } from "../db/schema/meetings";
 import { eq, and } from "drizzle-orm";
-import { attendanceRecord } from "../drizzle/schema";
+import { sql} from "drizzle-orm"
+
 
 
 export async function create_attendance_record(db, req) {
@@ -24,6 +25,18 @@ export async function create_attendance_record(db, req) {
 
 export async function mark_checked_in(db, { eNumber, meeting_id}) {
   try {
+    // The student record already exists in the attendance record
+    const result = await db
+    .select({ exists: sql`1`})
+    .from(attendance_record)
+    .where(
+      and(
+        eq(attendance_record.eNumber, eNumber),
+        eq(attendance_record.meeting_id, meeting_id)
+      )
+    );
+    const studentExists = result.length > 0;
+    if(studentExists){
     await db.update(attendance_record)
       .set({ check_in_time: new Date() })
       .where(
@@ -31,8 +44,19 @@ export async function mark_checked_in(db, { eNumber, meeting_id}) {
           eq(attendance_record.eNumber, eNumber),
           eq(attendance_record.meeting_id, meeting_id)
         )
-      );
+      ).limit(1);
     return "Check-in successful.";
+    }
+    else{
+      const current_time = new Date();
+      console.log(current_time);
+      await db.insert(attendance_record).values({
+        eNumber : eNumber,
+        meeting_id: meeting_id,
+        check_in_time : current_time
+      });
+      return ("Check-in successful.");
+    }
   } catch (error) {
     console.error("Check-in failed:", error.message);
     return new Response("Error", { status: 500 });
