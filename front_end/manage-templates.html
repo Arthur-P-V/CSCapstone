@@ -128,17 +128,11 @@
   // Create buttons and append them
             const actionsCell = row.querySelector("td:last-child");
 
-            const updateBtn = document.createElement("button");
-            updateBtn.textContent = "Edit Class";
-            updateBtn.classList.add("action-btn", "edit-btn"); // yellow style
-            updateBtn.addEventListener("click", () => viewTemplate(template));
-
             const deleteBtn = document.createElement("button");
             deleteBtn.textContent = "Delete";
             deleteBtn.classList.add("action-btn"); // red style (default)
             deleteBtn.addEventListener("click", () => deleteTemplate(template.classes.name, template.classes.id));
 
-            actionsCell.appendChild(updateBtn);
             actionsCell.appendChild(deleteBtn);
             tbody.appendChild(row);
   tbody.appendChild(row);
