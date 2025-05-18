@@ -67,9 +67,18 @@
 
   <script>
     function logout() {
-      localStorage.removeItem("loggedInUser");
-      localStorage.removeItem("role");
-      window.location.href = "/homepage";
+      fetch("/logout", {
+        method: "GET",
+        credentials: "include"
+      })
+      .then(() => {
+        localStorage.clear();
+        sessionStorage.clear();
+        window.location.href = "/homepage";
+      })
+      .catch(() => {
+        window.location.href = "/homepage";
+      });
     }
   </script>
 </body>
