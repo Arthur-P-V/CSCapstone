@@ -104,7 +104,9 @@
       try {
         
         const fetchURL = `${baseURL}/api/meetings/${id}`;
-        const res = await fetch(fetchURL);
+        const res = await fetch(fetchURL, {
+        credentials: "include"
+  });
 
         if (!res.ok) throw new Error("Failed to fetch meeting data");
 
