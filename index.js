@@ -77,8 +77,8 @@ const server = Bun.serve({
     ); // Same as above for Admin
 
     // Allow the frontend to receive cookies from this response
-    headers.set("Access-Control-Allow-Origin", "http://localhost:8080"); // change in deployment
-    // headers.set("Access-Control-Allow-Origin", "https://cscapstone-production.up.railway.app/");
+    //headers.set("Access-Control-Allow-Origin", "http://localhost:8080"); // change in deployment
+    headers.set("Access-Control-Allow-Origin", "https://cscapstone-production.up.railway.app/");
 
     headers.set("Access-Control-Allow-Credentials", "true"); // Needed to allow cookie deletion across origins
     headers.set("Content-Type", "text/plain"); // Response content type
