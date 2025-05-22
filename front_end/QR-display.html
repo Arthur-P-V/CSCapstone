@@ -122,10 +122,10 @@
         // data from meeting and class records
         const { meetings, classes } = meetingData;
 
-        const teacherURL = `${baseURL}api/users/${classes.teacher}`;
+        const teacherURL = `${baseURL}api/teacher/${classes.teacher}`;
         const teacherInfo = await fetch(teacherURL);
         const users = await teacherInfo.json();
-        console.log(users);
+        
 
 
         document.getElementById('course').textContent = classes.name || "N/A";
