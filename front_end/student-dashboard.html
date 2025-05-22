@@ -121,7 +121,7 @@
 
           data.forEach(meeting => {
             const row = document.createElement("tr");
-            const teacherName = meeting.firstName + meeting.lastName;
+            const teacherName = meeting.firstName + ' ' + meeting.lastName;
             row.innerHTML = `
               <td>${meeting.className}</td>
               <td>${teacherName}</td>
