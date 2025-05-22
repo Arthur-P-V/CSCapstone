@@ -159,15 +159,11 @@ async function loadEvents() {
     tr.className = (event.createdBy === "Admin") ? "admin-row" : "teacher-row";
     tr.dataset.id = event.id;
 
-    const rosterCell = event.rosterFileBase64
-      ? `<button onclick="downloadRoster('${event.id}')">Download</button>`
-      : `N/A`;
-
     tr.innerHTML = `
       <td contenteditable="false">${event.users.first_name + " " + event.users.last_name || "Unknown"}</td>
       <td contenteditable="false">${event.classes.name || "Unknown"}</td>
       <td contenteditable="false">${event.classes.description || ""}</td>
-      <td>${rosterCell}</td>
+      <td>${event.classes.roster_file}</td>
       <td contenteditable="false">${event.meetings.location || ""}</td>
       <td contenteditable="false">${event.meetings.date.split("T")[0] || ""}</td>
       <td>${event.users.first_name + " " + event.users.last_name || "Teacher"}</td>
