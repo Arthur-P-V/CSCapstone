@@ -163,14 +163,10 @@ async function loadEvents() {
     const row = document.createElement("tr");
     row.dataset.id = event.id;
 
-    const rosterCell = event.rosterFileBase64
-      ? `<button onclick="downloadRoster('${event.id}')">Download</button>`
-      : "No Roster";
-
     row.innerHTML = `
       <td>${event.classes.name || ""}</td>
       <td>${event.classes.description || ""}</td>
-      <td>${rosterCell}</td>
+      <td>${event.classes.roster_file}</td>
       <td>${event.meetings.location || ""}</td>
       <td>${event.meetings.date ? new Date(event.meetings.date).toLocaleDateString() : ""}</td>
       <td><button onclick="showQRCode('${event.meetings.id}')">QR Code</button></td>
