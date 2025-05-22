@@ -125,6 +125,7 @@
         const teacherURL = `${baseURL}api/users/${classes.teacher}`;
         const teacherInfo = await fetch(teacherURL);
         const users = await teacherInfo.json();
+        console.log(users);
 
 
         document.getElementById('course').textContent = classes.name || "N/A";
