@@ -125,9 +125,6 @@
         const teacherURL = `${baseURL}api/teacher/${classes.teacher}`;
         const teacherInfo = await fetch(teacherURL);
         const users = await teacherInfo.json();
-        console.log(users);
-        
-
 
         document.getElementById('course').textContent = classes.name || "N/A";
         document.getElementById('location').textContent = meetings.location || "N/A";
@@ -135,7 +132,7 @@
         //document.getElementById('date').textContent = formattedDate;
         const rawDate = meetings.date.split("T")[0]; // gets just the YYYY-MM-DD
         document.getElementById('date').textContent = rawDate;
-        document.getElementById('teacher').textContent = users.last_name || "N/A";
+        document.getElementById('teacher').textContent = users[0].last_name || "N/A";
 
       } catch (err) {
         console.error(err);
