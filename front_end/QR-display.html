@@ -118,8 +118,14 @@
       return;
   }
 
+
         // data from meeting and class records
         const { meetings, classes } = meetingData;
+
+        const teacherURL = `${baseURL}api/users/${classes.teacher}`;
+        const teacherInfo = await fetch(teacherURL);
+        const users = teacherInfo.json();
+
 
         document.getElementById('course').textContent = classes.name || "N/A";
         document.getElementById('location').textContent = meetings.location || "N/A";
@@ -127,7 +133,7 @@
         //document.getElementById('date').textContent = formattedDate;
         const rawDate = meetings.date.split("T")[0]; // gets just the YYYY-MM-DD
         document.getElementById('date').textContent = rawDate;
-        document.getElementById('teacher').textContent = classes.teacher || "N/A";
+        document.getElementById('teacher').textContent = users.last_name || "N/A";
 
       } catch (err) {
         console.error(err);
